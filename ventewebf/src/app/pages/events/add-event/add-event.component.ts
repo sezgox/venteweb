@@ -2,11 +2,11 @@ import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
+import { setOptions } from '@googlemaps/js-api-loader';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../../enviroments/enviroment';
+import { MapComponent } from '../../../components/map/map.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
-import { MapComponent } from '../../../components/shared/map/map.component';
 import { CreateEventDto, EventCategory, Visibility } from '../../../core/interfaces/events.interfaces';
 import { EventsService } from '../../../core/services/events.service';
 import { GeolocationService, UserLocation } from '../../../core/services/geolocation.service';
@@ -33,7 +33,6 @@ export class AddEventComponent implements OnInit {
   step = 1;
   validSteps = [false, false, false];
 
-  address: string = '';
   posterPreviewUrl: string = "https://res.cloudinary.com/doqla97yu/image/upload/fl_preserve_transparency/v1760896293/events/default_d16vth.jpg?_s=public-apps";
 
   createEventDto: CreateEventDto = {
@@ -57,6 +56,7 @@ export class AddEventComponent implements OnInit {
   categories = Object.values(EventCategory);
 
   loading: boolean = false;
+  showMapModal: boolean = false;
 
   async ngOnInit() {
     this.userLocation = await this.geolocationService.getUserLocation();
@@ -64,11 +64,11 @@ export class AddEventComponent implements OnInit {
       key: environment.googleMapsApiKey,
     });
     if(this.userLocation){
-      this.address = await this.reverseGeocoding(this.userLocation.lat, this.userLocation.lng);
-      this.createEventDto.location = this.address;
-      this.createEventDto.locationAlias = this.address;
+      this.createEventDto.location = await this.geolocationService.reverseGeocoding(this.userLocation.lat, this.userLocation.lng);
+      this.createEventDto.locationAlias = this.createEventDto.location;
       this.createEventDto.lat = this.userLocation.lat;
       this.createEventDto.lng = this.userLocation.lng;
+      this.mapLocation.set({lat: this.userLocation.lat, lng: this.userLocation.lng, address: this.createEventDto.location});
     }
 
   }
@@ -101,15 +101,13 @@ export class AddEventComponent implements OnInit {
     this.step = step;
   }
 
-  openMapModal() {
+  async openMapModal() {
     if(!this.userLocation){
-      this.geolocationService.getLocationByIp().then(location => {
-        this.userLocation = location;
-        this.loadMap();
-      })
-    }else{
-      this.loadMap()
+      this.userLocation = await this.geolocationService.getLocationByIp();
+      this.mapLocation.set({lat: this.userLocation?.lat!, lng: this.userLocation?.lng!, address: this.createEventDto.location});
     }
+    //this.loadMap();
+    this.showMapModal = true;
   }
 
   onPosterChange(event: any) {
@@ -145,82 +143,20 @@ export class AddEventComponent implements OnInit {
     }
   }
 
-  /* ********************************************************************** */
-  /* ****************************** MAP SHIT ****************************** */
-  /* ********************************************************************** */
-  map: any
-  marker: any;
   mapLocation: WritableSignal<any|null> = signal(null);
 
-  async loadMap(){
-    if(!this.map){
-      await this.initMap();
-    }
-    document.getElementById('map-modal')?.showPopover();
+  async onAccept(location: {lat: number, lng: number, address: string}){
+    this.createEventDto.lat = location.lat;
+    this.createEventDto.lng = location.lng;
+    this.createEventDto.location = location.address;
+    this.createEventDto.locationAlias = location.address;
+    this.mapLocation.set({lat: location.lat, lng: location.lng, address: location.address});
+    this.showMapModal = false;
   }
 
-  async initMap(){
-      const { Map } = await importLibrary("maps");
-      this.map = new Map(document.getElementById("map")!, {
-          center: { lat: this.userLocation?.lat!, lng: this.userLocation?.lng! },
-          zoom: 8,
-          mapId: environment.googleMapsMapId,
-          disableDefaultUI: true,
-          clickableIcons: false,
-      });
-      this.mapLocation.set({lat: this.userLocation?.lat!, lng: this.userLocation?.lng!, address: this.address});
-      this.addMarker(this.userLocation?.lat!, this.userLocation?.lng!)
-      this.map.addListener('click', (event: any) => {
-        if (!event.latLng) return;
-        const lat = event.latLng.lat();
-        const lng = event.latLng.lng();
-        console.log('📍 Click en:', lat, lng);
-        this.addMarker(lat,lng)
-      });
+  onCancel(){
+    this.mapLocation.set({lat: this.createEventDto.lat, lng: this.createEventDto.lng, address: this.createEventDto.location});
+    this.showMapModal = false;
   }
-
-  async addMarker(lat: number, lng: number){
-    const { AdvancedMarkerElement } = await importLibrary("marker");
-    if(this.marker){
-      this.marker.map = null;
-    }
-
-    this.marker = new AdvancedMarkerElement({
-      map: this.map,
-      position: { lat, lng },
-    });
-    const address = await this.reverseGeocoding(lat, lng);
-    this.mapLocation.set({ lat, lng, address });
-  }
-
-  async reverseGeocoding(lat: number, lng: number): Promise<string> {
-    const { Geocoder } = await importLibrary("geocoding");
-    const geocoder = new Geocoder();
-
-    return new Promise((resolve, reject) => {
-      geocoder.geocode({ location: { lat, lng } }, (results: any, status: any) => {
-        if (status === 'OK' && results && results.length > 0) {
-          resolve(results[0].formatted_address);
-        } else {
-          console.warn('No se pudo obtener la dirección:', status);
-          resolve('Address not available');
-        }
-      });
-    });
-  }
-
-  async onAccept(){
-    this.createEventDto.lat = this.marker.position.lat;
-    this.createEventDto.lng = this.marker.position.lng;
-    this.address = await this.reverseGeocoding(this.marker.position.lat, this.marker.position.lng);
-    console.log(this.address);
-    this.createEventDto.location = this.address;
-    this.createEventDto.locationAlias = this.createEventDto.location;
-    console.log(this.createEventDto);
-    document.getElementById('map-modal')?.hidePopover();
-  }
-  /* ********************************************************************** */
-  /* **************************** END MAP SHIT **************************** */
-  /* ********************************************************************** */
 
 }

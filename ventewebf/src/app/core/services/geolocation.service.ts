@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { importLibrary } from '@googlemaps/js-api-loader';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from './api.service';
 
@@ -72,6 +73,48 @@ export class GeolocationService {
         maximumAge: 0
       });
     });
+  }
+
+  async reverseGeocoding(lat: number, lng: number): Promise<string> {
+    const { Geocoder } = await importLibrary("geocoding");
+    const geocoder = new Geocoder();
+
+    return new Promise((resolve, reject) => {
+      geocoder.geocode({ location: { lat, lng } }, (results: any, status: any) => {
+        if (status === 'OK' && results && results.length > 0) {
+          resolve(results[0].formatted_address);
+        } else {
+          console.warn('No se pudo obtener la dirección:', status);
+          resolve('Address not available');
+        }
+      });
+    });
+  }
+
+  async searchAddress(query: string): Promise<{lat: number, lng: number, address: string}[] | void> {
+     if (!query || !query.trim()) return;
+    try {
+      console.log(query)
+      const { Geocoder } = await importLibrary('geocoding');
+      const geocoder = new Geocoder();
+      return new Promise((resolve, reject) => {
+        geocoder.geocode({ address: query }, (results: any, status: any) => {
+          if (status === 'OK' && results && results.length > 0) {
+            //return 5 first results
+            const items = results.slice(0, 5).map((r: any) => ({
+                          lat: r.geometry.location.lat(),
+                          lng: r.geometry.location.lng(),
+                          address: r.formatted_address
+                        }));
+            resolve(items);
+          } else {
+            console.warn('Geocoding failed:', status);
+          }
+        });
+      });
+    } catch (err) {
+      console.error('searchAddress error', err);
+    }
   }
 
 }
