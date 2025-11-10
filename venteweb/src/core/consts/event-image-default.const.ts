@@ -1,0 +1,1 @@
+export const EVENT_IMAGE_DEFAULT = 'https://res-console.cloudinary.com/doqla97yu/thumbnails/v1/image/upload/v1760896293/ZXZlbnRzL2RlZmF1bHRfZDE2dnRo/drilldown' as const;

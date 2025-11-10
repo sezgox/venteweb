@@ -1,0 +1,522 @@
+<app-header></app-header>
+
+<div class="max-w-5xl mx-auto mt-10 p-4">
+@if(!loading){
+    @if (event) {
+    <!-- Event Detail Card -->
+    <div class="bg-gradient-to-br from-gray50 to-bg rounded-2xl shadow-lg overflow-hidden border border-gray200 relative">
+
+      <!-- Requests Button (only for event organizer) -->
+      @if(isOwnEvent && !eventAlreadyStarted){
+        <button
+          class="absolute top-4 right-4 z-10 bg-primary hover:bg-primary/90 text-white rounded-full p-3 shadow-lg transition-colors flex items-center justify-center"
+          (click)="openRequestsDialog()"
+          [title]="'You have ' + event.requests.length + ' request(s)'"
+        >
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          @if(event.requests.length > 0){
+            <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {{ event.requests.length }}
+            </span>
+          }
+        </button>
+      }
+
+      <div class="grid md:grid-cols-[320px_1fr] gap-6 p-6">
+
+        <!-- Poster Section -->
+        <div class="flex flex-col gap-3">
+          <div class="aspect-[3/4] bg-gray100 rounded-lg overflow-hidden shadow-md">
+            <img
+              [src]="event.poster"
+              [alt]="event.name"
+              class="w-full h-full object-cover"
+            >
+          </div>
+
+          <!-- Organizer Info -->
+          <div class="bg-gray50 p-3 rounded-lg border border-gray200 cursor-pointer" [routerLink]="['/user', event.organizer.username]">
+            <p class="text-xs font-semibold text-gray600 mb-2">Organized by</p>
+            <div class="flex items-center gap-2">
+              <img
+                [src]="event.organizer.photo"
+                [alt]="event.organizer.name"
+                class="w-10 h-10 rounded-full object-cover border-2 border-primary"
+              >
+              <div>
+                <p class="font-semibold text-text">{{ event.organizer.name }}</p>
+                <p class="text-sm text-gray600">{{ event.organizer.username }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Information -->
+        <div class="flex flex-col gap-4">
+          <!-- Event Name -->
+          <div>
+            <h1 class="text-3xl font-bold text-text mb-2">{{ event.name }}</h1>
+          </div>
+
+          <!-- Event Details Grid -->
+          <div class="grid gap-4">
+
+            <!-- Participants -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">👥</span>
+              <div>
+                <p class="font-semibold text-text">Participants</p>
+                <p class="text-gray600">
+                  👤 {{ attendeesCount }}
+                  @if(event.maxAttendees){
+                    / {{ event.maxAttendees }}
+                  }
+                  Attendees
+                   @if(event.maxCollaborators){
+                  <span class="ml-3">🙋 {{ collaboratorsCount }} / {{ event.maxCollaborators }} Collaborators
+                    @if(event.requiresRequest){
+                      📝
+                    }
+                  </span>
+                   }
+              </div>
+            </div>
+
+            <!-- Date & Time -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">📅</span>
+              <div>
+                <p class="font-semibold text-text">Date & Time</p>
+                <p class="text-gray600">{{ event.startDate | date: 'MMMM d, y, h:mm a' }} to</p>
+                <p class="text-gray600">{{ event.endDate | date: 'MMMM d, y, h:mm a' }}</p>
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">📍</span>
+              <div>
+                <p class="font-semibold text-text">Location</p>
+                <p class="text-gray600">{{ event.location }}</p>
+              </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">🏷️</span>
+              <div>
+                <p class="font-semibold text-text">Categories</p>
+                <div class="flex flex-wrap gap-2 mt-1">
+                  @for(category of event.categories; track $index){
+                    <span class="px-3 py-1 bg-primary text-white rounded-full text-sm font-medium">
+                    {{ category }}
+                  </span>
+                  }
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Description Section -->
+      <div class="px-6 pb-6">
+        <div class="bg-bg p-4 rounded-lg border border-gray200">
+          <p class="font-semibold text-text mb-2">About the event</p>
+          <p class="text-gray600 leading-relaxed">{{ event.description }}</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="px-6 pb-6">
+        <div class="flex gap-3 flex-wrap">
+
+          <!-- Show Collaborate/Attend buttons if NOT own event -->
+          @if(!isOwnEvent){
+            @if(!isParticipating){
+              <button
+                class="btn-secondary w-[50%] min-w-[200px] flex items-center justify-center gap-2"
+                (click)="onAttend()"
+              >
+                <span>👤</span>
+                <span>Attend</span>
+              </button>
+              @if(event.maxCollaborators){
+                <button
+                class="btn-primary flex-1 min-w-[200px] flex items-center justify-center gap-2"
+                (click)="onCollaborate()"
+              >
+                <span>🙋</span>
+                <span>Collaborate</span>
+              </button>
+
+              @if(event.requiresRequest && sendRequestDialog){
+                  <dialog
+                    [open]="sendRequestDialog"
+                    class="fixed inset-0 z-50 bg-transparent"
+                  >
+                    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
+                      <div class="bg-bg rounded-xl shadow-2xl w-full h-auto sm:max-w-lg flex flex-col border-2 border-gray200">
+
+                        <!-- Header -->
+                        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200 bg-gray50">
+                          <div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-text">Send Request</h3>
+                            <p class="text-sm text-gray600 mt-1">Request to join this event</p>
+                          </div>
+                          <button
+                            class="text-gray600 hover:text-text transition-colors p-2"
+                            (click)="sendRequestDialog = false"
+                          >
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </button>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-4 sm:p-6">
+                          <label class="block text-sm font-semibold text-text mb-2">Message (optional)</label>
+                          <textarea
+                            [(ngModel)]="requestMessage"
+                            placeholder="Tell the organizer why you'd like to join..."
+                            class="w-full px-4 py-3 rounded-lg border-2 border-gray200 bg-bg text-text focus:outline-none focus:border-primary transition-colors resize-none"
+                            rows="5"
+                          ></textarea>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex gap-3 p-4 sm:p-6 border-t border-gray200 bg-gray50">
+                          <button
+                            class="btn-other flex-1"
+                            (click)="sendRequestDialog = false"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            class="btn-primary flex-1"
+                            (click)="sendRequest()"
+                          >
+                            Send
+                          </button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </dialog>
+                }
+              }
+            }@else if(!eventFinished){
+              <button
+                class="btn-other w-[50%] min-w-[200px] flex items-center justify-center gap-2"
+                (click)="removeParticipation()"
+              >
+                <span>👤</span>
+                <span>Remove participation</span>
+              </button>
+            }@else{
+                            <button
+                class="btn-other w-[50%] min-w-[200px] flex items-center justify-center gap-2"
+                (click)="toastr.info('Feature in progress','Ups!')"
+              >
+                <span>⭐</span>
+                <span>Rate the event!</span>
+              </button>
+            }
+
+          }
+          <!-- Show Delete button if own event -->
+          @if(isOwnEvent && !eventAlreadyStarted){
+              <button
+                class="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+                (click)="openDeleteDialog()"
+              >
+                <span>🗑️</span>
+                <span>Delete Event</span>
+              </button>
+
+              <button
+                class="btn-other flex-1 min-w-[200px]"
+                [routerLink]="['/events']"
+              >
+                Back to Events
+              </button>
+          }
+
+        </div>
+      </div>
+
+    </div>
+  } @else {
+    <!-- Event Not Found -->
+    <div class="bg-gradient-to-br from-gray50 to-bg rounded-2xl shadow-lg overflow-hidden border border-gray200 p-12">
+      <div class="flex flex-col items-center justify-center gap-6 text-center">
+        <div class="text-8xl">🔍</div>
+        <h2 class="text-3xl font-bold text-text">Event Not Found</h2>
+        <p class="text-gray600 max-w-md">
+          The event you're looking for doesn't exist or has been removed.
+        </p>
+        <button
+          class="btn-primary px-8 py-3"
+          [routerLink]="['/events']"
+        >
+          Back to Events
+        </button>
+      </div>
+    </div>
+  }
+}@else {
+  <app-loading></app-loading>
+}
+</div>
+
+<!-- Delete Confirmation Dialog -->
+@if(showDeleteDialog){
+  <dialog
+  [open]="showDeleteDialog"
+  class="fixed inset-0 z-50 bg-transparent"
+>
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-bg rounded-xl shadow-2xl max-w-md w-full p-6 border-2 border-gray200">
+      <h3 class="text-xl font-bold text-text mb-3">Confirm Deletion</h3>
+      <p class="text-gray600 mb-6">
+        Are you sure you want to delete this event? This action cannot be undone.
+      </p>
+
+      <div class="flex gap-3">
+        <button
+          class="btn-other flex-1"
+          (click)="closeDeleteDialog()"
+        >
+          Cancel
+        </button>
+        <button
+          class="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-colors flex-1"
+          (click)="deleteEvent()"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
+}
+
+<!-- Requests Dialog -->
+@if(showRequestsDialog){
+<dialog
+  [open]="showRequestsDialog"
+  class="fixed inset-0 z-50 bg-transparent"
+>
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-bg rounded-xl shadow-2xl w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl flex flex-col border-2 border-gray200">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200">
+        <div>
+          <h3 class="text-xl sm:text-2xl font-bold text-text">Event Requests & Invitations</h3>
+          <p class="text-sm text-gray600 mt-1">
+            {{ (event?.requests?.length || 0) + (event?.invitations?.length || 0) }} total pending
+          </p>
+        </div>
+        <button
+          class="text-gray600 hover:text-text transition-colors p-2"
+          (click)="closeRequestsDialog()"
+        >
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+
+        <!-- Requests Section -->
+        <details class="border border-gray200 rounded-lg overflow-hidden">
+          <summary class="cursor-pointer bg-gray50 px-4 py-3 font-semibold text-text hover:bg-gray100 transition-colors">
+            📥 Requests ({{ event?.requests?.length || 0 }})
+          </summary>
+          <div class="p-4 space-y-2">
+            @for(request of event?.requests; track request.id) {
+              <details class="border border-gray200 rounded-lg overflow-hidden bg-bg">
+                <summary class="cursor-pointer px-4 py-3 hover:bg-gray50 transition-colors text-text">
+                  <span class="font-medium">{{ request.user.name || 'User' }}</span>
+                  <span class="text-sm text-gray600 ml-2">{{ request.createdAt | date:'short' }}</span>
+                </summary>
+                <div class="px-4 py-3 border-t border-gray200 space-y-2">
+                  <p class="text-sm text-gray600">{{ request.text || 'No message provided' }}</p>
+                  <div class="flex gap-2 mt-3">
+                    <button class="btn-primary flex-1" (click)="acceptRequest(request)">Accept</button>
+                    <button class="btn-other flex-1" (click)="rejectRequest(request.id)">Reject</button>
+                  </div>
+                </div>
+              </details>
+            } @empty {
+              <p class="text-center text-gray600 py-4">No requests yet</p>
+            }
+          </div>
+        </details>
+
+        <!-- Invitations Section -->
+        <details class="border border-gray200 rounded-lg overflow-hidden">
+          <summary class="cursor-pointer bg-gray50 px-4 py-3 font-semibold text-text hover:bg-gray100 transition-colors">
+            <span>📤 Invitations ({{ event?.invitations?.length || 0 }})</span>
+          </summary>
+          <div class="p-4 space-y-2">
+            @for(invitation of event?.invitations; track invitation.id) {
+              <details class="border border-gray200 rounded-lg overflow-hidden bg-bg">
+                <summary class="cursor-pointer px-4 py-3 hover:bg-gray50 transition-colors text-text">
+                  <span class="font-medium">{{ invitation.user.name }}</span>
+                  <span class="text-sm text-gray600 ml-2">{{ invitation.createdAt | date:'short' }}</span>
+                </summary>
+                <div class="px-4 py-3 border-t border-gray200 space-y-2">
+                  <p class="text-sm text-gray600">{{ invitation.text || 'No message provided' }}</p>
+                  <div class="flex gap-2 mt-3">
+                    <button class="btn-other flex-1" (click)="cancelInvitation(invitation)">Remove</button>
+                  </div>
+                </div>
+              </details>
+            } @empty {
+              <p class="text-center text-gray600 py-4">No invitations yet</p>
+            }
+          </div>
+        </details>
+        <button
+          class="text-sm btn-tertiary "
+          (click)="openInviteDialog($event)"
+        >
+          Invite
+        </button>
+      </div>
+
+    </div>
+  </div>
+</dialog>
+}
+@if(showInviteDialog){
+<dialog
+  [open]="showInviteDialog"
+  class="fixed inset-0 z-[60] bg-transparent"
+>
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-bg rounded-xl shadow-2xl w-full sm:max-w-md p-6 border border-gray200">
+
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-text">Invite users</h3>
+        <button class="text-gray600 hover:text-text" (click)="closeInviteDialog()">
+          ✖
+        </button>
+      </div>
+
+      <!-- Search bar -->
+      <input
+        type="text"
+        [(ngModel)]="userSearch"
+        (input)="searchUsers()"
+        placeholder="Search users..."
+        class="w-full px-4 py-2 rounded-lg border border-gray300 bg-bg text-text mb-4"
+      />
+
+      <!-- Users list -->
+      <div class="max-h-64 overflow-y-auto space-y-2">
+
+        @for(u of searchResults; track u.id) {
+          <div
+            class="flex justify-between items-center p-3 bg-gray50 rounded-lg border border-gray200 gap-2"
+          >
+          <img src="{{u.photo}}" alt="{{u.name}} pfp" class="w-10 h-10 rounded-full object-cover">
+            <span class="text-text">{{ u.name }} ({{ u.username }})</span>
+
+            <button
+              class="px-3 py-1 bg-primary text-white text-sm rounded-md hover:opacity-90 ml-auto"
+              (click)="openSendInvitationDialog(u)"
+            >
+              Invite
+            </button>
+
+
+          </div>
+        } @empty {
+          <p class="text-center text-gray600">No users found</p>
+        }
+
+      </div>
+
+    </div>
+  </div>
+
+
+  @if(sendInvitationDialog){
+    <dialog
+      [open]="sendInvitationDialog"
+      class="fixed inset-0 z-50 bg-transparent">
+                    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
+                      <div class="bg-bg rounded-xl shadow-2xl w-full h-auto sm:max-w-lg flex flex-col border-2 border-gray200">
+
+                        <!-- Header -->
+                        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200 bg-gray50">
+                          <div>
+                            <h3 class="text-xl sm:text-2xl font-bold text-text">Send Invitation</h3>
+                            <p class="text-sm text-gray600 mt-1">Invite {{ invitedUser?.name }} to join this event</p>
+                          </div>
+                          <button
+                            class="text-gray600 hover:text-text transition-colors p-2"
+                            (click)="sendInvitationDialog = false"
+                          >
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </button>
+                        </div>
+
+                        <div class=" mt-2 flex gap-1 items-center justify-around">
+                          <div class="flex gap-2">
+                            <input type="radio" name="type" id="invitationCollab" [value]="participationTypes.Collaboration" [(ngModel)]="invitationType">
+                            <label for="invitationCollab">Collaboration</label>
+                          </div>
+                          <div class="flex gap-2">
+                            <input type="radio" name="type" id="invitationAttend" [value]="participationTypes.Attendance" [(ngModel)]="invitationType">
+                            <label for="invitationAttend">Attendance</label>
+                          </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="py-4 px-2 sm:p-6">
+                          <label class="block text-sm font-semibold text-text mb-2">Message (optional)</label>
+                          <textarea
+                            [(ngModel)]="invitationMessage"
+                            placeholder="Tell the organizer why you'd like to join..."
+                            class="w-full px-4 py-3 rounded-lg border-2 border-gray200 bg-bg text-text focus:outline-none focus:border-primary transition-colors resize-none"
+                            rows="5"
+                          ></textarea>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex gap-3 p-4 sm:p-6 border-t border-gray200 bg-gray50">
+                          <button
+                            class="btn-other flex-1"
+                            (click)="sendInvitationDialog = false"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            class="btn-primary flex-1"
+                            (click)="inviteUser()"
+                          >
+                            Send
+                          </button>
+                        </div>
+
+                      </div>
+                    </div>
+    </dialog>
+  }
+</dialog>
+}
+
+

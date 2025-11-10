@@ -1,0 +1,305 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// ========================================
+// ENUMS
+// ========================================
+
+enum Permission {
+  Standard
+  Premium
+}
+
+enum Level {
+  New
+  Active
+  Featured
+  Influencer
+}
+
+enum Visibility {
+  Public
+  Private
+}
+
+enum Category {
+  Sports
+  Tournament
+  Educational
+  Pets
+  Gaming
+  Political
+  Food
+  Party
+  Music
+  Meetup
+  Art
+  Conference
+  Workshop
+  Competition
+}
+
+enum ParticipationType {
+  Collaboration
+  Attendance
+}
+
+enum NotificationType {
+  Post
+  Reminder
+  RequestCollaboration // Notificacion al organizador
+  RequestAnswered      // Notificacion al usuario que hizo la solicitud (caso Reject/Accept pero no Canceled)
+  Participation        // Notificacion al organizador
+  Rating
+  Invitation          // Notificacion al usuario invitado
+  InvitationAnswered  // Notificacion al organizador  (caso Reject/Accept pero no Canceled)
+}
+
+enum Emoji {
+  SMILE
+  LAUGH
+  HEART
+  THUMBS_UP
+  FIRE
+  STAR
+}
+
+// ========================================
+// MODELS
+// ========================================
+
+model User {
+  id                String           @id @default(cuid())
+  permission        Permission       @default(Standard)
+  level             Level            @default(New)
+  username          String           @unique
+  name              String
+  password          String?
+  email             String           @unique
+  photo             String?          @default("https://37assets.37signals.com/svn/765-default-avatar.png")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  lastLogin         DateTime?
+  bio               String?
+  locale            String?
+
+  // Relations
+  events            Event[]          @relation("UserEvents")
+  requests          Request[]
+  participations    Participation[]
+  interactions      Interaction[]
+  invitations       Invitation[]
+  posts             Post[]
+  followers         Follow[]         @relation("UserFollowers")
+  following         Follow[]         @relation("UserFollowing")
+  notifications   Notification[]
+
+}
+
+// ========================================
+// EVENT
+// ========================================
+
+model Event {
+  id                String           @id
+  organizerId            String
+  poster            String           @default("https://res.cloudinary.com/doqla97yu/image/upload/fl_preserve_transparency/v1760896293/events/default_d16vth.jpg?_s=public-apps")
+  name              String
+  categories        Category[]
+  description       String
+  visibility        Visibility
+  maxAttendees      Int?
+  maxCollaborators   Int?
+  lat               Float
+  lng               Float
+  location          String
+  locationAlias     String?
+  startDate         DateTime
+  endDate           DateTime
+  requiresRequest   Boolean          @default(false)
+  totalRate         Float?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  tags              String[]
+  language          String?
+  allowPosts        Boolean          @default(false)
+  invitation        String?
+
+  // Relations
+  organizer           User             @relation("UserEvents", fields: [organizerId], references: [id])
+  participations    Participation[]
+  requests          Request[]
+  invitations       Invitation[]
+  posts             Post[]
+  sections          Section[]
+}
+
+// ========================================
+// SECTION
+// ========================================
+
+model Section {
+  id                String     @id @default(cuid())
+  eventId           String
+  startDate         DateTime
+  endDate           DateTime
+  description       String
+  title             String
+  location          String  
+  locationAlias     String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  event             Event      @relation(fields: [eventId], references: [id])
+}
+
+// ========================================
+// POST
+// ========================================
+
+model Post {
+  id                    String         @id @default(cuid())
+  userId                String
+  eventId               String
+  text                  String
+  images                String[]
+  referencePostId       String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  user                  User           @relation(fields: [userId], references: [id])
+  event                 Event          @relation(fields: [eventId], references: [id])
+  interactions          Interaction[]
+  referencePost         Post?          @relation("PostReference", fields: [referencePostId], references: [id])
+  referencedBy          Post[]         @relation("PostReference")
+}
+
+// ========================================
+// INTERACTION
+// ========================================
+
+model Interaction {
+  userId        String
+  postId        String
+  emoji         Emoji
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id])
+  post          Post     @relation(fields: [postId], references: [id])
+
+  @@id([userId, postId])
+}
+
+// ========================================
+// PARTICIPATION
+// ========================================
+
+model Participation {
+  id              String    @id @default(cuid())
+  userId          String?
+  eventId         String
+  type            ParticipationType
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  invitation      String?
+
+  user            User?      @relation(fields: [userId], references: [id])
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  rating          Rating?
+
+  @@unique([userId, eventId])
+}
+
+// ========================================
+// RATING
+// ========================================
+
+model Rating {
+  id              String    @id @default(cuid())
+  userId          String? 
+  eventId         String
+  participationId String    @unique
+  text            String?
+  score           Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  participation   Participation @relation(fields: [participationId], references: [id])
+
+  @@unique([userId, eventId])
+}
+
+
+// ========================================
+// REQUEST
+// ========================================
+
+model Request {
+  id              String           @id @default(cuid())
+  text            String
+  userId          String?
+  eventId         String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user            User?             @relation(fields: [userId], references: [id])
+  event           Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+// ========================================
+// INVITATION
+// ========================================
+
+model Invitation {
+  id              String           @id @default(cuid())
+  text            String
+  userId          String?
+  eventId         String
+  invitationToken String
+  type            ParticipationType
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user            User?            @relation(fields: [userId], references: [id])
+  event           Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+// ========================================
+// FOLLOW
+// ========================================
+
+model Follow {
+  followerId  String
+  followedId  String
+  follower    User    @relation("UserFollowing", fields: [followerId], references: [id])
+  followed    User    @relation("UserFollowers", fields: [followedId], references: [id])
+
+  @@id([followerId, followedId])
+}
+
+model Notification {
+  id          String            @id @default(cuid())
+  userId      String
+  type        NotificationType
+  title       String
+  message     String?
+  relatedId   String?
+  createdAt   DateTime          @default(now())
+  read        Boolean           @default(false)
+
+  user        User              @relation(fields: [userId], references: [id])
+}

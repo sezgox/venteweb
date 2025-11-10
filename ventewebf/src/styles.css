@@ -1,0 +1,132 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light Theme (default) */
+:root {
+  --color-bg: #ffffff;
+  --color-text: #111827;
+  --color-primary: #ef4444;      /* rojo más suave que #ef1c1c */
+  --color-primary-hover: #dc2626;
+  --color-secondary: #f59e0b;
+  --color-tertiary: #8b5cf6;
+
+  /* Grises para botones secundarios, fondos y elementos menos importantes */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+/* Dark Theme */
+.theme-dark {
+  --color-bg: #0f172a;           /* slate-900 - más profundo */
+  --color-text: #f1f5f9;         /* slate-100 - texto claro */
+  --color-primary: #ef4444;      /* red-500 - mantiene el rojo consistente */
+  --color-primary-hover: #f87171;/* red-400 - hover más claro en dark */
+  --color-secondary: #fbbf24;
+  --color-tertiary: #a78bfa;
+
+  /* Grises oscuros más modernos (basados en slate) */
+  --color-gray-50: #1e293b;      /* slate-800 */
+  --color-gray-100: #334155;     /* slate-700 */
+  --color-gray-200: #475569;     /* slate-600 */
+  --color-gray-300: #64748b;     /* slate-500 */
+  --color-gray-400: #94a3b8;     /* slate-400 */
+  --color-gray-500: #cbd5e1;     /* slate-300 */
+  --color-gray-600: #e2e8f0;     /* slate-200 */
+  --color-gray-700: #f1f5f9;     /* slate-100 */
+  --color-gray-800: #f8fafc;     /* slate-50 */
+  --color-gray-900: #ffffff;
+}
+
+@layer components {
+  /* === PRIMARY (Rojo) === */
+  .btn-primary {
+    @apply px-4 py-2 rounded font-bold transition;
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+  }
+
+  /* === SECONDARY (Naranja) === */
+  .btn-secondary {
+    @apply px-4 py-2 rounded font-bold transition;
+    background-color: var(--color-secondary);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    filter: brightness(1.1);
+  }
+
+  /* === OTHER (Gris, antes "secondary") === */
+  .btn-other {
+    @apply px-4 py-2 rounded font-bold transition;
+    background-color: var(--color-gray-200);
+    color: var(--color-gray-700);
+  }
+
+  .btn-other:hover {
+    background-color: var(--color-gray-300);
+  }
+
+  /* === TERTIARY (Violeta) === */
+  .btn-tertiary {
+    @apply px-4 py-2 rounded font-bold transition;
+    background-color: var(--color-tertiary);
+    color: white;
+  }
+
+  .btn-tertiary:hover {
+    filter: brightness(1.1);
+  }
+}
+* {
+  transition: all 0.3s ease-in-out;
+}
+
+body{
+  background-color: var(--color-bg);
+}
+/* Define keyframe animations */
+@keyframes rotate-out {
+  to {
+    transform: rotate(90deg);
+  }
+}
+@keyframes rotate-in {
+  from {
+    transform: rotate(-90deg);
+  }
+}
+/* Target view transition pseudo-elements */
+::view-transition-old(count),
+::view-transition-new(count) {
+  animation-duration: 200ms;
+  animation-name: -ua-view-transition-fade-in, rotate-in;
+}
+::view-transition-old(count) {
+  animation-name: -ua-view-transition-fade-out, rotate-out;
+}
+
+.popup-container {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+.popup-container > div {
+  @apply bg-bg rounded-xl shadow-xl p-3 border border-gray200;
+}

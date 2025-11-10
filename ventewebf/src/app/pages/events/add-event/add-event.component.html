@@ -1,0 +1,259 @@
+<div popover id="map-modal">
+  <app-map (accept)="onAccept()" [mapLocation]="mapLocation"></app-map>
+</div>
+
+<div class="max-w-3xl mx-auto mt-10 bg-gray50 dark:bg-gray100 rounded-2xl shadow-lg p-6">
+  <h1 class="text-2xl font-bold mb-6 text-primary">Create New Event</h1>
+
+  <!-- STEP 1: LOCATION -->
+  <details [open]="step == 1" [class.step-valid]="validSteps[0]" class="group border border-gray200 rounded-xl mb-4 overflow-hidden">
+    <summary class="cursor-pointer flex justify-between items-center p-4 text-lg font-semibold">
+      <span  class="text-text">
+        1️⃣ Place and time
+        @if(validSteps[0]){
+          <span class="text-green-600 ml-2">✔️</span>
+        }
+      </span>
+    </summary>
+    <div class="p-4 space-y-4 bg-gray50">
+      <div>
+        <label class="block font-medium mb-1">Location</label>
+        <div class="grid grid-cols-3 gap-2">
+          <input type="text" class="border rounded p-2 bg-gray100" [(ngModel)]="createEventDto.lat" placeholder="Lat" readonly>
+          <input type="text" class="border rounded p-2 bg-gray100" [(ngModel)]="createEventDto.lng" placeholder="Lng" readonly>
+          <input type="text" class="border rounded p-2 bg-gray100" [(ngModel)]="createEventDto.location" placeholder="Address" readonly>
+        </div>
+        <button class="btn-secondary mt-2" (click)="openMapModal()">Choose on map</button>
+      </div>
+
+      <div>
+        <label class="block font-medium mb-1">Location alias</label>
+        <input type="text" class="border rounded w-full p-2" [(ngModel)]="createEventDto.locationAlias" placeholder="Place name">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-medium mb-1">Start</label>
+          <input type="datetime-local" class="border rounded w-full p-2" (ngModel)="createEventDto.endDate" [value]="createEventDto.startDate | date:'yyyy-MM-ddTHH:mm'">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Finish</label>
+          <input type="datetime-local" class="border rounded w-full p-2" (ngModel)="createEventDto.endDate" [value]="createEventDto.endDate | date:'yyyy-MM-ddTHH:mm'">
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-4">
+        <button class="btn-primary" (click)="validateStep(1)">Next step ➡️</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- STEP 2: VISIBILITY -->
+  <details [open]="step == 2" [class.opacity-50]="!validSteps[0]" [class.step-valid]="validSteps[1]" class="group border border-gray200 rounded-xl mb-4 overflow-hidden">
+    <summary class="cursor-pointer flex justify-between items-center p-4 text-lg font-semibold">
+      <span class="text-text">
+        2️⃣ Visibility and participations
+        @if(validSteps[1]){
+          <span class="text-green-600 ml-2">✔️</span>
+        }
+      </span>
+    </summary>
+    <div class="p-4 space-y-4 bg-gray50">
+    @if(validSteps[0]){
+        <div>
+          <label class="block font-medium mb-1">Type</label>
+          <select class="border rounded w-full p-2" [(ngModel)]="createEventDto.visibility">
+            <option value="Public">Public</option>
+            <option value="Private">Private</option>
+          </select>
+        </div>
+      }
+
+      <div>
+        <label class="flex items-center space-x-2">
+          <input type="checkbox" [(ngModel)]="createEventDto.requiresRequest">
+          <span>Collaborators requires approval</span>
+        </label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-medium mb-1">Max Collabortors</label>
+          <input type="number" class="border rounded w-full p-2" [(ngModel)]="createEventDto.maxCollaborators">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Max Attendees</label>
+          <input type="number" class="border rounded w-full p-2" [(ngModel)]="createEventDto.maxAttendees">
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-4">
+        <button class="btn-other" (click)="goBack(1)">⬅️ Go back</button>
+        <button class="btn-primary" (click)="validateStep(2)">Next step ➡️</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- STEP 3: POSTER -->
+  <details [open]="step == 3" [class.opacity-50]="!validSteps[1]" [class.step-valid]="validSteps[2]" class="group border border-gray200 rounded-xl mb-4 overflow-hidden">
+    <summary class="cursor-pointer flex justify-between items-center p-4 text-lg font-semibold">
+      <span  class="text-text">
+        3️⃣ Event details and information
+        @if(validSteps[2]){
+          <span class="text-green-600 ml-2">✔️</span>
+        }
+      </span>
+    </summary>
+    @if(validSteps[1]){
+      <div class="p-4 space-y-4 bg-gray50">
+        <div>
+          <label class="block font-medium mb-1">Poster</label>
+          <input type="file" class="border rounded w-full p-2" (change)="onPosterChange($event)">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Name</label>
+          <input type="text" class="border rounded w-full p-2" [(ngModel)]="createEventDto.name">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Categories</label>
+          <select multiple class="border rounded w-full p-2" [(ngModel)]="createEventDto.categories">
+            @for(cat of categories; track $index;){
+              <option [value]="cat">{{cat}}</option>
+            }
+          </select>
+          <small class="text-gray500">Choose up to 3 categories</small>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Description</label>
+          <textarea class="border rounded w-full p-2" rows="4" [(ngModel)]="createEventDto.description"></textarea>
+        </div>
+
+        <div class="flex justify-between mt-4">
+          <button class="btn-other" (click)="goBack(2)">⬅️ Go back</button>
+          <button class="btn-primary" (click)="validateStep(3)">Next step ➡️</button>
+        </div>
+      </div>
+    }
+  </details>
+
+  <!-- STEP 4: REVIEW -->
+<details [open]="step === 4" [class.opacity-50]="!validSteps[2]" class="group border border-gray200 rounded-xl overflow-hidden">
+  <summary class="cursor-pointer flex justify-between items-center p-4 text-lg font-semibold">
+    <span class="text-text">4️⃣ Review</span>
+  </summary>
+  @if(validSteps[2]){
+    <div class="p-6 bg-gradient-to-br from-gray50 to-bg">
+      <p class="mb-6 text-gray600 text-sm">Check your event details:</p>
+
+      <div class="grid md:grid-cols-[300px_1fr] gap-6 bg-bg rounded-xl shadow-lg p-6 border border-gray200">
+
+        <!-- Póster a la izquierda -->
+        <div class="flex flex-col gap-3">
+          <div class="aspect-[3/4] bg-gray100 rounded-lg overflow-hidden shadow-md">
+              <img [src]="posterPreviewUrl" alt="Event poster" class="w-full h-full object-cover">
+          </div>
+        </div>
+
+        <!-- Información del evento a la derecha -->
+        <div class="flex flex-col gap-4">
+          <!-- Nombre del evento -->
+          <div>
+            <h3 class="text-2xl font-bold text-gray900 mb-2">{{ createEventDto.name }}
+            </h3>
+            <p class="text-gray600 leading-relaxed text-right">
+          </div>
+
+          <!-- Resto de información -->
+          <div class="grid gap-3">
+            <!-- Participantes -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">👥 </span>
+              <div>
+                <p class="font-semibold text-gray900">Participants</p>
+                <p class="text-gray600">👤 @if(createEventDto.maxAttendees){
+                  0/{{ createEventDto.maxAttendees }}
+                }@else {
+                  Unlimited
+                }
+                @if(createEventDto.maxCollaborators){
+                  <span>🙋0/{{ createEventDto.maxCollaborators }}</span>
+                  @if(createEventDto.requiresRequest){
+                    <span>📝</span>
+                  }
+                }</p>
+              </div>
+            </div>
+            <!-- Tipo de evento -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">
+                @if(createEventDto.visibility === "Public"){
+                  🌐
+                }@else {
+                  🔒
+                }
+              </span>
+              <div>
+                <p class="font-semibold text-gray900">Type</p>
+                <p class="text-gray600">{{ createEventDto.visibility }}</p>
+              </div>
+            </div>
+            <!-- Fecha y hora -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">📅</span>
+              <div>
+                <p class="font-semibold text-gray900">Date & Time</p>
+                <p class="text-gray600">{{ createEventDto.startDate | date: 'MMMM d, y, h:mm  a ' }} to</p>
+                <p class="text-gray600">{{ createEventDto.endDate | date: 'MMMM d, y, h:mm  a ' }} </p>
+              </div>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">📍</span>
+              <div>
+                <p class="font-semibold text-gray900">Location</p>
+                <p class="text-gray600">{{ createEventDto.locationAlias }}</p>
+                <p class="text-gray400 text-sm">{{ createEventDto.location }}</p>
+              </div>
+            </div>
+
+            <!-- Categoría -->
+            <div class="flex items-start gap-3">
+              <span class="text-2xl">🏷️</span>
+              <div>
+                <p class="font-semibold text-gray900">Categories</p>
+                @for (cat of createEventDto.categories; track $index) {
+                  <p class="text-gray600">{{ cat }}</p>
+                }
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!--Descripcion del evento (debajo) -->
+        <div>
+          <p class="font-semibold text-gray900">About the event</p>
+          <p class="text-gray600">{{createEventDto.description}}</p>
+        </div>
+
+      </div>
+
+          <!-- Botones de acción -->
+          <div>
+            <div class="flex justify-between mt-6">
+              <button class="btn-other" (click)="goBack(3)">⬅️ Go back</button>
+              <button class="btn-primary" (click)="submit()">✅ Create event</button>
+            </div>
+          </div>
+    </div>
+  }
+</details>
+<div class="mt-6 text-right">
+  <button class="btn-other" [routerLink]="['/events']">Cancel</button>
+</div>
+</div>
+
+@if(loading){
+  <app-loading></app-loading>
+}

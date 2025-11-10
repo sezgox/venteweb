@@ -1,0 +1,65 @@
+
+  <!-- Contenedor del modal -->
+  <div class="modal-container">
+    <!-- Header del modal -->
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">📍 Select location</h2>
+        <p class="modal-subtitle">Click on the map or search for an address</p>
+      </div>
+      <button class="btn-close" onclick="document.getElementById('map-modal').hidePopover()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input
+        type="text"
+        id="map-search"
+        class="search-input"
+        placeholder="Search for an address, street, place..."
+      >
+      <button class="search-clear" id="clear-search" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M15 9l-6 6M9 9l6 6"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Contenedor del mapa -->
+    <div class="map-wrapper">
+      <div id="map"></div>
+      <!-- Info flotante de coordenadas -->
+        <div class="map-info">
+          @if(mapLocation()){
+            <span class="info-label">Selected location:</span>
+            <span class="info-coords" id="selected-coords">{{mapLocation().lat}},{{mapLocation().lng}}</span>
+            <span>{{mapLocation().address}}</span>
+          }
+        </div>
+    </div>
+
+    <!-- Footer con botones -->
+    <div class="modal-footer">
+        <button class="btn-cancel" onclick="document.getElementById('map-modal').hidePopover()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Cancel
+      </button>
+      <button class="btn-accept" id="accept-location" (click)="accept.emit()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+        Confirm location
+      </button>
+    </div>
+  </div>

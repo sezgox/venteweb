@@ -1,0 +1,176 @@
+<app-header></app-header>
+@if(loading){
+  <app-loading></app-loading>
+}@else {
+  @if (user) {
+    <section class="mx-auto max-w-6xl px-4 py-8 space-y-8">
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-4">
+          <img
+            class="h-24 w-24 rounded-full border-4 border-primary object-cover"
+            [src]="user.photo"
+            [alt]="user.name"
+          />
+          <div>
+            <h1 class="text-2xl font-bold text-text">{{ user.name }}</h1>
+            <p class="text-gray500">{{ user.username }}</p>
+            <p class="text-sm text-gray400">{{ user.email }}</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 md:self-start">
+          @if (ownProfile) {
+            <button
+              type="button"
+              class="rounded-full border border-gray300 px-6 py-2 font-semibold text-gray600 transition hover:bg-gray100"
+              (click)="edit = true"
+            >
+              Edit profile
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="rounded-full border border-primary px-6 py-2 font-semibold transition hover:bg-primary hover:text-white"
+              [ngClass]="{ 'bg-primary text-white': !isFollowing }"
+              (click)="toggleFollow()"
+            >
+              {{ isFollowing ? 'Unfollow' : 'Follow' }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-8 md:flex-row">
+        <nav class="w-full md:w-64">
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-row items-center gap-8 md:gap-4 text-sm text-gray500 justify-center md:items-start md:justify-start">
+              <span><span class="font-semibold text-text">{{ user.followers.length }}</span> followers</span>
+              <span><span class="font-semibold text-text">{{ user.following.length }}</span> following</span>
+            </div>
+
+            <button
+              type="button"
+              class="w-full rounded-lg border border-gray200 px-4 py-2 text-left font-medium transition hover:border-primary hover:text-primary"
+              [ngClass]="{ 'border-primary bg-primary text-white hover:text-white': activeTab === 'events' }"
+              (click)="setActiveTab('events')"
+            >
+              Events
+            </button>
+            <button
+              type="button"
+              class="w-full rounded-lg border border-gray200 px-4 py-2 text-left font-medium transition hover:border-primary hover:text-primary"
+              [ngClass]="{ 'border-primary bg-primary text-white hover:text-white': activeTab === 'participations' }"
+              (click)="setActiveTab('participations')"
+            >
+              Participations
+            </button>
+            @if (ownProfile || isFriend) {
+              <button
+                type="button"
+                class="w-full rounded-lg border border-gray200 px-4 py-2 text-left font-medium transition hover:border-primary hover:text-primary"
+                [ngClass]="{ 'border-primary bg-primary text-white hover:text-white': activeTab === 'private' }"
+                (click)="setActiveTab('private')"
+              >
+                Private
+              </button>
+            }
+          </div>
+        </nav>
+
+        <div class="flex-1 space-y-6">
+          @if (activeTab === 'events') {
+            <section class="space-y-4">
+              <header>
+                <h2 class="text-xl font-semibold text-text">Public Events</h2>
+                <p class="text-sm text-gray500">Events created by {{ user.name }} that are visible to everyone.</p>
+              </header>
+              @if (publicEvents.length) {
+                <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                  @for (event of publicEvents; track event.id) {
+                    <app-event-card [event]="event"></app-event-card>
+                  }
+                </div>
+              } @else {
+                <p class="rounded-lg border border-dashed border-gray200 p-6 text-center text-gray500">
+                  There are no public events yet.
+                </p>
+              }
+            </section>
+          } @else if (activeTab === 'participations') {
+            <section class="space-y-4">
+              <header>
+                <h2 class="text-xl font-semibold text-text">Public Participations</h2>
+                <p class="text-sm text-gray500">Events where {{ user.name }} is participating and that are public.</p>
+              </header>
+              @if (publicParticipations.length) {
+                <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                  @for (participation of publicParticipations; track participation.id) {
+                    <app-event-card [event]="participation.event"></app-event-card>
+                  }
+                </div>
+              } @else {
+                <p class="rounded-lg border border-dashed border-gray200 p-6 text-center text-gray500">
+                  There are no public participations yet.
+                </p>
+              }
+            </section>
+          } @else if (activeTab === 'private') {
+            <section class="space-y-8">
+              <div class="space-y-4">
+                <header>
+                  <h2 class="text-xl font-semibold text-text">Private Events</h2>
+                  <p class="text-sm text-gray500">{{ ownProfile ? 'Only visible to you and your friends.' : 'Check private events from your friend' }}</p>
+                </header>
+                @if (privateEvents.length) {
+                  <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    @for (event of privateEvents; track event.id) {
+                      <app-event-card [event]="event"></app-event-card>
+                    }
+                  </div>
+                } @else {
+                  <p class="rounded-lg border border-dashed border-gray200 p-6 text-center text-gray500">
+                    You do not have private events yet.
+                  </p>
+                }
+              </div>
+
+              @if(ownProfile){
+                <div class="space-y-4">
+                  <header>
+                    <h2 class="text-xl font-semibold text-text">Private Participations</h2>
+                    <p class="text-sm text-gray500">Participations in private events that only you can access.</p>
+                  </header>
+                  @if (privateParticipations.length) {
+                    <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                      @for (participation of privateParticipations; track participation.id) {
+                        <app-event-card [event]="participation.event"></app-event-card>
+                      }
+                    </div>
+                  } @else {
+                    <p class="rounded-lg border border-dashed border-gray200 p-6 text-center text-gray500">
+                      You do not have private participations yet.
+                    </p>
+                }
+              </div>
+              }
+            </section>
+          }
+        </div>
+      </div>
+    </section>
+  } @else {
+    <section class="mx-auto max-w-4xl px-4 py-12">
+      <p class="rounded-lg border border-dashed border-gray200 p-6 text-center text-gray500">
+        The requested user could not be found.
+      </p>
+    </section>
+  }
+}
+
+@if(edit){
+  <app-edit-modal
+    [user]="user!"
+    (closeEdit)="edit = false"
+    (profileUpdated)="onProfileUpdated($event)"
+  ></app-edit-modal>
+}

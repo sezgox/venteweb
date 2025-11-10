@@ -1,0 +1,80 @@
+  @keyframes slide-up {
+    from {
+      transform: translateY(1500px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Animación de salida hacia abajo */
+  @keyframes slide-down {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+
+#filters-modal[popover]:popover-open {
+  z-index: 1000;
+  transform: translateY(0);
+  transition: all 0.3s ease-out;
+  margin-top: auto;
+  width: 100%;
+  transition-behavior: allow-discrete;
+  padding-bottom: 0;
+}
+
+#filters-modal[popover]:not(:popover-open) {
+  transform: translateY(1500px);
+  transition: all 0.3s ease-out;
+  transition-behavior: allow-discrete;
+}
+
+#filters-modal::backdrop{
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 1024px) {
+  #filters-modal{
+    inset:unset; top: anchor(--filter-btn bottom); left: anchor(--filter-btn left);
+  }
+}
+@media(max-width: 1024px){
+  #filters-modal{
+  height: 90vh;
+
+  }
+}
+
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  background: var(--color-gray-100);
+  overflow: hidden;
+}
+#map {
+  width: 95vw;
+  height: 80vh;
+  position: fixed;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: relative;
+  z-index: 1;
+}
+.events-map {
+  position: absolute;
+  z-index: 9999;
+}

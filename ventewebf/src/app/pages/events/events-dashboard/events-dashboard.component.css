@@ -1,0 +1,25 @@
+.menu-option:first-child{
+    background-size: 100% 178%;
+    background-image: url(/assets/dashboard/my-events.webp);
+    &:hover{
+      background-size: 110% 196%;
+    }
+}
+
+.menu-option:nth-child(2){
+    background-size: 100% 150%;
+    background-image: url(/assets/dashboard/my-participations.webp);
+    &:hover{
+      background-size: 110% 160%;
+    }
+}
+
+.menu-option{
+    background-position: center center;
+    background-repeat: no-repeat;
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.25);
+}
+
+.menu-option:hover{
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,87 @@
+/* Toggle Button States */
+.toggle-inactive {
+  background: transparent;
+  color: var(--color-gray-600);
+  border: none;
+  cursor: pointer;
+}
+
+.toggle-inactive:hover {
+  color: var(--color-text);
+}
+
+.toggle-active-left {
+  background-color: var(--color-gray-200);
+  color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+}
+
+.toggle-active-right {
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(239, 28, 28, 0.2);
+  border: none;
+  cursor: pointer;
+}
+
+/* Dark Theme Support */
+:host-context(.theme-dark) .toggle-active-left {
+  background-color: var(--color-gray-200);
+}
+
+/* Input placeholder styling */
+::placeholder {
+  color: var(--color-gray-400);
+}
+
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  10%  { transform: translateX(-8px); }
+  20%  { transform: translateX(8px); }
+  30%  { transform: translateX(-6px); }
+  40%  { transform: translateX(6px); }
+  50%  { transform: translateX(-4px); }
+  60%  { transform: translateX(4px); }
+  70%  { transform: translateX(-2px); }
+  80%  { transform: translateX(2px); }
+  90%  { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+.shake{
+  animation: shake 560ms cubic-bezier(.36,.07,.19,.97);
+  /* opcional: resaltar borde y sombra durante la animación */
+  border-color: #e74c3c;
+  box-shadow: 0 6px 18px rgba(231,76,60,0.14);
+}
+
+#googleSignInButton {
+  width: 100%;
+
+  transition: background-color .3s, box-shadow .3s;
+  padding: 14px;
+  border: none;
+  border-radius: 4px;
+
+  color: var(--color-gray-800);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
+  background-color: var(--color-gray-200);
+  background-repeat: no-repeat;
+  background-position: 12px 17px;
+
+  &:hover {
+    background-color: var(--color-gray-300);
+  }
+
+
+  &:focus {
+    outline: none;
+  }
+}
+

@@ -1,0 +1,288 @@
+<app-header></app-header>
+
+<div class=" w-full md:w-[70vw] m-auto p-4 rounded mt-4 flex flex-col gap-4 border-2 bg-gray50 border-gray100">
+  <div class="flex flex-col gap-4 md:flex-row md:gap-16 w-full">
+    <button class="w-full aspect-[3/1] md:w-1/2 menu-option text-white font-medium text-2xl rounded-sm" (click)="optionSelected = 'events'">
+      <span>My Events</span>
+    </button>
+    <button class="w-full aspect-[3/1] md:w-1/2 menu-option text-white font-medium text-2xl rounded-sm" (click)="optionSelected = 'participations'">
+      <span>My Participations</span>
+    </button>
+  </div>
+  <div class="flex flex-col gap-4 md:flex-row md:gap-16 m-auto w-full" >
+    <button class="btn-tertiary w-full py-2" (click)="optionSelected = 'invitations'">My Invitations</button>
+    <button class="btn-secondary w-full py-2" (click)="optionSelected = 'requests'">My Requests</button>
+  </div>
+</div>
+
+
+
+<div class="bg-gray50 w-full md:w-[70vw] m-auto p-4 rounded mt-4 flex flex-col gap-4 border-2 border-gray100">
+  @switch (optionSelected) {
+    @case ('events'){
+      <h4 class="w-full md:w-[70vw] m-auto p-2 text-2xl font-bold text-gray900 mb-2">Events</h4>
+
+      <!-- In Progress -->
+      <details open class="w-full m-auto mb-4">
+        <summary class="cursor-pointer p-2 text-gray600 text-center bg-gray200 rounded-lg hover:bg-gray300 transition-colors">
+          <span class="font-semibold">🟢 In progress ({{ events.inProgress.length }})</span>
+        </summary>
+        <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+          @for(event of events.inProgress; track event.id ){
+            <app-event-card [event]="event"></app-event-card>
+          }@empty {
+            <p class="w-full p-2 text-gray800">No events currently in progress</p>
+          }
+        </div>
+      </details>
+
+      <!-- Upcoming -->
+      <details open class="w-full m-auto mb-4">
+        <summary class="cursor-pointer p-2 text-gray600 text-center bg-gray200 rounded-lg hover:bg-gray300 transition-colors">
+          <span class="font-semibold">🔵 Upcoming ({{ events.upcoming.length }})</span>
+        </summary>
+        <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+          @for (event of events.upcoming; track event.id) {
+            <div class="relative">
+              <app-event-card [event]="event"></app-event-card>
+
+              @if (event.requests.length > 0) {
+                <div
+                  class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md animate-pulse"
+                  title="{{ event.requests.length }} request(s) pending"
+                >
+                  {{ event.requests.length }}
+                </div>
+              }
+            </div>
+          } @empty {
+            <p class="w-full p-2 text-gray800">No upcoming events</p>
+          }
+        </div>
+      </details>
+
+      <!-- Finished -->
+      <details class="w-full m-auto mb-4">
+        <summary class="cursor-pointer p-2 text-gray600 text-center bg-gray200 rounded-lg hover:bg-gray300 transition-colors">
+          <span class="font-semibold">⚫ Finished ({{ events.finished.length }})</span>
+        </summary>
+        <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+          @for(event of events.finished; track event.id ){
+            <app-event-card [event]="event"></app-event-card>
+          }@empty {
+            <p class="w-full p-2 text-gray800">No finished events</p>
+          }
+        </div>
+      </details>
+    }
+    @case ('participations'){
+      <h4 class="w-full md:w-[70vw] m-auto p-2 text-2xl font-bold text-gray900 mb-2">Participations</h4>
+
+      <!-- In Progress -->
+      <details open class="w-full m-auto mb-4">
+        <summary class="cursor-pointer p-2 text-gray600 text-center bg-gray200 rounded-lg hover:bg-gray300 transition-colors">
+          <span class="font-semibold">🟢 In progress ({{ participations.inProgress.length }})</span>
+        </summary>
+        <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+          @for(participation of participations.inProgress; track participation.id ){
+            <app-event-card [event]="participation.event" [invitationToken]="participation.invitation"></app-event-card>
+          }@empty {
+            <p class="w-full p-2 text-gray800 ">No participations currently in progress</p>
+          }
+        </div>
+      </details>
+
+      <!-- Upcoming -->
+      <details open class="w-full m-auto mb-4">
+        <summary class="cursor-pointer p-2 text-gray600 text-center bg-gray200 rounded-lg hover:bg-gray300 transition-colors">
+          <span class="font-semibold">🔵 Upcoming ({{ participations.upcoming.length }})</span>
+        </summary>
+        <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+          @for(participation of participations.upcoming; track participation.id ){
+            <div class="relative">
+              <app-event-card [event]="participation.event" [invitationToken]="participation.invitation"></app-event-card>
+
+                <div
+                  class="absolute -top-4 -right-4 bg-text rounded-full w-10 h-10 flex items-center justify-center shadow-md cursor-pointer"
+                  title="Cancel participation"
+                  (click)="openDialog('participation', participation)"
+                >
+                  <svg fill="var(--color-bg)" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M10.53 5.03a.75.75 0 10-1.06-1.06l-6.25 6.25a.75.75 0 000 1.06l6.25 6.25a.75.75 0 101.06-1.06L5.56 11.5H17a3.248 3.248 0 013.25 3.248v4.502a.75.75 0 001.5 0v-4.502A4.748 4.748 0 0017 10H5.56l4.97-4.97z"></path></g></svg>
+                </div>
+            </div>
+          }@empty {
+            <p class="w-full p-2 text-gray800 ">No upcoming participations</p>
+          }
+        </div>
+      </details>
+
+      <!-- Finished -->
+      <details open class="w-full  m-auto mb-4">
+        <summary class="cursor-pointer p-2 text-gray600 text-center bg-gray200 rounded-lg hover:bg-gray300 transition-colors">
+          <span class="font-semibold">✅ Finished ({{ participations.finished.length }})</span>
+        </summary>
+        <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+          @for(participation of participations.finished; track participation.id ){
+            <app-event-card [event]="participation.event" [invitationToken]="participation.invitation"></app-event-card>
+          }@empty {
+            <p class="w-full p-2 text-gray800 ">No finished participations</p>
+          }
+        </div>
+      </details>
+    }
+    @case ('requests'){
+      <h4 class="w-full md:w-[70vw] m-auto p-2 text-2xl font-bold text-gray900 mb-2">Requests</h4>
+      <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+        @for(request of managedEvents?.requests; track request.id ){
+           <div class="relative">
+              <app-event-card [event]="request.event"></app-event-card>
+
+                <div
+                  class="absolute -top-4 -right-4 bg-text rounded-full w-10 h-10 flex items-center justify-center shadow-md cursor-pointer"
+                  title="Remove request"
+                  (click)="openDialog('request', request)"
+                >
+                  <svg fill="var(--color-bg)" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M10.53 5.03a.75.75 0 10-1.06-1.06l-6.25 6.25a.75.75 0 000 1.06l6.25 6.25a.75.75 0 101.06-1.06L5.56 11.5H17a3.248 3.248 0 013.25 3.248v4.502a.75.75 0 001.5 0v-4.502A4.748 4.748 0 0017 10H5.56l4.97-4.97z"></path></g></svg>
+                </div>
+            </div>
+        }@empty {
+          <p class="w-full p-2 text-gray800 ">No requests</p>
+        }
+      </div>
+    }
+    @case ('invitations'){
+      <h4 class="w-full md:w-[70vw] m-auto p-2 text-2xl font-bold text-gray900 mb-2">Invitations</h4>
+      <div class="p-2 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-8 auto-rows-fr mt-2">
+        @for(invitation of managedEvents?.invitations; track invitation.id ){
+          <div class="relative">
+              <app-event-card [event]="invitation.event" [invitationToken]="invitation.invitationToken"></app-event-card>
+                <div
+                  class="absolute -top-4 -right-4 bg-text rounded-full w-10 h-10 flex items-center justify-center shadow-md cursor-pointer"
+                  title="Reject invitation"
+                  (click)="openDialog('invitation', invitation)"
+                >
+                  <svg fill="var(--color-bg)" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M10.53 5.03a.75.75 0 10-1.06-1.06l-6.25 6.25a.75.75 0 000 1.06l6.25 6.25a.75.75 0 101.06-1.06L5.56 11.5H17a3.248 3.248 0 013.25 3.248v4.502a.75.75 0 001.5 0v-4.502A4.748 4.748 0 0017 10H5.56l4.97-4.97z"></path></g></svg>
+                </div>
+            </div>
+        }@empty {
+          <p class="w-full p-2 text-gray800 ">No invitations</p>
+        }
+      </div>
+    }
+
+  }
+</div>
+
+@if(showDialog){
+  <dialog
+    [open]="showDialog"
+    class="fixed inset-0 z-50 bg-transparent"
+  >
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-bg rounded-xl shadow-2xl w-full max-w-md border-2 border-gray200 overflow-hidden">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray200">
+          <h3 class="text-xl font-bold text-text">
+            @switch (dialogType) {
+              @case ('invitation') { Event Invitation }
+              @case ('participation') { Cancel Participation }
+              @case ('request') { Cancel Request }
+            }
+          </h3>
+          <button
+            class="text-gray600 hover:text-text transition-colors p-2 hover:bg-gray100 rounded-lg"
+            (click)="showDialog = false"
+          >
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6 space-y-4">
+          @switch (dialogType) {
+            @case ('invitation') {
+              <div class="space-y-3">
+                <p class="text-text leading-relaxed">
+                  You have been invited to join <span class="font-semibold text-primary">{{ invitationDialog?.event?.name }}</span>.
+                  Do you want to accept?
+                </p>
+                @if(invitationDialog?.text) {
+                  <div class="bg-gray50 rounded-lg p-4 border border-gray200">
+                    <p class="text-sm font-semibold text-text mb-1">Message:</p>
+                    <p class="text-sm text-gray600 italic">{{ invitationDialog?.text }}</p>
+                  </div>
+                }
+              </div>
+            }
+            @case('participation') {
+              <p class="text-text leading-relaxed">
+                Are you sure you want to cancel your participation in
+                <span class="font-semibold text-primary">{{ participationDialog?.event?.name }}</span>?
+              </p>
+              <p class="text-sm text-gray600">This action cannot be undone.</p>
+            }
+            @case('request') {
+              <p class="text-text leading-relaxed">
+                Are you sure you want to cancel your request to join
+                <span class="font-semibold text-primary">{{ requestDialog?.event?.name }}</span>?
+              </p>
+              <p class="text-sm text-gray600">You can send a new request later if you change your mind.</p>
+            }
+          }
+        </div>
+
+        <!-- Footer -->
+        <div class="flex gap-3 p-6 border-t border-gray200 bg-gray50">
+          @switch (dialogType) {
+            @case ('invitation') {
+              <button
+                class="btn-other flex-1"
+                (click)="removeInvitation(invitationDialog!)"
+              >
+                Reject
+              </button>
+              <button
+                class="btn-tertiary flex-1"
+                (click)="acceptInvitation(invitationDialog!)"
+              >
+                Accept
+              </button>
+            }
+            @case('participation') {
+              <button
+                class="btn-other flex-1"
+                (click)="showDialog = false"
+              >
+                Cancel
+              </button>
+              <button
+                class="btn-secondary flex-1"
+                (click)="removeParticipation(participationDialog!.id, participationDialog!.event.id)"
+              >
+                Confirm
+              </button>
+            }
+            @case('request') {
+              <button
+                class="btn-other flex-1"
+                (click)="showDialog = false"
+              >
+                Cancel
+              </button>
+              <button
+                class="btn-secondary flex-1"
+                (click)="removeRequest(requestDialog!.id, requestDialog!.event.id)"
+              >
+                Confirm
+              </button>
+            }
+          }
+        </div>
+
+      </div>
+    </div>
+  </dialog>
+}
