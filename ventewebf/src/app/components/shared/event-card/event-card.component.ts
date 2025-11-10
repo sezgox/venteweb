@@ -22,6 +22,17 @@ import { Event, EventCategory } from '../../../core/interfaces/events.interfaces
       class="absolute inset-0 w-full h-full object-cover transition-transform hover:scale-110"
     />
 
+    <!-- Indicador LIVE (arriba a la izquierda) -->
+    @if(isEventLive()) {
+      <div class="absolute top-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-600 shadow-lg live-indicator">
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-200"></span>
+        </span>
+        <span class="text-white font-bold text-xs uppercase tracking-wider">Live</span>
+      </div>
+    }
+
     <!-- Categorías (arriba a la derecha) -->
     <div class="absolute top-3 right-3 flex flex-wrap gap-2 justify-end max-w-[50%]">
       @for(cat of event.categories; track $index){
@@ -90,11 +101,29 @@ import { Event, EventCategory } from '../../../core/interfaces/events.interfaces
       height: 2rem !important; /* 32px */
       display: block;
     }
+    .live-indicator {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+      }
+      50% {
+        box-shadow: 0 0 30px rgba(220, 38, 38, 0.9);
+      }
+    }
   `]
 })
 export class EventCardComponent {
   @Input() event!: Event;
   @Input() invitationToken?: string;
+
+  isEventLive(): boolean {
+    const now = new Date();
+    const start = new Date(this.event.startDate);
+    const end = new Date(this.event.endDate);
+    return now >= start && now <= end;
+  }
 
   getCategoryIcon(category: string | EventCategory): any {
     const normalized = (Object.values(EventCategory) as string[])
@@ -117,6 +146,4 @@ export class EventCardComponent {
     };
     return normalized ? map[normalized] : CircleIcon;
   }
-
-
 }
