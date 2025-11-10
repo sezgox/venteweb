@@ -38,4 +38,37 @@ export class NotificationRepository {
             take: 20,
         });
     }
+
+    async deleteExpiredNotifications(oneYearAgo: Date, sevenDaysAgo: Date) {
+    // Borrar notificaciones Follow antiguas
+    await this.prisma.notification.deleteMany({
+        where: {
+            type: 'Follow',
+            createdAt: {
+                lt: oneYearAgo
+            }
+        }
+    });
+
+    // Borrar notificaciones de eventos antiguos
+    await this.prisma.notification.deleteMany({
+        where: {
+            NOT: {
+                type: NotificationType.Follow
+            },
+            relatedId: {
+                in: await this.prisma.event.findMany({
+                    where: {
+                        endDate: {
+                            lt: sevenDaysAgo
+                        }
+                    },
+                    select: {
+                        id: true
+                    }
+                }).then(events => events.map(e => e.id))
+            }
+        }
+    });
+}
 }

@@ -158,4 +158,24 @@ export class EventRepository{
         return rows;
     }
 
+    async findEventsStartingSoon(hours: number) {
+        const now = new Date();
+        const target = new Date(now.getTime() + hours * 60 * 60 * 1000);
+        
+        return this.prisma.event.findMany({
+            where: {
+                startDate: {
+                    gt: now,
+                    lte: target
+                },
+            },
+            include: {
+                participations: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        });
+    }
 }

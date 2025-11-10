@@ -23,9 +23,20 @@ export class NotificationListener {
     );
   }
 
-  @OnEvent('invitation.removed')
-  async handleInvitationRemoved(invitationId){
-    const notification = await this.notifications.markAsRead(invitationId);
+  @OnEvent('reminder.created')
+  async handleReminderCreated(payload: {
+    eventId: string;
+    userId: string;
+    eventName: string;
+    text?: string;
+  }) {
+    const notification = await this.notifications.createNotification(
+      payload.userId,
+      NotificationType.Reminder,
+      `You've been reminded to ${payload.eventName}`,
+      payload.text || 'You received a new reminder',
+      payload.eventId,
+    );
   }
 
 }

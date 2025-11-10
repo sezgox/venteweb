@@ -67,6 +67,7 @@ enum NotificationType {
   Rating
   Invitation          // Notificacion al usuario invitado
   InvitationAnswered  // Notificacion al organizador  (caso Reject/Accept pero no Canceled)
+  Follow
 }
 
 enum Emoji {
