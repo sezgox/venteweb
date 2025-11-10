@@ -33,7 +33,7 @@ export class NotificationListener {
     const notification = await this.notifications.createNotification(
       payload.userId,
       NotificationType.Reminder,
-      `You've been reminded to ${payload.eventName}`,
+      `Remember, ${payload.eventName} is starting soon!`,
       payload.text || 'You received a new reminder',
       payload.eventId,
     );

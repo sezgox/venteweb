@@ -79,7 +79,7 @@ export class HeaderComponent implements OnInit{
       NotificationType.Post,
     ];
     if(eventNotificationTypes.includes(notification.type)){
-      this.router.navigate(['/events', notification.relatedId]);
+      this.router.navigate(['/events/event', notification.relatedId]);
     }else{
       this.router.navigate(['/events/dashboard'], {state: {menuOption: notification.type}});
     }

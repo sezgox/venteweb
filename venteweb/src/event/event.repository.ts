@@ -178,4 +178,27 @@ export class EventRepository{
             }
         });
     }
+
+    // Devuelve eventos que empiezan entre minHours (exclusive) y maxHours (inclusive)
+    async findEventsStartingBetween(minHours: number, maxHours: number) {
+        const now = new Date();
+        const min = new Date(now.getTime() + minHours * 60 * 60 * 1000);
+        const max = new Date(now.getTime() + maxHours * 60 * 60 * 1000);
+
+        return this.prisma.event.findMany({
+            where: {
+                startDate: {
+                    gt: min,
+                    lte: max
+                },
+            },
+            include: {
+                participations: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        });
+    }
 }

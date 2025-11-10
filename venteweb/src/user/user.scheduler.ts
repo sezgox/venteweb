@@ -95,60 +95,69 @@ export class UserScheduler {
     }
 
 
-    // ...existing code...
 
-@Cron(CronExpression.EVERY_30_MINUTES)
-async sendEventStartReminders() {
-    this.logger.log('⏰ Enviando recordatorios de eventos próximos...');
-    
-    try {
-        // Eventos que empiezan en 1 día
-        const oneDayEvents = await this.eventsRepository.findEventsStartingSoon(24);
-        for (const event of oneDayEvents) {
-            this.eventEmitter.emit('reminder.created', {
-                eventId: event.id,
-                userId: event.organizerId,
-                eventName: event.name,
-                text: `Get ready! Your event starts tomorrow at ${event.startDate.toLocaleTimeString()}`
-            });
+    @Cron(CronExpression.EVERY_12_HOURS)
+    async sendEventStartRemindersDaily() {
+        this.logger.log('⏰ Enviando recordatorios (24h) de eventos próximos...');
 
-            // Notificar a participantes
-            event.participations.forEach(participation => {
+        try {
+            // Eventos que empiezan entre 24h y 25h desde ahora (evita solapamiento con el job horario)
+            const oneDayEvents = await this.eventsRepository.findEventsStartingBetween(1,12);
+            for (const event of oneDayEvents) {
                 this.eventEmitter.emit('reminder.created', {
                     eventId: event.id,
-                    userId: participation.userId,
+                    userId: event.organizerId,
                     eventName: event.name,
-                    text: `Don't forget! The event starts tomorrow at ${event.startDate.toLocaleTimeString()}`
+                    text: `Get ready! Your is upcoming`
                 });
-            });
-        }
 
-        // Eventos que empiezan en 1 hora
-        const oneHourEvents = await this.eventsRepository.findEventsStartingSoon(1);
-        for (const event of oneHourEvents) {
-            this.eventEmitter.emit('reminder.created', {
-                eventId: event.id,
-                userId: event.organizerId,
-                eventName: event.name,
-                text: `Final preparations! Your event starts in one hour at ${event.startDate.toLocaleTimeString()}`
-            });
-
-            // Notificar a participantes
-            event.participations.forEach(participation => {
-                this.eventEmitter.emit('reminder.created', {
-                    eventId: event.id,
-                    userId: participation.userId,
-                    eventName: event.name,
-                    text: `Hurry up! The event starts in one hour at ${event.startDate.toLocaleTimeString()}`
+                event.participations.forEach(participation => {
+                    this.eventEmitter.emit('reminder.created', {
+                        eventId: event.id,
+                        userId: participation.userId,
+                        eventName: event.name,
+                        text: `Don't forget! The event is upcoming`
+                    });
                 });
-            });
-        }
+            }
 
-        this.logger.log('✅ Recordatorios enviados correctamente');
-    } catch (error) {
-        this.logger.error('❌ Error al enviar recordatorios:', error.message);
+            this.logger.log('✅ Recordatorios (24h) enviados correctamente');
+        } catch (error) {
+            this.logger.error('❌ Error al enviar recordatorios (24h):', error.message);
+        }
     }
-}
-// ...existing code...
+
+    // Recordatorios 1h antes — se ejecuta cada hora
+    @Cron(CronExpression.EVERY_HOUR)
+    async sendEventStartRemindersHourly() {
+        this.logger.log('⏰ Enviando recordatorios (1h) de eventos próximos...');
+
+        try {
+            // Eventos que empiezan entre 0 y 1 hora desde ahora
+            const oneHourEvents = await this.eventsRepository.findEventsStartingBetween(0, 1);
+            for (const event of oneHourEvents) {
+                this.eventEmitter.emit('reminder.created', {
+                    eventId: event.id,
+                    userId: event.organizerId,
+                    eventName: event.name,
+                    text: `Final preparations! Your event starts soon at ${event.startDate.toLocaleTimeString()}`
+                });
+
+                event.participations.forEach(participation => {
+                    this.eventEmitter.emit('reminder.created', {
+                        eventId: event.id,
+                        userId: participation.userId,
+                        eventName: event.name,
+                        text: `Hurry up! The event is starting soon at ${event.startDate.toLocaleTimeString()}`
+                    });
+                });
+            }
+
+            this.logger.log('✅ Recordatorios (1h) enviados correctamente');
+        } catch (error) {
+            this.logger.error('❌ Error al enviar recordatorios (1h):', error.message);
+        }
+    }
+
 
 }
