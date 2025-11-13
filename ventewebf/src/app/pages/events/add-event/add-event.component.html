@@ -36,11 +36,11 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block font-medium mb-1">Start</label>
-          <input type="datetime-local" class="border rounded w-full p-2" (ngModel)="createEventDto.endDate" [value]="createEventDto.startDate | date:'yyyy-MM-ddTHH:mm'">
+          <input type="datetime-local" class="border rounded w-full p-2" (change)="onDateTimeChange('start', $event)" [value]="createEventDto.startDate | date:'yyyy-MM-ddTHH:mm'">
         </div>
         <div>
           <label class="block font-medium mb-1">Finish</label>
-          <input type="datetime-local" class="border rounded w-full p-2" (ngModel)="createEventDto.endDate" [value]="createEventDto.endDate | date:'yyyy-MM-ddTHH:mm'">
+          <input type="datetime-local" class="border rounded w-full p-2" (change)="onDateTimeChange('end', $event)" [value]="createEventDto.endDate | date:'yyyy-MM-ddTHH:mm'">
         </div>
       </div>
 

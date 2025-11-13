@@ -70,7 +70,15 @@ export class AddEventComponent implements OnInit {
       this.createEventDto.lng = this.userLocation.lng;
       this.mapLocation.set({lat: this.userLocation.lat, lng: this.userLocation.lng, address: this.createEventDto.location});
     }
+  }
 
+  onDateTimeChange(field: 'start' | 'end', event: any) {
+    if(field === 'start'){
+      this.createEventDto.startDate = new Date(event.target.value);
+    }else{
+      this.createEventDto.endDate = new Date(event.target.value);
+    }
+    console.log(this.createEventDto.startDate, this.createEventDto.endDate);
   }
 
   validateStep(step: number) {
