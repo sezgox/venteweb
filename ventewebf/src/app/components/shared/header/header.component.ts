@@ -8,11 +8,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Notification, NotificationsService, NotificationType } from '../../../core/services/notifications.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { UsersService } from '../../../core/services/users.service';
+import { EventFormComponent } from '../event-form/event-form.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, NgClass],
+  imports: [RouterLink, NgClass, EventFormComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
@@ -29,6 +30,7 @@ export class HeaderComponent implements OnInit{
   loggedIn = this.authService.isAuthenticated();
   user: UserSummary | null = null;
   notifications: Notification[] = [];
+  showModalEventForm: boolean = false;
 
   ngOnInit(): void {
     // Observables de auth y usuario

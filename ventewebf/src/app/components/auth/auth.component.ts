@@ -130,10 +130,9 @@ export class AuthComponent implements AfterViewInit{
     this.toastr.success(`Welcome ${user.name}!`);
     const authModal = document.getElementById('auth-modal');
     authModal?.hidePopover();
-    this.router.navigate(['events/add']);
-    const redirect = this.authService.getRedirectUrl() ?? 'events';
-    this.authService.clearRedirectUrl();
-    this.router.navigate([redirect]);
+    this.router.navigate(['events'], {
+      state: { addEvent: true }
+    });
     this.authService.loggedIn.emit(true);
     this.usersService.setCurrentUser(user);
   }
