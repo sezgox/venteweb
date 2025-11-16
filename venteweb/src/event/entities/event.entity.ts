@@ -24,6 +24,7 @@ export class Event {
     startDate: Date;
     endDate: Date;
     requiresRequest: boolean;
+    locationAlias: string;
     totalRate?: number;
     createdAt: Date;
     updatedAt: Date;
