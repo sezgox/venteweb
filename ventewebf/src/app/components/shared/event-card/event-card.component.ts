@@ -82,7 +82,7 @@ import { Event, EventCategory } from '../../../core/interfaces/events.interfaces
         </div>
         <p class="text-sm line-clamp-2 flex-1 min-w-0 text-gray-600"
            [title]="event.location">
-          {{ event.location }}
+          {{ event.locationAlias }} - {{ event.location }}
         </p>
       </div>
     </div>

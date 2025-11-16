@@ -139,6 +139,7 @@ export class ExploreComponent implements OnInit {
       this.toastr.error('Refresh the page to try again','An unexpected error occurred');
     }finally{
       this.loading = false;
+      console.log(this.events())
     }
   }
 

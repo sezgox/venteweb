@@ -166,6 +166,9 @@ export class CreateEventDto {
     @IsString()
     location: string;
 
+    @IsString()
+    locationAlias: string;
+
     @Type(() => Date)
     @IsDate()
     @Validate(StartDateWithinOneYearConstraint)
