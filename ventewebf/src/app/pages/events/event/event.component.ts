@@ -86,7 +86,7 @@ export class EventComponent implements OnInit {
     const response = await this.eventsService.deleteEvent(this.event?.id!);
     if(response.success){
       this.toastr.success('Event deleted successfully');
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/events/dashboard']);
     }else{
       this.toastr.error(response.message,'Delete failed');
     }

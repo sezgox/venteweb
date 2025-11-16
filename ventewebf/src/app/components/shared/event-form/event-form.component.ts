@@ -143,6 +143,7 @@ export class EventFormComponent implements OnInit {
 
   async submit() {
     this.loading = true;
+    console.log(this.createEventDto)
     try {
       const response = await this.eventsService.createEvent(this.createEventDto)
       if(response.success){

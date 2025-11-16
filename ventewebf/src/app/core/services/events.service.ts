@@ -70,6 +70,7 @@ export class EventsService {
       formData.append('requiresRequest', String(event.requiresRequest));
     }
     formData.append('location', event.location);
+    formData.append('locationAlias', event.locationAlias);
     formData.append('lat', event.lat.toString());
     formData.append('lng', event.lng.toString());
 
