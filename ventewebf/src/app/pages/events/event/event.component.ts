@@ -51,6 +51,10 @@ export class EventComponent implements OnInit {
   participationTypes = ParticipationType;
 
   ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const eventId = params.get('id')!;
+      this.getEvent(eventId);
+    });
     const navigation = this.router.getCurrentNavigation();
     const stateEvent = navigation?.extras?.state?.['event'] as Event | undefined;
     const invitation = this.route.snapshot.queryParamMap.get('invitation');

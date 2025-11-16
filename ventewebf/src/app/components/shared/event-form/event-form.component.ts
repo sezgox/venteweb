@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../../enviroments/enviroment';
 import { MapComponent } from '../../../components/map/map.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
+import { CreateEventSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { CreateEventDto, EventCategory, Visibility } from '../../../core/interfaces/events.interfaces';
 import { EventsService } from '../../../core/services/events.service';
 import { GeolocationService, UserLocation } from '../../../core/services/geolocation.service';
@@ -147,7 +148,9 @@ export class EventFormComponent implements OnInit {
     try {
       const response = await this.eventsService.createEvent(this.createEventDto)
       if(response.success){
-        this.eventCreated.emit(response);
+        const event = (response as CreateEventSuccessResponse).results;
+        console.log(event.id)
+        this.eventCreated.emit(event);
         this.closeModal();
       }else{
         this.toastrService.clear();

@@ -3,6 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NotificationsSuccessResponse } from '../../../core/interfaces/api-response.interface';
+import { Event } from '../../../core/interfaces/events.interfaces';
 import { UserSummary } from '../../../core/interfaces/user.interfaces';
 import { AuthService } from '../../../core/services/auth.service';
 import { Notification, NotificationsService, NotificationType } from '../../../core/services/notifications.service';
@@ -116,4 +117,8 @@ export class HeaderComponent implements OnInit{
     return this.notifications.some(n => !n.read)
   }
 
+  redirectToEvent(event: Event){
+    console.log(event)
+    this.router.navigate(['/events/event', event.id]);
+  }
 }

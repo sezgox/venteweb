@@ -95,5 +95,5 @@
           }
 
 @if(showModalEventForm){
-  <app-event-form (close)="showModalEventForm = false"></app-event-form>
+  <app-event-form (close)="showModalEventForm = false" (eventCreated)="redirectToEvent($event)"></app-event-form>
 }
