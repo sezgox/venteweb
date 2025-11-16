@@ -8,5 +8,5 @@ export const routes: Routes = [
       import('./pages/events/events.routes').then(m => m.EVENTS_ROUTES)
   },
   {path: 'user/:username', loadComponent: () => import('./pages/account/profile/profile.component').then(m => m.ProfileComponent)},
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: 'events' }
 ];

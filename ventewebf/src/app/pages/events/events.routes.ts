@@ -20,9 +20,7 @@ export const EVENTS_ROUTES: Routes = [
             m => m.EventComponent
           ),
       },
-
-      { path: 'add', canActivate: [authGuard], loadComponent: () => import('./add-event/add-event.component').then(m => m.AddEventComponent) },
-      { path: 'dashboard',  canActivate: [authGuard], loadChildren: () => import('./events-dashboard/events-dashboard.routes').then(m => m.EVENTS_DASHBOARD_ROUTES) },
+      { path: 'dashboard',  canActivate: [authGuard], loadComponent: () => import('./events-dashboard/events-dashboard.component').then(m => m.EventsDashboardComponent) },
       { path: '', pathMatch: 'full', redirectTo: 'explore' },
     ],
   },
