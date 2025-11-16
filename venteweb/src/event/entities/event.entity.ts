@@ -113,7 +113,7 @@ export class Event {
 
     addAttendee(createParticipationDto: CreateParticipationDto, from?: {invitation?: boolean}){
         const attendees = this.participations.filter(p => p.type == ParticipationType.Attendance);
-        if(this.maxAttendees && this.maxAttendees >= attendees.length) throw new BadRequestException('No hay más cupos para atender como público :(')
+        if(this.maxAttendees && this.maxAttendees <= attendees.length) throw new BadRequestException('No hay más cupos para atender como público :(')
         if(this.hasAlreadyParticipated(createParticipationDto.userId)) throw new BadRequestException('Already participating in this event!')
         const participation = new Participation(createParticipationDto);
         return {participation, invitationId: from?.invitation ? createParticipationDto.invitationId : null};
