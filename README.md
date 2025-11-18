@@ -20,8 +20,7 @@ Aplicación web completa con frontend (Angular) y backend (NestJS) basada en Doc
 
 1. **Clonar el repositorio**
    ```bash
-   git clone <repository-url>
-   cd TFG
+   git clone https://github.com/sezgox/venteweb
    ```
 
 2. **Levantar los servicios con Docker Compose**
