@@ -56,6 +56,10 @@ export type ParticipationErrorResponse = ApiError<{dto: CreateParticipationDto}>
 export type UserSuccessReponse = ApiResponse<User>;
 export type UserErrorResponse = ApiError<{userId: string}>;
 
+export interface UpdateUserResponseDto extends User {
+  access_token: string;
+}
+export type UpdateUserSuccessResponse = ApiResponse<UpdateUserResponseDto>;
 export type UpdateUserErrorResponse = ApiError<{dto: EditUserDto}>;
 
 export type FollowSuccessResponse = ApiResponse<Follow>;
@@ -79,7 +83,7 @@ export type GetEventResponse = GetEventSuccessResponse | GetEventErrorResponse;
 export type RequestCollaborationResponse = RequestCollaborationSuccessResponse | RequestCollaborationErrorResponse;
 export type ParticipationResponse = ParticipationSuccessResponse | ParticipationErrorResponse;
 export type UserResponse = UserSuccessReponse | UserErrorResponse;
-export type UpdateUserResponse = UserSuccessReponse | UpdateUserErrorResponse;
+export type UpdateUserResponse = UpdateUserSuccessResponse | UpdateUserErrorResponse;
 export type FollowResponse = FollowSuccessResponse | FollowErrorResponse;
 export type SearchUsersResponse = SearchUsersSuccessResponse | SearchUsersErrorResponse;
 export type InvitationResponse = InvitationSuccessResponse | InvitationErrorResponse;

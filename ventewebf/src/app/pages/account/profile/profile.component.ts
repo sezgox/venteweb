@@ -5,9 +5,9 @@ import { ToastrService } from 'ngx-toastr';
 import { EventCardComponent } from '../../../components/shared/event-card/event-card.component';
 import { HeaderComponent } from '../../../components/shared/header/header.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
-import { UserSuccessReponse } from '../../../core/interfaces/api-response.interface';
+import { UpdateUserResponseDto, UserSuccessReponse } from '../../../core/interfaces/api-response.interface';
 import { Event, Participation, Visibility } from '../../../core/interfaces/events.interfaces';
-import { EditUserDto, User, UserSummary } from '../../../core/interfaces/user.interfaces';
+import { User, UserSummary } from '../../../core/interfaces/user.interfaces';
 import { UsersService } from '../../../core/services/users.service';
 import { EditModalComponent } from '../edit-modal/edit-modal.component';
 
@@ -54,14 +54,12 @@ export class ProfileComponent implements OnInit {
     this.loading = true;
     try{
       const res = await this.usersService.getProfile(username);
-      console.log(res)
       if (res.success) {
         this.user = (res as UserSuccessReponse).results;
         this.ownProfile = this.currentUser?.id === this.user?.id;
         this.isFollowing = this.user?.followers.some(follow => follow.followerId=== this.currentUser?.id);
         this.isFriend = this.isFollowing && this.user?.following.some(follow => follow.followedId === this.currentUser?.id);
         this.populateCollections();
-        console.log(this.user)
       } else {
         this.user = null;
       }
@@ -120,23 +118,24 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-  onProfileUpdated(editUser: EditUserDto) {
-    const usernameChanged = this.user?.username !== editUser.username;
-    const emailChanged = this.user?.email !== editUser.email;
+  onProfileUpdated(updatedUser: UpdateUserResponseDto) {
+    localStorage.setItem('access_token', updatedUser.access_token);
+    const usernameChanged = this.user?.username !== updatedUser.username;
+    const emailChanged = this.user?.email !== updatedUser.email;
 
     if (usernameChanged || emailChanged) {
       // Actualizamos el estado del usuario
-      this.user!.username = editUser.username;
-      this.user!.email = editUser.email;
+      this.user!.username = updatedUser.username;
+      this.user!.email = updatedUser.email;
       this.usersService.setCurrentUser(this.user!);
     }
 
     // Si el username cambió, navegamos a la nueva ruta
     if (usernameChanged) {
-      this.router.navigate(['/user', editUser.username]);
+      this.router.navigate(['/user', updatedUser.username]);
     }
 
-    this.usersService.setCurrentUser(editUser);
+    this.usersService.setCurrentUser(updatedUser);
     this.getUser(this.user!.username);
   }
 

@@ -3,6 +3,7 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
+import { UpdateUserResponseDto, UpdateUserSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { EditUserDto, UserSummary } from '../../../core/interfaces/user.interfaces';
 import { UsersService } from '../../../core/services/users.service';
 
@@ -148,7 +149,7 @@ import { UsersService } from '../../../core/services/users.service';
 export class EditModalComponent {
   @Input() user!: UserSummary;
   @Output() closeEdit = new EventEmitter<void>();
-  @Output() profileUpdated = new EventEmitter<EditUserDto>();
+  @Output() profileUpdated = new EventEmitter<UpdateUserResponseDto>();
 
   private readonly usersService = inject(UsersService);
   private readonly toastr = inject(ToastrService);
@@ -202,11 +203,10 @@ export class EditModalComponent {
 
     try {
       const response = await this.usersService.updateUser(this.user!.id!, formData);
-      console.log(response);
-
       if(response.success){
         this.toastr.success('Profile updated successfully');
-        this.profileUpdated.emit(this.editUser);
+
+        this.profileUpdated.emit((response as UpdateUserSuccessResponse).results);
       } else {
         this.toastr.error(response.message);
       }

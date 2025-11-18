@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException,
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
 import { Visibility } from 'generated/prisma';
+import { AuthService } from 'src/auth/auth.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { InvitationsService } from 'src/core/services/invitations.service';
 import { Event } from 'src/event/entities/event.entity';
@@ -24,7 +25,8 @@ export class UserService {
     private readonly invitationsService: InvitationsService, 
     private readonly participationRepository: ParticipationRepository, 
     private readonly cloudinaryService: CloudinaryService, 
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
+    private readonly authS: AuthService
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -93,8 +95,11 @@ export class UserService {
       }
 
       const updatedFields = await this.getUpdatedFields(updateUserDto, userData);
-      return await this.userRepository.update(id, updatedFields);
-
+      const updatedUser = await this.userRepository.update(id, updatedFields);
+      const access_token = await this.authS.createJwtToken(updatedUser);
+      const { password, ...safeUser } = updatedUser;
+      const result = { ...safeUser, access_token };
+      return result;
     } catch (error) {
 
       if (cdPayload?.public_id) {

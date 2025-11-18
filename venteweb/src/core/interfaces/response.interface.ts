@@ -60,6 +60,10 @@ export interface UserResponse extends UserSummary{
     bio: string;
 }
 
+export interface UpdateUserResponse extends UserResponse {
+    access_token: string;
+}
+
 export interface ParticipationRequestResponse {
     id: string;
     userId: string;

@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post,
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { AuthGuard } from 'src/core/guards/auth.guard';
-import { CustomResponse, FollowResponse, InvitationResponse, UserResponse, UserSummary } from 'src/core/interfaces/response.interface';
+import { CustomResponse, FollowResponse, InvitationResponse, UpdateUserResponse, UserResponse, UserSummary } from 'src/core/interfaces/response.interface';
 import { CreateInvitationDto } from 'src/participation/dto/create-invitation.dto';
 import { CreateParticipationDto } from 'src/participation/dto/create-participation.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -91,12 +91,12 @@ export class UserController {
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('photo')) 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req: Request, @Res() res: Response<CustomResponse<UserResponse>>, @UploadedFile() photo?: Express.Multer.File) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req: Request, @Res() res: Response<CustomResponse<UpdateUserResponse>>, @UploadedFile() photo?: Express.Multer.File) {
     const requesterId = req['user'].sub;
     if(requesterId != id) throw new BadRequestException('You can only update your own profile');
     try {
-      const updatedUser = await this.userService.update(id, updateUserDto, photo);
-      return res.json({results: updatedUser, message: 'User updated', success: true});
+      const results = await this.userService.update(id, updateUserDto, photo);
+      return res.json({results,message: 'User updated', success: true});
     } catch (error) {
       res.status(error.status ?? 400);
       return res.json({success: false, message: error.message ?? 'User not updated', metadata: {dto: id, ...updateUserDto}});

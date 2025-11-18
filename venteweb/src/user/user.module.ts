@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { AuthService } from 'src/auth/auth.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { InvitationsService } from 'src/core/services/invitations.service';
 import { EventRepository } from 'src/event/event.repository';
@@ -13,6 +14,6 @@ import { UserService } from './user.service';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService, PrismaService, UserRepository, UserScheduler, EventRepository, JwtService, InvitationsService, ParticipationRepository, CloudinaryService, NotificationRepository],
+  providers: [UserService, PrismaService, UserRepository, UserScheduler, EventRepository, JwtService, InvitationsService, ParticipationRepository, CloudinaryService, NotificationRepository, AuthService],
 })
 export class UserModule {}

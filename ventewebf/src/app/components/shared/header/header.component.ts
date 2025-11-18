@@ -60,7 +60,6 @@ export class HeaderComponent implements OnInit{
     }else{
       this.notifications = [];
     }
-    console.log(this.notifications)
   }
 
   async markAsRead(id: string) {
@@ -118,7 +117,6 @@ export class HeaderComponent implements OnInit{
   }
 
   redirectToEvent(event: Event){
-    console.log(event)
     this.router.navigate(['/events/event', event.id]);
   }
 }
