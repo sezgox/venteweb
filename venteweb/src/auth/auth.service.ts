@@ -55,7 +55,7 @@ export class AuthService {
     const { sub: googleId, email, name, picture, locale } = payload!;
 
     // 2️⃣ Buscar o crear usuario en la DB
-    let user = await this.usersRepository.findByUniqueInput({username: googleId});
+    let user = await this.usersRepository.findByUniqueInput({email});
     if (!user) {
       user = await this.usersRepository.create({
         name,username: `user${googleId}`, email, password: null, photo: picture, locale
