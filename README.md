@@ -142,4 +142,4 @@ Para eliminar completamente todos los contenedores, imágenes y volúmenes:
 ```bash
 docker-compose down -v --rmi all
 docker system prune -a
-``` 
+```
