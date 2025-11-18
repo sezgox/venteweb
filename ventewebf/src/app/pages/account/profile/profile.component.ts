@@ -135,6 +135,8 @@ export class ProfileComponent implements OnInit {
     if (usernameChanged) {
       this.router.navigate(['/user', editUser.username]);
     }
+
+    this.usersService.setCurrentUser(editUser);
     this.getUser(this.user!.username);
   }
 
