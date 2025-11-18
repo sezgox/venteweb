@@ -26,7 +26,6 @@ Aplicación web completa con frontend (Angular) y backend (NestJS) basada en Doc
 
 2. **Levantar los servicios con Docker Compose**
    ```bash
-   cd installation
    docker-compose up --build
    ```
 
@@ -36,7 +35,7 @@ Aplicación web completa con frontend (Angular) y backend (NestJS) basada en Doc
    - **frontend**: Aplicación Angular servida por Nginx en puerto 80
 
 3. **Acceder a la aplicación**
-   - Frontend: http://localhost:80
+   - Frontend: http://localhost:4200
    - Backend API: http://localhost:3000
    - Base de datos: localhost:5432
 
@@ -70,13 +69,8 @@ docker-compose exec frontend sh
 
 ```
 TFG/
-├── installation/
-│   ├── docker-compose.yml
-│   ├── backend/
-│   │   └── Dockerfile
-│   └── frontend/
-│       ├── Dockerfile
-│       └── nginx.conf
+
+├── docker-compose.yml
 ├── venteweb/          # Backend NestJS
 ├── ventewebf/         # Frontend Angular
 └── README.md
