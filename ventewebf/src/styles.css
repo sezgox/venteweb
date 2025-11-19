@@ -130,3 +130,30 @@ body{
 .popup-container > div {
   @apply bg-bg rounded-xl shadow-xl p-3 border border-gray200;
 }
+
+
+.quill-like-textarea .ql-container {
+  border: 1px solid #e5e7eb !important; /* mismo borde */
+  border-radius: 0.5rem !important;     /* mismo border-radius */
+  background: var(--bg) !important;     /* mismo fondo */
+  color: var(--text) !important;        /* mismo texto */
+  min-height: 150px;                    /* tamaño parecido */
+}
+
+.quill-like-textarea .ql-editor {
+  padding: 0.75rem !important;          /* igual que textarea */
+  min-height: 150px;
+}
+
+.quill-like-textarea .ql-toolbar {
+  border: 1px solid #e5e7eb !important; /* mismo borde */
+  border-radius: 0.5rem !important;
+  background: var(--bg) !important;
+}
+
+/* cuando está enfocado */
+.quill-like-textarea .ql-container.ql-snow:focus-within,
+.quill-like-textarea .ql-toolbar.ql-snow:focus-within {
+  border: none;
+  outline:  1px solid var(--color-primary) !important;
+}

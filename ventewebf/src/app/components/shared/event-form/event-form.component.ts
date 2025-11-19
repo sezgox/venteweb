@@ -2,7 +2,9 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { setOptions } from '@googlemaps/js-api-loader';
+import { QuillModule } from 'ngx-quill';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../../enviroments/enviroment';
 import { MapComponent } from '../../../components/map/map.component';
@@ -16,7 +18,7 @@ import { UsersService } from '../../../core/services/users.service';
 @Component({
   selector: 'app-event-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MapComponent, DatePipe, LoadingComponent],
+  imports: [CommonModule, FormsModule, MapComponent, DatePipe, LoadingComponent, QuillModule],
   templateUrl: './event-form.component.html',
   styleUrl: './event-form.component.css'
 })
@@ -31,6 +33,7 @@ export class EventFormComponent implements OnInit {
   private readonly eventsService: EventsService = inject(EventsService);
   private readonly usersService: UsersService = inject(UsersService);
   private readonly toastrService: ToastrService = inject(ToastrService);
+  private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
 
   userLocation: UserLocation | null = null;
 
@@ -138,8 +141,8 @@ export class EventFormComponent implements OnInit {
     }
   }
 
-  getReviewData() {
-    return this.createEventDto;
+  getSafeDescription(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.createEventDto.description);
   }
 
   async submit() {

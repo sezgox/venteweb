@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { HeaderComponent } from '../../../components/shared/header/header.component';
@@ -24,6 +25,7 @@ export class EventComponent implements OnInit {
   private eventsService = inject(EventsService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
   toastr = inject(ToastrService);
 
   event?: Event;
@@ -122,6 +124,10 @@ export class EventComponent implements OnInit {
 
   get eventAlreadyStarted(): boolean {
     return new Date(this.event?.startDate!) < new Date();
+  }
+
+  getSafeDescription(): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(this.event?.description!);
   }
 
   onCollaborate(): void {

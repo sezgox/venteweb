@@ -127,7 +127,7 @@
       <div class="px-6 pb-6">
         <div class="bg-bg p-4 rounded-lg border border-gray200">
           <p class="font-semibold text-text mb-2">About the event</p>
-          <p class="text-gray600 leading-relaxed">{{ event.description }}</p>
+          <p class="text-gray600 leading-relaxed" [innerHTML]="getSafeDescription()"></p>
         </div>
       </div>
 
