@@ -19,6 +19,7 @@ export class EventRepository{
             lng: event.lng,
             poster: event.poster,
             location: event.location,
+            locationAlias: event.locationAlias,
             startDate: event.startDate,
             endDate: event.endDate,
             requiresRequest: event.requiresRequest,
