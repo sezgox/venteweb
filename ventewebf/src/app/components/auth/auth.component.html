@@ -1,144 +1,120 @@
+<div class="min-w-[320px] md:min-w-[420px] bg-[var(--color-bg)] rounded-2xl shadow-lg overflow-hidden relative">
 
+  <!-- Mobile Header -->
+  <div class="flex items-center justify-between p-4 md:hidden border-b border-gray200">
+    <h2 class="text-lg font-bold text-[var(--color-text)]">
+      {{ isLogin ? 'Log in' : 'Sign up' }}
+    </h2>
+    <button
+      class="text-gray600 hover:text-text transition-colors p-2 rounded-lg"
+      (click)="onCancel()"
+    >
+      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
 
-  <div class="min-w-[420px] bg-[var(--color-bg)] rounded-2xl shadow-lg overflow-hidden">
+  <!-- Toggle Buttons (hidden on mobile header) -->
+  <div class="flex p-1 rounded-xl m-6 bg-[var(--color-gray-100)]">
+    <button
+      [class.toggle-active-left]="isLogin"
+      [class.toggle-inactive]="!isLogin"
+      (click)="isLogin = true"
+      class="flex-1 py-3 px-4 font-semibold rounded-lg transition-all duration-300"
+    >
+      Log in
+    </button>
+    <button
+      [class.toggle-active-right]="!isLogin"
+      [class.toggle-inactive]="isLogin"
+      (click)="isLogin = false"
+      class="flex-1 py-3 px-4 font-semibold rounded-lg transition-all duration-300"
+    >
+      Sign up
+    </button>
+  </div>
 
-    <!-- Toggle Buttons -->
-    <div class="flex p-1 rounded-xl m-6 bg-[var(--color-gray-100)]">
-      <button
-        [class.toggle-active-left]="isLogin"
-        [class.toggle-inactive]="!isLogin"
-        (click)="isLogin = true"
-        class="flex-1 py-3 px-4 font-semibold rounded-lg transition-all duration-300 outline-">
-        Log in
-      </button>
-      <button
-        [class.toggle-active-right]="!isLogin"
-        [class.toggle-inactive]="isLogin"
-        (click)="isLogin = false"
-        class="flex-1 py-3 px-4 font-semibold rounded-lg transition-all duration-300">
-        Sign up
-      </button>
-    </div>
+  <!-- Login Form -->
+  @if(isLogin){
+    <form (ngSubmit)="onLogin()" class="px-6 pb-6">
+      <h2 class="text-3xl font-bold text-[var(--color-text)] mb-6 text-center md:text-left md:mt-2">
+        Welcome Back
+      </h2>
 
-    @if(isLogin){
-      <form (ngSubmit)="onLogin()" class="px-6 pb-6">
-        <h2 class="text-3xl font-bold text-[var(--color-text)] mb-6 text-center">Welcome Back</h2>
-
-        <div class="mb-5">
-          <label for="login-username" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">
-            Username or email
-          </label>
-          <input
-            type="text"
-            id="login-username"
-            [(ngModel)]="loginCredential"
-            name="username"
-            placeholder="Enter your username or email"
-            class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
-            required>
-        </div>
-
-        <div class="mb-5">
-          <label for="login-password" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">
-            Password
-          </label>
-          <input
-            type="password"
-            id="login-password"
-            [(ngModel)]="loginPassword"
-            name="password"
-            placeholder="Enter your password"
-            class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
-            required>
-        </div>
-
-        <button type="submit" class="btn-primary w-full mt-4 py-3.5 text-base font-semibold">
-          Log in
-        </button>
-
-        <p class="mt-6 text-center text-[var(--color-gray-600)] text-sm">
-          Don't have an account?
-          <a (click)="isLogin = false" class="text-[var(--color-primary)] font-semibold cursor-pointer hover:underline">
-            Sign up
-          </a>
-        </p>
-
-      </form>
-    }@else {
-      <form  (ngSubmit)="onRegister()" class="px-6 pb-6">
-        <h2 class="text-3xl font-bold text-[var(--color-text)] mb-6 text-center">Create Account</h2>
-
-        <div class="mb-5">
-          <label for="register-name" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">
-            Name
-          </label>
-          <input
-            type="text"
-            id="register-name"
-            [(ngModel)]="registerData.name"
-            name="name"
-            placeholder="Enter your full name"
-            class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
-            required>
-        </div>
-
-        <div class="mb-5">
-          <label for="register-email" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">
-            Email
-          </label>
-          <input
-            type="email"
-            id="register-email"
-            [(ngModel)]="registerData.email"
-            name="email"
-            placeholder="Enter your email"
-            class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
-            required>
-        </div>
-
-        <div class="mb-5">
-          <label for="register-username" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">
-            Username
-          </label>
-          <input
-            type="text"
-            id="register-username"
-            [(ngModel)]="registerData.username"
-            name="username" autocomplete="username"
-            placeholder="Choose a username"
-            class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
-            required>
-        </div>
-
-        <div class="mb-5">
-          <label for="register-password" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">
-            Password
-          </label>
-          <input
-            type="password"
-            id="register-password" autocomplete="new-password"
-            [(ngModel)]="registerData.password"
-            name="password"
-            placeholder="Create a password"
-            class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
-            required>
-        </div>
-
-        <button type="submit" class="btn-primary w-full mt-4 py-3.5 text-base font-semibold">
-          Sign up
-        </button>
-
-        <p class="mt-6 text-center text-[var(--color-gray-600)] text-sm">
-          Already have an account?
-          <a (click)="isLogin = true" class="text-[var(--color-primary)] font-semibold cursor-pointer hover:underline">
-            Log in
-          </a>
-        </p>
-      </form>
-    }
-
-      <div class="px-6 pb-8">
-        <button  (click)="onGoogleSignIn()" id="googleSignInButton">Login with Google</button>
+      <div class="mb-5">
+        <label for="login-username" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">Username or email</label>
+        <input
+          type="text"
+          id="login-username"
+          [(ngModel)]="loginCredential"
+          name="username"
+          placeholder="Enter your username or email"
+          class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
+          required>
       </div>
 
+      <div class="mb-5">
+        <label for="login-password" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">Password</label>
+        <input
+          type="password"
+          id="login-password"
+          [(ngModel)]="loginPassword"
+          name="password"
+          placeholder="Enter your password"
+          class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10"
+          required>
+      </div>
+
+      <button type="submit" class="btn-primary w-full mt-4 py-3.5 text-base font-semibold">Log in</button>
+
+      <p class="mt-6 text-center text-[var(--color-gray-600)] text-sm">
+        Don't have an account?
+        <a (click)="isLogin = false" class="text-[var(--color-primary)] font-semibold cursor-pointer hover:underline">Sign up</a>
+      </p>
+    </form>
+  }@else{
+    <!-- Register Form -->
+    <form (ngSubmit)="onRegister()" class="px-6 pb-6">
+      <h2 class="text-3xl font-bold text-[var(--color-text)] mb-6 text-center md:text-left md:mt-2">
+        Create Account
+      </h2>
+
+      <div class="mb-5">
+        <label for="register-name" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">Name</label>
+        <input type="text" id="register-name" [(ngModel)]="registerData.name" name="name" placeholder="Enter your full name"
+               class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10" required>
+      </div>
+
+      <div class="mb-5">
+        <label for="register-email" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">Email</label>
+        <input type="email" id="register-email" [(ngModel)]="registerData.email" name="email" placeholder="Enter your email"
+               class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10" required>
+      </div>
+
+      <div class="mb-5">
+        <label for="register-username" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">Username</label>
+        <input type="text" id="register-username" [(ngModel)]="registerData.username" name="username" autocomplete="username" placeholder="Choose a username"
+               class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10" required>
+      </div>
+
+      <div class="mb-5">
+        <label for="register-password" class="block font-semibold text-[var(--color-text)] mb-2 text-sm">Password</label>
+        <input type="password" id="register-password" autocomplete="new-password" [(ngModel)]="registerData.password" name="password" placeholder="Create a password"
+               class="w-full px-4 py-3 border-2 border-[var(--color-gray-200)] rounded-lg bg-[var(--color-bg)] text-[var(--color-text)] transition-all focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:ring-opacity-10" required>
+      </div>
+
+      <button type="submit" class="btn-primary w-full mt-4 py-3.5 text-base font-semibold">Sign up</button>
+
+      <p class="mt-6 text-center text-[var(--color-gray-600)] text-sm">
+        Already have an account?
+        <a (click)="isLogin = true" class="text-[var(--color-primary)] font-semibold cursor-pointer hover:underline">Log in</a>
+      </p>
+    </form>
+  }
+
+  <!-- Google Sign-in -->
+  <div class="px-6 pb-8">
+    <button (click)="onGoogleSignIn()" id="googleSignInButton" class="btn-secondary w-full py-3.5 mt-2">Login with Google</button>
   </div>
+</div>

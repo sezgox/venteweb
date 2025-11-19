@@ -135,4 +135,9 @@ export class AuthComponent implements AfterViewInit{
     });
     this.usersService.setCurrentUser(user);
   }
+
+  onCancel() {
+    const popover = document.getElementById('auth-modal');
+    popover?.hidePopover();
+  }
 }
