@@ -92,7 +92,7 @@ model User {
   name              String
   password          String?
   email             String           @unique
-  photo             String?          @default("https://37assets.37signals.com/svn/765-default-avatar.png")
+  photo             String?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   lastLogin         DateTime?
