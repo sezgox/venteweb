@@ -429,7 +429,7 @@
           <div
             class="flex justify-between items-center p-3 bg-gray50 rounded-lg border border-gray200 gap-2"
           >
-          <img src="{{u.photo}}" alt="{{u.name}} pfp" class="w-10 h-10 rounded-full object-cover">
+          <img [src]="u.photo ?? pfp" alt="{{u.name}} pfp" class="w-10 h-10 rounded-full object-cover">
             <span class="text-text">{{ u.name }} ({{ u.username }})</span>
 
             <button

@@ -5,7 +5,7 @@ export interface UserSummary {
   username: string;
   name: string;
   email: string;
-  photo: string;
+  photo?: string;
   locale: string;
   bio: string;
 }

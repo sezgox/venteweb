@@ -8,7 +8,7 @@
         <div class="flex items-center gap-4">
           <img
             class="h-24 w-24 rounded-full border-4 border-primary object-cover"
-            [src]="user.photo"
+            [src]="user.photo ?? pfp"
             [alt]="user.name"
           />
           <div>

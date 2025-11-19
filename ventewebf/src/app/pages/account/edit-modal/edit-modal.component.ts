@@ -3,6 +3,7 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
+import { PFP_URL } from '../../../core/consts/pfp.const';
 import { UpdateUserResponseDto, UpdateUserSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { EditUserDto, UserSummary } from '../../../core/interfaces/user.interfaces';
 import { UsersService } from '../../../core/services/users.service';
@@ -42,7 +43,7 @@ import { UsersService } from '../../../core/services/users.service';
               <!-- Photo Preview -->
               <div class="flex flex-col items-center gap-4">
                 <img
-                  [src]="photoPreviewUrl || editUser.photo"
+                  [src]="photoPreviewUrl || (editUser.photo ?? pfp)"
                   [alt]="editUser.name"
                   class="w-32 h-32 rounded-full object-cover border-4 border-primary"
                 >
@@ -166,6 +167,7 @@ export class EditModalComponent {
 
   photoPreviewUrl: string | null = null;
   photoFile: File | null = null;
+  pfp = PFP_URL;
 
   loading: boolean = false;
 

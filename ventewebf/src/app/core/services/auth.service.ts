@@ -1,4 +1,4 @@
-import { EventEmitter, inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { LoginResponse, RegisterResponse } from '../interfaces/api-response.interface';
 import { LoginDto } from '../interfaces/login.dto.interface';
@@ -10,7 +10,6 @@ import { ApiService } from './api.service';
 })
 export class AuthService {
 
-  public loggedIn: EventEmitter<boolean> = new EventEmitter();
   private redirectUrl: string | null = null;
   private readonly api = inject(ApiService);
 

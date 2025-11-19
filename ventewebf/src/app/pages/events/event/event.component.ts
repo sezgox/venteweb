@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { HeaderComponent } from '../../../components/shared/header/header.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
+import { PFP_URL } from '../../../core/consts/pfp.const';
 import { GetEventSuccessResponse, InvitationSuccessResponse, ParticipationErrorResponse, ParticipationSuccessResponse, RequestCollaborationErrorResponse, SearchUsersSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { Invitation, ParticipationType, Request } from '../../../core/interfaces/events.interfaces';
 import { UserSummary } from '../../../core/interfaces/user.interfaces';
@@ -36,6 +37,7 @@ export class EventComponent implements OnInit {
   }
 
   loading: boolean = false;
+  pfp = PFP_URL;
 
   currentUserId: string | null = null;
   showDeleteDialog = false;

@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { EventCardComponent } from '../../../components/shared/event-card/event-card.component';
 import { HeaderComponent } from '../../../components/shared/header/header.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
+import { PFP_URL } from '../../../core/consts/pfp.const';
 import { UpdateUserResponseDto, UserSuccessReponse } from '../../../core/interfaces/api-response.interface';
 import { Event, Participation, Visibility } from '../../../core/interfaces/events.interfaces';
 import { User, UserSummary } from '../../../core/interfaces/user.interfaces';
@@ -28,6 +29,7 @@ export class ProfileComponent implements OnInit {
   private readonly router: Router = inject(Router);
 
   loading: boolean = false;
+  pfp = PFP_URL;
 
   currentUser: UserSummary | null = this.usersService.getCurrentUser();
   user: User | null = null;

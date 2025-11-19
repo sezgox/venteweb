@@ -133,7 +133,6 @@ export class AuthComponent implements AfterViewInit{
     this.router.navigate(['events'], {
       state: { addEvent: true }
     });
-    this.authService.loggedIn.emit(true);
     this.usersService.setCurrentUser(user);
   }
 }

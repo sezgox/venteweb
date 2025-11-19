@@ -2,6 +2,7 @@ import { NgClass } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { PFP_URL } from '../../../core/consts/pfp.const';
 import { NotificationsSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { Event } from '../../../core/interfaces/events.interfaces';
 import { UserSummary } from '../../../core/interfaces/user.interfaces';
@@ -32,22 +33,23 @@ export class HeaderComponent implements OnInit{
   user: UserSummary | null = null;
   notifications: Notification[] = [];
   showModalEventForm: boolean = false;
+  pfp = PFP_URL;
 
   ngOnInit(): void {
-    // Observables de auth y usuario
-    this.sub = this.authService.loggedIn.subscribe(success => {
-      this.loggedIn = success;
-    });
 
   this.usersService.currentUser$.subscribe(user => {
       this.user = user;
       if (user) {
+        this.loggedIn = true;
+        this.getNotifications();
         const token = localStorage.getItem('access_token');
         if (token) this.notificationsService.connect(token);
+      }else{
+        this.loggedIn = false;
       }
     });
 
-    this.getNotifications();
+
     this.notificationsService.notifications$.subscribe(notifications => {
       this.notifications.unshift(...notifications);
     });
@@ -107,7 +109,6 @@ export class HeaderComponent implements OnInit{
   logout(){
     localStorage.removeItem("access_token");
     this.loggedIn = false;
-    this.authService.loggedIn.emit(false);
     this.usersService.clearCurrentUser();
     window.location.reload();
   }
