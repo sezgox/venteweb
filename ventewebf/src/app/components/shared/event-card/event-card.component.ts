@@ -81,8 +81,8 @@ import { Event, EventCategory } from '../../../core/interfaces/events.interfaces
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-gray-800">{{ event.locationAlias }}</p>
-          <p class="text-xs text-gray-600">{{ event.location }}</p>
+          <p class="text-sm font-semibold text-gray-800 truncate">{{ event.locationAlias }}</p>
+          <p class="text-xs text-gray-600 truncate">{{ event.location }}</p>
         </div>
       </div>
     </div>
