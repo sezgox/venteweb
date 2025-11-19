@@ -80,8 +80,10 @@ import { Event, EventCategory } from '../../../core/interfaces/events.interfaces
             <circle cx="12" cy="10" r="3"/>
           </svg>
         </div>
-        <p class="text-sm font-semibold text-gray-800">{{ event.locationAlias }}</p>
-        <p class="text-xs text-gray-600">{{ event.location }}</p>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-800">{{ event.locationAlias }}</p>
+          <p class="text-xs text-gray-600">{{ event.location }}</p>
+        </div>
       </div>
     </div>
   </div>
