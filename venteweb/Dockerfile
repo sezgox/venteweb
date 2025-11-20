@@ -17,4 +17,4 @@ RUN npx prisma generate
 EXPOSE 3000
 
 # Entry point: primero migraciones, luego hot reload
-CMD npx prisma migrate dev --name init --skip-seed && npm run start:dev
+CMD npx prisma migrate deploy && npm run start:dev

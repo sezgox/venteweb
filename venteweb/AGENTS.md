@@ -212,9 +212,9 @@ interface CustomResponse<T> {
 - File uploads: Use Nest interceptors (`FileInterceptor`) and services; never handle raw streams in controllers.
 - Documentation: Keep README.md and AGENTS.md in sync. Whenever any public API, domain flow, environment variable, folder structure, or convention changes, update both documents in the same PR.
 - **CRITICAL:** Agents MUST update `AGENTS.md` every time a code change is made to reflect the new state of the codebase. This is mandatory.
+- Keep both documents consistent. If any section becomes outdated, the PR is not complete.
 
-## 8) When Adding or Modifying Features
-
+## 8) PR Checklist (Copy into your PR template)ors.
 - Create/Update DTOs under the module’s `dto/` folder with validation decorators.
 - Add/Update controller routes; secure with `AuthGuard` when required. Keep response envelope consistent.
 - Add service methods for business logic.

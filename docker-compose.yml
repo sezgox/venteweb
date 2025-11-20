@@ -9,7 +9,7 @@ services:
     restart: always
     # Mapea el puerto solo si necesitas acceder a él desde tu host (opcional en desarrollo)
     ports:
-      - "5432:5432" 
+      - "5432:5432"
     environment:
       # Las variables de la DB son necesarias para la conexión inicial del contenedor
       POSTGRES_PASSWORD: S3cret
@@ -52,17 +52,17 @@ services:
     restart: always
     # Angular Dev Server usa 4200 por defecto
     ports:
-      - "4200:4200" 
+      - "4200:4200"
     depends_on:
       - backend
-    
+
     # MONTAJES DE VOLUMEN (CRUCIAL PARA EL DESARROLLO)
     volumes:
       # Monta el código fuente local para hot-reloading
-      - ./ventewebf:/app 
+      - ./ventewebf:/app
       # Evita que la carpeta node_modules del contenedor se sobrescriba por el montaje anterior
       - /app/node_modules
-      
+
     networks:
       - app-network
 
@@ -71,6 +71,7 @@ services:
 # -------------------------------------------------------------------------
 volumes:
   postgres_data:
+
 
 networks:
   app-network:
