@@ -53,7 +53,7 @@ Aplicación web completa con frontend (Angular) y backend (NestJS) basada en Doc
    CLOUDINARY_API_SECRET=""
 
    # Seguridad
-   ENCRYPTION_KEY="random_encryption_key_to_be_changed"
+   EVENT_ENCRYPTION_KEY="random_encryption_key_to_be_changed_xxx"
    ```
 
    > **Nota:** Si tienes credenciales reales para Cloudinary o Google, puedes sustituirlas aquí.
