@@ -1,0 +1,12 @@
+<button
+  [type]="type"
+  [class]="btnClass"
+  [disabled]="loading || disabled"
+  (click)="onClick($event)"
+  class="relative flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+>
+  @if (loading) {
+    <div class="loader"></div>
+  }
+  <ng-content></ng-content>
+</button>

@@ -114,6 +114,10 @@ ventewebf/
       │        ├─ event-card.component.ts
       │        ├─ event-card.component.html
       │        └─ event-card.component.css
+      │     └─ button-loader/
+      │        ├─ button-loader.component.ts
+      │        ├─ button-loader.component.html
+      │        └─ button-loader.component.css
       ├─ core/
       │  ├─ guards/
       │  │  └─ auth.guard.ts
@@ -249,14 +253,7 @@ ventewebf/
 
 Whenever any change affects behavior, public APIs, environment variables, routing, folder structure, build scripts, or architecture decisions, you must update documentation:
 
-- Update `README.md` with user-facing instructions (setup, run, build, deploy).
-- Update `AGENTS.md` with developer-facing rules (structure, standards, guidelines).
-- Keep both documents consistent. If any section becomes outdated, the PR is not complete.
-
 Add to every pull request:
-
-- A note listing what documentation sections were updated.
-- If no docs changes are required, explicitly state why.
 
 ## 7) PR Checklist (Copy into your PR template)
 

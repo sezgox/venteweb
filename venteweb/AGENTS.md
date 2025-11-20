@@ -211,6 +211,7 @@ interface CustomResponse<T> {
 - Configuration: Read from environment; do not hardcode secrets. Ensure strong `EVENT_ENCRYPTION_KEY`.
 - File uploads: Use Nest interceptors (`FileInterceptor`) and services; never handle raw streams in controllers.
 - Documentation: Keep README.md and AGENTS.md in sync. Whenever any public API, domain flow, environment variable, folder structure, or convention changes, update both documents in the same PR.
+- **CRITICAL:** Agents MUST update `AGENTS.md` every time a code change is made to reflect the new state of the codebase. This is mandatory.
 
 ## 8) When Adding or Modifying Features
 

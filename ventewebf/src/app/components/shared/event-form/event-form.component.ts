@@ -79,33 +79,39 @@ export class EventFormComponent implements OnInit {
       key: environment.googleMapsApiKey,
     });
 
-    if(this.userLocation && this.mode === 'create'){
+    if (this.userLocation && this.mode === 'create') {
       this.createEventDto.location = await this.geolocationService.reverseGeocoding(this.userLocation.lat, this.userLocation.lng);
       this.createEventDto.locationAlias = this.createEventDto.location;
       this.createEventDto.lat = this.userLocation.lat;
       this.createEventDto.lng = this.userLocation.lng;
-      this.mapLocation.set({lat: this.userLocation.lat, lng: this.userLocation.lng, address: this.createEventDto.location});
+      this.mapLocation.set({ lat: this.userLocation.lat, lng: this.userLocation.lng, address: this.createEventDto.location });
     }
   }
 
   onDateTimeChange(field: 'start' | 'end', event: any) {
-    if(field === 'start'){
+    if (field === 'start') {
       this.createEventDto.startDate = new Date(event.target.value);
-    }else{
+    } else {
       this.createEventDto.endDate = new Date(event.target.value);
     }
   }
 
   validateStep(step: number) {
     let valid = false;
+    let message = 'Fill in all fields correctly before continuing.';
     switch (step) {
       case 1:
         valid = !!this.createEventDto.location && !!this.createEventDto.startDate && !!this.createEventDto.endDate && this.createEventDto.startDate <= this.createEventDto.endDate;
         break;
       case 2:
-        valid = !!this.createEventDto.visibility &&
-        ((this.createEventDto.requiresRequest && this.createEventDto.maxCollaborators && this.createEventDto.maxCollaborators > 0) ||
-        (!this.createEventDto.requiresRequest));
+        if (!!this.createEventDto.visibility &&
+          ((this.createEventDto.requiresRequest && this.createEventDto.maxCollaborators && this.createEventDto.maxCollaborators > 0) ||
+            (!this.createEventDto.requiresRequest))) {
+          valid = true;
+        } else {
+          message = 'When checking collaborators approval, you must fill in the maximum number of collaborators.';
+          valid = false;
+        }
         break;
       case 3:
         valid = !!this.createEventDto.name && this.createEventDto.categories.length >= 1 && this.createEventDto.categories.length <= 3 && !!this.createEventDto.description;
@@ -116,7 +122,7 @@ export class EventFormComponent implements OnInit {
       this.step = step + 1;
     } else {
       this.toastrService.clear();
-      this.toastrService.warning('Fill in all fields correctly before continuing.');
+      this.toastrService.warning(message || 'Fill in all fields correctly before continuing.');
     }
   }
 
@@ -125,9 +131,9 @@ export class EventFormComponent implements OnInit {
   }
 
   async openMapModal() {
-    if(!this.userLocation){
+    if (!this.userLocation) {
       this.userLocation = await this.geolocationService.getLocationByIp();
-      this.mapLocation.set({lat: this.userLocation?.lat!, lng: this.userLocation?.lng!, address: this.createEventDto.location});
+      this.mapLocation.set({ lat: this.userLocation?.lat!, lng: this.userLocation?.lng!, address: this.createEventDto.location });
     }
     this.showMapModal = true;
   }
@@ -150,12 +156,12 @@ export class EventFormComponent implements OnInit {
     console.log(this.createEventDto)
     try {
       const response = await this.eventsService.createEvent(this.createEventDto)
-      if(response.success){
+      if (response.success) {
         const event = (response as CreateEventSuccessResponse).results;
         console.log(event.id)
         this.eventCreated.emit(event);
         this.closeModal();
-      }else{
+      } else {
         this.toastrService.clear();
         this.toastrService.error(response.message);
       }
@@ -169,19 +175,19 @@ export class EventFormComponent implements OnInit {
     }
   }
 
-  mapLocation: WritableSignal<any|null> = signal(null);
+  mapLocation: WritableSignal<any | null> = signal(null);
 
-  async onAccept(location: {lat: number, lng: number, address: string}){
+  async onAccept(location: { lat: number, lng: number, address: string }) {
     this.createEventDto.lat = location.lat;
     this.createEventDto.lng = location.lng;
     this.createEventDto.location = location.address;
     this.createEventDto.locationAlias = location.address;
-    this.mapLocation.set({lat: location.lat, lng: location.lng, address: location.address});
+    this.mapLocation.set({ lat: location.lat, lng: location.lng, address: location.address });
     this.showMapModal = false;
   }
 
-  onCancel(){
-    this.mapLocation.set({lat: this.createEventDto.lat, lng: this.createEventDto.lng, address: this.createEventDto.location});
+  onCancel() {
+    this.mapLocation.set({ lat: this.createEventDto.lat, lng: this.createEventDto.lng, address: this.createEventDto.location });
     this.showMapModal = false;
   }
 
