@@ -23,7 +23,47 @@ Aplicación web completa con frontend (Angular) y backend (NestJS) basada en Doc
    git clone https://github.com/sezgox/venteweb
    ```
 
-2. **Levantar los servicios con Docker Compose**
+2. **Configuración del entorno**
+   
+   Antes de construir los contenedores, es necesario configurar las variables de entorno del backend.
+
+   Entra en el directorio del backend y crea el archivo `.env`:
+   ```bash
+   cd venteweb
+   ```
+
+   Crea el archivo `.env` con el siguiente contenido (puedes usar `nano .env` o crear un archivo nuevo):
+
+   ```env
+   # Base de datos (Configuración por defecto para Docker)
+   DATABASE_URL="postgresql://ventedbuser:S3cret@localhost:5432/venteweb?schema=public"
+
+   # JWT Configuration (Cambia estos valores en producción)
+   JWT_SECRET="change_this_secret_key_12345"
+   JWT_EXPIRES="1d"
+   JWT_ISSUER="venteweb_issuer"
+   JWT_AUDIENCE="venteweb_audience"
+
+   # Google Auth (Opcional para desarrollo local si no usas login con Google)
+   GOOGLE_CLIENT_ID="your_google_client_id_here"
+
+   # Cloudinary (Dejar vacío si no se va a usar almacenamiento en la nube)
+   CLOUDINARY_NAME=""
+   CLOUDINARY_API_KEY=""
+   CLOUDINARY_API_SECRET=""
+
+   # Seguridad
+   ENCRYPTION_KEY="random_encryption_key_to_be_changed"
+   ```
+
+   > **Nota:** Si tienes credenciales reales para Cloudinary o Google, puedes sustituirlas aquí.
+
+   Vuelve al directorio raíz:
+   ```bash
+   cd ..
+   ```
+
+3. **Levantar los servicios con Docker Compose**
    ```bash
    docker-compose up --build
    ```
@@ -33,7 +73,7 @@ Aplicación web completa con frontend (Angular) y backend (NestJS) basada en Doc
    - **backend**: API NestJS en puerto 3000
    - **frontend**: Aplicación Angular servida por Nginx en puerto 80
 
-3. **Acceder a la aplicación**
+4. **Acceder a la aplicación**
    - Frontend: http://localhost:4200
    - Backend API: http://localhost:3000
    - Base de datos: localhost:5432
