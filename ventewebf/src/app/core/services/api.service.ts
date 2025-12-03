@@ -15,7 +15,10 @@ export class ApiService {
   async request<T, E = any>(method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH', endpoint: string, body?: any): Promise<ApiResponse<T> | ApiError<E>> {
     try {
       const response = await lastValueFrom(
-        this.http.request<ApiResponse<T>>(method, `${this.apiUrl}${endpoint}`, { body })
+        this.http.request<ApiResponse<T>>(method, `${this.apiUrl}${endpoint}`, { 
+          body,
+          withCredentials: true
+        })
       );
       return response; // tipo ApiResponse<T>
     } catch (err: any) {

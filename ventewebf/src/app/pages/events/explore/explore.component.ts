@@ -6,7 +6,6 @@ import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../../enviroments/enviroment';
 import { EventCardComponent } from '../../../components/shared/event-card/event-card.component';
-import { HeaderComponent } from '../../../components/shared/header/header.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
 import { GetEventsSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { Event, EventCategory, EventFilter } from '../../../core/interfaces/events.interfaces';
@@ -19,7 +18,7 @@ import { createPopupClass } from './popup.class';
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [HeaderComponent, FormsModule, NgClass, EventCardComponent, LoadingComponent],
+  imports: [FormsModule, NgClass, EventCardComponent, LoadingComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })

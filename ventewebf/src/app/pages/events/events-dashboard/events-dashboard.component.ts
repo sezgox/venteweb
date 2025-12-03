@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { EventCardComponent } from '../../../components/shared/event-card/event-card.component';
-import { HeaderComponent } from '../../../components/shared/header/header.component';
 import { ManageEventsSuccessResponse, RequestCollaborationErrorResponse } from '../../../core/interfaces/api-response.interface';
 import { Event, Invitation, Participation, Request } from '../../../core/interfaces/events.interfaces';
 import { ManageEvents } from '../../../core/interfaces/manage-events.interface';
@@ -23,7 +22,7 @@ interface CategorizedParticipations{
 @Component({
   selector: 'app-events-dashboard',
   standalone: true,
-  imports: [HeaderComponent, EventCardComponent],
+  imports: [EventCardComponent],
   templateUrl: './events-dashboard.component.html',
   styleUrl: './events-dashboard.component.css'
 })

@@ -11,7 +11,6 @@ export class ThemeService {
   constructor(rendererFactory: RendererFactory2) {
     this.renderer = rendererFactory.createRenderer(null, null);
     const saved = localStorage.getItem('dark-mode');
-    console.log(saved)
     if (saved === 'true') {
       this.enableDarkMode(true);
     }

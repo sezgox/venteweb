@@ -5,7 +5,6 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ButtonLoaderComponent } from '../../../components/shared/button-loader/button-loader.component';
-import { HeaderComponent } from '../../../components/shared/header/header.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
 import { PFP_URL } from '../../../core/consts/pfp.const';
 import { GetEventSuccessResponse, InvitationSuccessResponse, ParticipationErrorResponse, ParticipationSuccessResponse, RequestCollaborationErrorResponse, SearchUsersSuccessResponse } from '../../../core/interfaces/api-response.interface';
@@ -18,7 +17,7 @@ import { Event } from './../../../core/interfaces/events.interfaces';
 @Component({
   selector: 'app-event',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink, HeaderComponent, FormsModule, LoadingComponent, ButtonLoaderComponent],
+  imports: [CommonModule, DatePipe, RouterLink, FormsModule, LoadingComponent, ButtonLoaderComponent],
   templateUrl: './event.component.html',
   styleUrl: './event.component.css'
 })

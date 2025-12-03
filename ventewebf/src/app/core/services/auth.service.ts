@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { LoginResponse, RegisterResponse } from '../interfaces/api-response.interface';
+import { LoginResponse, LoginSuccessResponse, RegisterResponse } from '../interfaces/api-response.interface';
 import { LoginDto } from '../interfaces/login.dto.interface';
 import { RegisterDto } from './../interfaces/register.dto.interface';
 import { ApiService } from './api.service';
@@ -28,32 +27,35 @@ export class AuthService {
   }
 
   async logout(){
-    return await this.api.request('POST', `/auth/logout`);
+    localStorage.removeItem("access_token");
+    this.usersService.clearCurrentUser();
+    this.api.request('POST', `/auth/logout`).then( () => {
+      window.location.reload();
+    });
   }
 
-
+  async logoutSilent(){
+    localStorage.removeItem("access_token");
+    this.usersService.clearCurrentUser();
+    return await this.api.request('POST', `/auth/logout`);
+  }
 
   getToken(): string | null {
     return localStorage.getItem('access_token');
   }
 
-  isAuthenticated(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
-      const now = Math.floor(Date.now() / 1000);
-      console.log('All good');
-      const authenticated = decoded.exp ? decoded.exp > now : false;
-      if (!authenticated) {
-        this.usersService.clearCurrentUser();
-        console.log('Token expired');
+    async refreshToken(): Promise<boolean> {
+      const res = await this.api.request('POST', '/auth/refresh');
+      if(res.success){
+        localStorage.setItem("access_token", (res as LoginSuccessResponse).results.access_token);
+        this.usersService.setCurrentUser((res as LoginSuccessResponse).results.user);
+        return true;
       }
-      return authenticated;
-    } catch {
-      this.usersService.clearCurrentUser();
       return false;
     }
+
+  isAuthenticated(): boolean {
+    return !!this.usersService.getCurrentUser();
   }
 
   setRedirectUrl(url: string) {

@@ -29,7 +29,7 @@ export class HeaderComponent implements OnInit{
   private readonly notificationsService = inject(NotificationsService);
 
   activeTheme: string = 'light';
-  loggedIn = this.authService.isAuthenticated();
+  loggedIn = false;
   user: UserSummary | null = null;
   notifications: Notification[] = [];
   showModalEventForm: boolean = false;
@@ -107,9 +107,6 @@ export class HeaderComponent implements OnInit{
 
   logout(){
     this.authService.logout();
-    localStorage.removeItem("access_token");
-    this.usersService.clearCurrentUser();
-    window.location.reload();
   }
 
   get notificationsNotRead(): boolean{
