@@ -27,6 +27,9 @@ export class AuthService {
     return await this.api.request('POST', '/auth/google', { tokenId });
   }
 
+  async logout(){
+    return await this.api.request('POST', `/auth/logout`);
+  }
 
   getToken(): string | null {
     return localStorage.getItem('access_token');

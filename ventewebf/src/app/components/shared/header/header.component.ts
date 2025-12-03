@@ -106,8 +106,8 @@ export class HeaderComponent implements OnInit{
   }
 
   logout(){
+    this.authService.logout();
     localStorage.removeItem("access_token");
-    this.loggedIn = false;
     this.usersService.clearCurrentUser();
     window.location.reload();
   }

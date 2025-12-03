@@ -30,8 +30,8 @@ export class AuthController {
   
   @UseGuards(AuthGuard)
   @Post('logout')
-  logout(@Body() userId: string) {
-    return this.authService.logout(userId);
+  logout(@Req() req: Request) {
+    return this.authService.logout(req['user'].sub);
   }
 
   @Post('google')
