@@ -1,9 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { jwtDecode } from 'jwt-decode';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CreateParticipationDto, InvitationDto } from '../interfaces/events.interfaces';
 import { UserSummary } from '../interfaces/user.interfaces';
-import { FollowResponse, InvitationResponse, ManageEventsResponse, SearchUsersResponse, UpdateUserResponse, UserResponse } from './../interfaces/api-response.interface';
+import { FollowResponse, InvitationResponse, ManageEventsResponse, SearchUsersResponse, UpdateUserResponse, UserResponse, UserSuccessReponse } from './../interfaces/api-response.interface';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -16,7 +15,11 @@ export class UsersService {
   currentUser$: Observable<UserSummary | null> = this.currentUserSubject.asObservable();
 
   constructor() {
-    this.loadUserFromToken();
+    this.loadUser();
+  }
+
+  async loadAuthenticatedUser(): Promise<UserResponse> {
+    return await this.api.request('GET', `/auth/me`);
   }
 
   /** Devuelve el usuario actual (o null si no hay sesión) */
@@ -35,24 +38,12 @@ export class UsersService {
   }
 
   /** Intenta decodificar el token guardado y establecer el usuario */
-  private loadUserFromToken(): void {
+  private async loadUser(): Promise<void> {
     const token = localStorage.getItem('access_token');
     if (!token) return;
-
-    try {
-      const decoded: any = jwtDecode(token);
-      this.currentUserSubject.next({
-        id: decoded.sub,
-        name: decoded.name,
-        username: decoded.username,
-        email: decoded.email,
-        photo: decoded.photo,
-        locale: decoded.locale,
-        bio: decoded.bio
-      });
-    } catch (err) {
-      console.error('Error decodificando token JWT:', err);
-      this.currentUserSubject.next(null);
+    const res = await this.loadAuthenticatedUser();
+    if(res.success){
+      this.setCurrentUser((res as UserSuccessReponse).results);
     }
   }
 

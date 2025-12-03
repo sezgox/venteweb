@@ -1,7 +1,7 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthGuard } from 'src/core/guards/auth.guard';
-import { CustomResponse, LoginResponse } from 'src/core/interfaces/response.interface';
+import { CustomResponse, LoginResponse, UserResponse } from 'src/core/interfaces/response.interface';
 import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/login-user.dto';
 
@@ -55,8 +55,15 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  me(@Req() req) {
-    return this.authService.getMe(req.user.sub);
+  @Get('me')
+  async me(@Req() req, @Res() res: Response<CustomResponse<UserResponse>>,){
+    try {
+      const user = await this.authService.getMe(req.user.sub);
+      return res.json({results: user, message: 'User authenticated', success: true});
+    } catch (error) {
+      res.status(error.status ?? 500);
+      return res.json({success: false, message: error.message ?? 'Server error'})
+    }
   }
 
 }
