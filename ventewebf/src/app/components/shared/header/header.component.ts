@@ -36,23 +36,22 @@ export class HeaderComponent implements OnInit{
   pfp = PFP_URL;
 
   ngOnInit(): void {
+    this.usersService.currentUser$.subscribe(user => {
+        this.user = user;
+        if (user) {
+          this.loggedIn = true;
+          this.getNotifications();
+          const token = this.authService.getToken();
+          this.notificationsService.connect(token!);
+        }else{
+          this.loggedIn = false;
+        }
+      });
 
-  this.usersService.currentUser$.subscribe(user => {
-      this.user = user;
-      if (user) {
-        this.loggedIn = true;
-        this.getNotifications();
-        const token = localStorage.getItem('access_token');
-        if (token) this.notificationsService.connect(token);
-      }else{
-        this.loggedIn = false;
-      }
-    });
 
-
-    this.notificationsService.notifications$.subscribe(notifications => {
-      this.notifications.unshift(...notifications);
-    });
+      this.notificationsService.notifications$.subscribe(notifications => {
+        this.notifications.unshift(...notifications);
+      });
   }
 
   async getNotifications() {

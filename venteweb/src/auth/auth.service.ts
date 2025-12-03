@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { OAuth2Client } from 'google-auth-library';
-import { jwtConfig } from 'src/core/consts/jwt-config.const';
+import { jwtConfig, refreshTokenConfig } from 'src/core/consts/jwt-config.const';
 import { UserRepository } from 'src/user/user.repository';
 import { UserLoginDto } from './dto/login-user.dto';
 
@@ -20,15 +20,23 @@ export class AuthService {
     const passwordIsCorrect = await bcrypt.compare(userLoginDto.password, userData.password);
     if(!passwordIsCorrect) throw new UnauthorizedException('Incorrect password');
     const access_token = await this.createJwtToken(userData);
-    return {userData, access_token}
+    const refresh_token = await this.createRefreshToken(userData.id);
+    await this.saveLogin(userData.id, access_token, new Date());
+    return {userData, access_token, refresh_token}
   }
 
-  logout() {
-    return 'This action logs out a auth';
+  async saveLogin(userId: string, refreshToken: string, lastLogin: Date) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    return await this.userRepository.login(userId, hashedRefreshToken, lastLogin);
+  }
+
+  logout(userId: string) {
+    this.userRepository.logout(userId).catch(err => {
+        console.error('Failed to clear refresh token for user', userId, err);
+    });
   }
 
   async createJwtToken(userData: any) {
-    console.log(userData)
     const payload = { 
       sub: userData.id, 
       permission: userData.permission,
@@ -40,8 +48,11 @@ export class AuthService {
       locale: userData.locale ,
       bio: userData.bio,
     };
-    console.log(payload)
-        return await this.jwtService.signAsync(payload, jwtConfig);
+    return await this.jwtService.signAsync(payload, jwtConfig);
+  }
+
+  async createRefreshToken(userId: string){
+    return this.jwtService.signAsync({sub: userId}, refreshTokenConfig);
   }
 
   async loginWithGoogle(tokenId: string) {
@@ -64,8 +75,16 @@ export class AuthService {
 
     // 3️⃣ Generar JWT de tu app
     const access_token = await this.createJwtToken(user);
+    const refresh_token = await this.createRefreshToken(user.id);
+    await this.saveLogin(user.id, access_token, new Date());
 
-    return { userData: user, access_token };
+    return { userData: user, access_token, refresh_token };
+  }
+
+  async getMe(userId: string) {
+    const user = await this.usersRepository.findOne(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+    return user;
   }
 
 }

@@ -99,4 +99,12 @@ export class UserRepository {
     async update(id: string, updateUserDto: UpdateUserDto) {
         return await this.prisma.user.update({where: {id}, data: updateUserDto});
     }
+
+    async logout(userId: string) {
+        return await this.prisma.user.update({where: {id: userId}, data: {refreshToken: null}});
+    }
+
+    async login(userId: string, refreshToken: string, lastLogin: Date) {
+        return await this.prisma.user.update({where: {id: userId}, data: {refreshToken, lastLogin}});
+    }
 }

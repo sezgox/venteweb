@@ -120,7 +120,7 @@ export class EventService {
 
     const visibilityWhere = user ? this.getVisibilityWhere(filter.visibility, friendsIds) : {visibility: Visibility.Public};
 
-    console.log(friendsIds);
+    //console.log(friendsIds);
     const baseWhere = this.getBaseWhere(filter);
 
     const where = { ...baseWhere, ...visibilityWhere };
@@ -191,7 +191,7 @@ export class EventService {
         where.AND = [...existingAnd, { OR: searchFilters }];
       }
     }
-    console.log(where)
+    //console.log(where)
 
     return where;
   }

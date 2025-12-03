@@ -98,6 +98,7 @@ model User {
   lastLogin         DateTime?
   bio               String?
   locale            String?
+  refreshToken      String?
 
   // Relations
   events            Event[]          @relation("UserEvents")

@@ -4,6 +4,7 @@ import { LoginResponse, RegisterResponse } from '../interfaces/api-response.inte
 import { LoginDto } from '../interfaces/login.dto.interface';
 import { RegisterDto } from './../interfaces/register.dto.interface';
 import { ApiService } from './api.service';
+import { UsersService } from './users.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,8 @@ export class AuthService {
 
   private redirectUrl: string | null = null;
   private readonly api = inject(ApiService);
+  private readonly usersService = inject(UsersService);
+
 
   async login(loginData: LoginDto): Promise<LoginResponse> {
     return await this.api.request('POST', '/auth/login', loginData);
@@ -35,8 +38,15 @@ export class AuthService {
     try {
       const decoded = jwtDecode<JwtPayload>(token);
       const now = Math.floor(Date.now() / 1000);
-      return decoded.exp ? decoded.exp > now : false;
+      console.log('All good');
+      const authenticated = decoded.exp ? decoded.exp > now : false;
+      if (!authenticated) {
+        this.usersService.clearCurrentUser();
+        console.log('Token expired');
+      }
+      return authenticated;
     } catch {
+      this.usersService.clearCurrentUser();
       return false;
     }
   }

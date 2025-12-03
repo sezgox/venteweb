@@ -7,3 +7,8 @@ export const jwtConfig = {
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE
 } as JwtSignOptions;
+
+export const refreshTokenConfig = {
+    secret: process.env.JWT_REFRESH_SECRET,
+    expiresIn: process.env.JWT_REFRESH_EXPIRES
+} as JwtSignOptions;
