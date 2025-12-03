@@ -33,7 +33,6 @@ export class EventController {
   @Get()
   async findAll(@Query() filter: FilterEventDto, @Req() req: Request, @Res() res: Response<CustomResponse<EventResponse[]>>) {
     const reqUserId = req['user'] ? req['user'].sub : '';
-    console.log(filter)
     try {
       const events = await this.eventService.findAll(filter, reqUserId);
       return res.json({results: events, message: 'Eventos encontrados', success: true, metadata: {filter}});
