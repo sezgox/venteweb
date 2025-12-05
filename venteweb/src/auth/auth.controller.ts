@@ -10,21 +10,29 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() userLoginDto: UserLoginDto, @Res({ passthrough: true }) res: Response<CustomResponse<LoginResponse>>) {
+  async login(@Body() userLoginDto: UserLoginDto, @Res() res: Response<CustomResponse<LoginResponse>>) {
     try{
-      const {userData,access_token, refresh_token} = await this.authService.login(userLoginDto);
+      const {userData, access_token, refresh_token} = await this.authService.login(userLoginDto);
       const userSummary = {username: userData.username, email: userData.email, id: userData.id, name: userData.name, permission: userData.permission, level: userData.level, locale: userData.locale, photo: userData.photo};
+      console.log(refresh_token);
       res.cookie('refresh_token', refresh_token, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        path: '/auth/refresh',
+        secure: false,
+        sameSite: 'lax',
+        path: '/',
       });
-      res.status(201);
-      return res.json({results: {access_token, user: userSummary}, message: 'User logged in', success: true});
+
+      res.status(201).json({
+        results: {access_token, user: userSummary}, 
+        message: 'User logged in', 
+        success: true
+      });
     }catch(err){
-      res.status(err.status ?? 400);
-      return res.json({success: false, message: err.message ?? 'User not logged in', metadata: userLoginDto});
+      res.status(err.status ?? 400).json({
+        success: false, 
+        message: err.message ?? 'User not logged in', 
+        metadata: userLoginDto
+      });
     }
   }
   
@@ -37,8 +45,15 @@ export class AuthController {
   @Post('google')
   async googleLogin(@Body('tokenId') tokenId: string,@Res() res: Response<CustomResponse<LoginResponse>>,) {
     try {
-      const { userData, access_token } = await this.authService.loginWithGoogle(tokenId);
+      const { userData, access_token, refresh_token } = await this.authService.loginWithGoogle(tokenId);
       const userSummary = { username: userData.username, email: userData.email, id: userData.id, name: userData.name, permission: userData.permission, level: userData.level, locale: userData.locale, photo: userData.photo };
+
+      res.cookie('refresh_token', refresh_token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        path: '/',
+      });
 
       res.status(201).json({
         results: { access_token, user: userSummary },
@@ -63,6 +78,33 @@ export class AuthController {
     } catch (error) {
       res.status(error.status ?? 500);
       return res.json({success: false, message: error.message ?? 'Server error'})
+    }
+  }
+
+  @Post('refresh')
+  async refresh(@Req() req, @Res() res: Response<CustomResponse<LoginResponse>>) {
+    try {
+      const refreshToken = req.cookies['refresh_token'];
+      if (!refreshToken) {
+        return res.status(401).json({
+          success: false,
+          message: 'No refresh token cookie found',
+        });
+      }
+      const {user, access_token, rotatedRefreshToken} = await this.authService.refreshToken(refreshToken);
+      res.cookie('refresh_token', rotatedRefreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        path: '/',
+      });
+      return res.json({results: {access_token, user}, message: 'User session refreshed', success: true});
+    } catch (error) {
+      console.error('Error en /auth/refresh:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+      });
     }
   }
 

@@ -73,7 +73,9 @@ export class AuthComponent implements AfterViewInit{
     const tokenId = response.credential;
     const res = await this.authService.loginWithGoogle(tokenId);
     if (res.success) {
+      console.log(res)
       localStorage.setItem('access_token', (res as LoginSuccessResponse).results.access_token);
+      console.log(localStorage.getItem('access_token'))
       this.onSuccessFeedback((res as LoginSuccessResponse).results.user);
     } else {
       this.toastr.error(res.message);

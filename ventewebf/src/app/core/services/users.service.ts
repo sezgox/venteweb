@@ -1,18 +1,16 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { CreateParticipationDto, InvitationDto } from '../interfaces/events.interfaces';
 import { UserSummary } from '../interfaces/user.interfaces';
 import { FollowResponse, InvitationResponse, ManageEventsResponse, SearchUsersResponse, UpdateUserResponse, UserResponse, UserSuccessReponse } from './../interfaces/api-response.interface';
 import { ApiService } from './api.service';
+import { UserSessionService } from './user-session.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
   private readonly api = inject(ApiService);
-
-  private currentUserSubject = new BehaviorSubject<UserSummary | null>(null);
-  currentUser$: Observable<UserSummary | null> = this.currentUserSubject.asObservable();
+  private readonly sessionService = inject(UserSessionService);
 
   constructor() {
     this.loadUser();
@@ -24,17 +22,17 @@ export class UsersService {
 
   /** Devuelve el usuario actual (o null si no hay sesión) */
   getCurrentUser(): UserSummary | null {
-    return this.currentUserSubject.value;
+    return this.sessionService.getCurrentUser();
   }
 
   /** Guarda el usuario actual (por ejemplo, tras iniciar sesión) */
   setCurrentUser(user: UserSummary): void {
-    this.currentUserSubject.next(user);
+    this.sessionService.setCurrentUser(user);
   }
 
   /** Elimina al usuario actual (logout) */
   clearCurrentUser(): void {
-    this.currentUserSubject.next(null);
+    this.sessionService.clearCurrentUser();
   }
 
   /** Intenta decodificar el token guardado y establecer el usuario */

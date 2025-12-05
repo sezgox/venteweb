@@ -30,7 +30,7 @@ export class AuthService {
     localStorage.removeItem("access_token");
     this.usersService.clearCurrentUser();
     this.api.request('POST', `/auth/logout`).then( () => {
-      window.location.reload();
+      //window.location.reload();
     });
   }
 
@@ -46,6 +46,7 @@ export class AuthService {
 
     async refreshToken(): Promise<boolean> {
       const res = await this.api.request('POST', '/auth/refresh');
+      console.log(res)
       if(res.success){
         localStorage.setItem("access_token", (res as LoginSuccessResponse).results.access_token);
         this.usersService.setCurrentUser((res as LoginSuccessResponse).results.user);

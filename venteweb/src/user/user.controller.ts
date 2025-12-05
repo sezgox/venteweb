@@ -120,6 +120,7 @@ export class UserController {
   @Get('manage/events')
   async getManagedEvents(@Req() req: Request, @Res() res: Response) {
     const userId = req['user'].sub;
+    console.log(userId);
     try {
       const managedEvents = await this.userService.getManagedEvents(userId);
       return res.json({results: managedEvents, message: 'Eventos administrados', success: true});

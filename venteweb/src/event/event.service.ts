@@ -73,10 +73,9 @@ export class EventService {
 
   }
 
-  async findAll(filter: FilterEventDto, reqUserId: string) {
+  async findAll(filter: FilterEventDto, reqUserId?: string) {
     // Default de fecha
     filter.date = filter.date ?? new Date();
-
     const user = await this.userRepository.findOne(reqUserId);
     let friendsIds = [];
     if(user){

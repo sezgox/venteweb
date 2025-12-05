@@ -5,12 +5,15 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { UuidModule } from 'nestjs-uuid';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AuthMiddleware } from './core/middlewares/auth/auth.middleware';
 import { InvitationsService } from './core/services/invitations.service';
 import { EventController } from './event/event.controller';
 import { EventModule } from './event/event.module';
+import { NotificationsController } from './notifications/notifications.controller';
+import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ParticipationModule } from './participation/participation.module';
 import { PrismaService } from './prisma.service';
@@ -21,6 +24,7 @@ import { UserModule } from './user/user.module';
   imports: [UserModule, EventModule, ParticipationModule, AuthModule, CloudinaryModule, UuidModule, ScheduleModule.forRoot(), EventEmitterModule.forRoot(), NotificationsModule,],
   controllers: [AppController],
   providers: [AppService, PrismaService, JwtService, InvitationsService],
+  exports: [AuthModule]
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
@@ -29,7 +33,10 @@ export class AppModule {
       .apply(AuthMiddleware)
       .forRoutes(
         UserController,
-        EventController
+        EventController,
+        AuthController,
+        NotificationsGateway,
+        NotificationsController
       );
   }
 }

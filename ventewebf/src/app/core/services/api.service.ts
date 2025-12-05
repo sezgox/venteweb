@@ -23,6 +23,7 @@ export class ApiService {
       return response; // tipo ApiResponse<T>
     } catch (err: any) {
       // Angular HttpClient envía HttpErrorResponse
+      console.log(err.status)
       return {
           message: err?.error?.message || 'Error desconocido',
           metadata: err?.error?.metadata,

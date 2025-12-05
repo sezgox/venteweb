@@ -9,6 +9,7 @@ import { UserSummary } from '../../../core/interfaces/user.interfaces';
 import { AuthService } from '../../../core/services/auth.service';
 import { Notification, NotificationsService, NotificationType } from '../../../core/services/notifications.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { UserSessionService } from '../../../core/services/user-session.service';
 import { UsersService } from '../../../core/services/users.service';
 import { EventFormComponent } from '../event-form/event-form.component';
 
@@ -26,6 +27,7 @@ export class HeaderComponent implements OnInit{
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly usersService = inject(UsersService);
+  private readonly sessionService = inject(UserSessionService);
   private readonly notificationsService = inject(NotificationsService);
 
   activeTheme: string = 'light';
@@ -36,9 +38,10 @@ export class HeaderComponent implements OnInit{
   pfp = PFP_URL;
 
   ngOnInit(): void {
-    this.usersService.currentUser$.subscribe(user => {
+    this.sessionService.currentUser$.subscribe(user => {
         this.user = user;
         if (user) {
+          console.log(user)
           this.loggedIn = true;
           this.getNotifications();
           const token = this.authService.getToken();

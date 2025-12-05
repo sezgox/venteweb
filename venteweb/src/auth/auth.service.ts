@@ -21,11 +21,11 @@ export class AuthService {
     if(!passwordIsCorrect) throw new UnauthorizedException('Incorrect password');
     const access_token = await this.createJwtToken(userData);
     const refresh_token = await this.createRefreshToken(userData.id);
-    await this.saveLogin(userData.id, access_token, new Date());
+    await this.saveLogin(userData.id, refresh_token, new Date());
     return {userData, access_token, refresh_token}
   }
 
-  async saveLogin(userId: string, refreshToken: string, lastLogin: Date) {
+  async saveLogin(userId: string, refreshToken: string, lastLogin?: Date) {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     return await this.userRepository.login(userId, hashedRefreshToken, lastLogin);
   }
@@ -34,6 +34,20 @@ export class AuthService {
     this.userRepository.logout(userId).catch(err => {
         console.error('Failed to clear refresh token for user', userId, err);
     });
+  }
+
+  async refreshToken(refreshToken: string,){
+    const decoded = await this.jwtService.verifyAsync(refreshToken, {
+      secret: process.env.JWT_REFRESH_SECRET,
+    });
+    const user = await this.userRepository.findOne(decoded.sub);
+    if(!user || !user.refreshToken) throw new UnauthorizedException('User not found or no refresh token stored');
+    const validRefreshToken = await bcrypt.compare(refreshToken, user.refreshToken);
+    if(!validRefreshToken) throw new UnauthorizedException('Invalid refresh token');
+    const access_token = await this.createJwtToken(user);
+    const rotatedRefreshToken = await this.createRefreshToken(user.id);
+    await this.saveLogin(user.id, rotatedRefreshToken);
+    return {user, access_token, rotatedRefreshToken};
   }
 
   async createJwtToken(userData: any) {
@@ -76,7 +90,7 @@ export class AuthService {
     // 3️⃣ Generar JWT de tu app
     const access_token = await this.createJwtToken(user);
     const refresh_token = await this.createRefreshToken(user.id);
-    await this.saveLogin(user.id, access_token, new Date());
+    await this.saveLogin(user.id, refresh_token, new Date());
 
     return { userData: user, access_token, refresh_token };
   }

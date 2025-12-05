@@ -1,50 +1,70 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject, Injector } from '@angular/core';
-import { catchError, from, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import {
+  HttpErrorResponse,
+  HttpInterceptorFn
+} from '@angular/common/http';
+import { inject } from '@angular/core';
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  switchMap,
+  take,
+  throwError
+} from 'rxjs';
+import { TokenRefreshService } from '../services/token-refresh.service';
+
+let isRefreshing = false;
+const refreshSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const injector = inject(Injector);
-  const token = localStorage.getItem('access_token');
-  
-  if(token){
-    const clonedReq = req.clone({ 
-      headers: req.headers.set('Authorization', 'Bearer ' + token) 
-    });
-    return next(clonedReq).pipe(
-      catchError((error) => {
-        // Si el error es 401 (token expirado) y no es una petición de refresh
-        if (error.status === 401 && !req.url.includes('/auth/refresh')) {
-          // Obtener AuthService del injector
-          const authService = injector.get(AuthService);
-          return from(authService.refreshToken()).pipe(
-            switchMap((refreshed) => {
-              if (refreshed) {
-                // Obtener el nuevo token y reintentar la petición
-                const newToken = localStorage.getItem('access_token');
-                const retryReq = req.clone({
-                  headers: req.headers.set('Authorization', 'Bearer ' + newToken)
-                });
-                return next(retryReq);
-              } else {
-                // Si el refresh falla, hacer logout
-                return from(authService.logout()).pipe(
-                  switchMap(() => throwError(() => error))
-                );
-              }
-            }),
-            catchError(() => {
-              // Si algo falla en el refresh, hacer logout
-              return from(authService.logout()).pipe(
-                switchMap(() => throwError(() => error))
-              );
-            })
-          );
-        }
-        return throwError(() => error);
-      })
-    );
-  }
-  
-  return next(req);
+  const refreshService = inject(TokenRefreshService);
+
+  const addToken = (request: any, token: string | null) => {
+    if (!token) return request;
+    return request.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+  };
+
+  let token = localStorage.getItem('access_token');
+  let authReq = addToken(req, token);
+
+  return next(authReq).pipe(
+    // No tocar token en respuestas normales
+    catchError((error: HttpErrorResponse) => {
+      // Si no es 401, propagar
+      if (error.status !== 401) return throwError(() => error);
+
+      // Si ya hay refresh en curso, esperar
+      if (isRefreshing) {
+        return refreshSubject.pipe(
+          filter(t => !!t),
+          take(1),
+          switchMap(t => next(addToken(req, t)))
+        );
+      }
+
+      // Token recibido en 401 (rotación de backend)
+      const newTokenFrom401 = error.headers.get('x-access-token');
+      if (newTokenFrom401) {
+        console.log('Token recibido en 401:', newTokenFrom401);
+        localStorage.setItem('access_token', newTokenFrom401);
+        refreshSubject.next(newTokenFrom401);
+      }
+
+      isRefreshing = true;
+
+      return refreshService.refreshToken().pipe(
+        switchMap(newToken => {
+          isRefreshing = false;
+          localStorage.setItem('access_token', newToken);
+          refreshSubject.next(newToken);
+          return next(addToken(req, newToken));
+        }),
+        catchError(err => {
+          isRefreshing = false;
+          refreshSubject.next(null);
+          return throwError(() => err);
+        })
+      );
+    })
+  );
 };

@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -14,7 +15,12 @@ async function bootstrap() {
       },
     }),
   );
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://localhost:4200', // tu frontend exacto
+    credentials: true,
+    exposedHeaders: ['x-access-token'],
+  });
+  app.use(cookieParser());
   app.setGlobalPrefix('api');
   await app.listen(3000)
   .then(() => console.log('Server is running on port 3000'))
