@@ -1,11 +1,8 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, WritableSignal } from '@angular/core';
+import { Component, inject, Input, OnInit, output, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
 import { environment } from '../../../enviroments/enviroment';
-import { Event } from '../../core/interfaces/events.interfaces';
 import { GeolocationService } from '../../core/services/geolocation.service';
-
-type MapEvent = Event & { marker?: any };
 
 @Component({
   selector: 'app-map',
@@ -16,8 +13,10 @@ type MapEvent = Event & { marker?: any };
 })
 export class MapComponent implements OnInit {
 
-  @Output() accept = new EventEmitter<{lat: number, lng: number, address: string}>();
-  @Output() cancel = new EventEmitter<void>();
+  //@Output() accept = new EventEmitter<{lat: number, lng: number, address: string}>();
+  //@Output() cancel = new EventEmitter<void>();
+  accept = output<{lat: number, lng: number, address: string}>()
+  cancel = output<void>()
 
   @Input() mapLocation!: WritableSignal<{lat: number, lng: number, address: string} | null>;
 
@@ -58,7 +57,6 @@ export class MapComponent implements OnInit {
         if (!event.latLng) return;
         const lat = event.latLng.lat();
         const lng = event.latLng.lng();
-        console.log('📍 Click en:', lat, lng);
         this.addMarker(lat,lng)
       });
   }
