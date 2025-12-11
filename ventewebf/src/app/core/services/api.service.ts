@@ -15,7 +15,7 @@ export class ApiService {
   async request<T, E = any>(method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH', endpoint: string, body?: any): Promise<ApiResponse<T> | ApiError<E>> {
     try {
       const response = await lastValueFrom(
-        this.http.request<ApiResponse<T>>(method, `${this.apiUrl}${endpoint}`, { 
+        this.http.request<ApiResponse<T>>(method, `${this.apiUrl}${endpoint}`, {
           body,
           withCredentials: true
         })
@@ -23,7 +23,6 @@ export class ApiService {
       return response; // tipo ApiResponse<T>
     } catch (err: any) {
       // Angular HttpClient envía HttpErrorResponse
-      console.log(err.status)
       return {
           message: err?.error?.message || 'Error desconocido',
           metadata: err?.error?.metadata,

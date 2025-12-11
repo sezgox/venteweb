@@ -11,6 +11,7 @@ import { GetEventSuccessResponse, InvitationSuccessResponse, ParticipationErrorR
 import { Invitation, ParticipationType, Request } from '../../../core/interfaces/events.interfaces';
 import { UserSummary } from '../../../core/interfaces/user.interfaces';
 import { EventsService } from '../../../core/services/events.service';
+import { LoadingService } from '../../../core/services/loading.service';
 import { UsersService } from '../../../core/services/users.service';
 import { Event } from './../../../core/interfaces/events.interfaces';
 
@@ -27,6 +28,7 @@ export class EventComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
+  private readonly loadingService = inject(LoadingService);
   toastr = inject(ToastrService);
 
   event?: Event;
@@ -36,7 +38,8 @@ export class EventComponent implements OnInit {
     console.log(this.event)
   }
 
-  loading: boolean = false;
+
+  loading = this.loadingService.loading;
   attendLoading: boolean = false;
   collaborateLoading: boolean = false;
   deleteLoading: boolean = false;
@@ -82,7 +85,6 @@ export class EventComponent implements OnInit {
   }
 
   async getEvent(id: string, invitation?: string) {
-    this.loading = true;
     try {
       const response = await this.eventsService.getEvent(id, invitation);
       if (response.success) {
@@ -92,8 +94,6 @@ export class EventComponent implements OnInit {
     } catch (error) {
       this.toastr.error('An unexpected error occurred');
       console.error(error);
-    } finally {
-      this.loading = false;
     }
   }
 

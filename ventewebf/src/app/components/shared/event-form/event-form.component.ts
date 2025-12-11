@@ -13,6 +13,7 @@ import { CreateEventSuccessResponse } from '../../../core/interfaces/api-respons
 import { CreateEventDto, EventCategory, Visibility } from '../../../core/interfaces/events.interfaces';
 import { EventsService } from '../../../core/services/events.service';
 import { GeolocationService, UserLocation } from '../../../core/services/geolocation.service';
+import { LoadingService } from '../../../core/services/loading.service';
 import { UsersService } from '../../../core/services/users.service';
 
 @Component({
@@ -34,6 +35,7 @@ export class EventFormComponent implements OnInit {
   private readonly usersService: UsersService = inject(UsersService);
   private readonly toastrService: ToastrService = inject(ToastrService);
   private readonly sanitizer: DomSanitizer = inject(DomSanitizer);
+  private readonly loadingService: LoadingService = inject(LoadingService);
 
   userLocation: UserLocation | null = null;
 
@@ -62,7 +64,7 @@ export class EventFormComponent implements OnInit {
 
   categories = Object.values(EventCategory);
 
-  loading: boolean = false;
+  loading = this.loadingService.loading;
   showMapModal: boolean = false;
 
   async ngOnInit() {
@@ -152,7 +154,6 @@ export class EventFormComponent implements OnInit {
   }
 
   async submit() {
-    this.loading = true;
     console.log(this.createEventDto)
     try {
       const response = await this.eventsService.createEvent(this.createEventDto)
@@ -169,9 +170,6 @@ export class EventFormComponent implements OnInit {
       this.toastrService.clear();
       this.toastrService.error('An unexpected error occurred.');
       console.error(error);
-    }
-    finally {
-      this.loading = false;
     }
   }
 

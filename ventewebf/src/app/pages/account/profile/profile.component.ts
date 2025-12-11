@@ -9,6 +9,7 @@ import { PFP_URL } from '../../../core/consts/pfp.const';
 import { UpdateUserResponseDto, UserSuccessReponse } from '../../../core/interfaces/api-response.interface';
 import { Event, Participation, Visibility } from '../../../core/interfaces/events.interfaces';
 import { User, UserSummary } from '../../../core/interfaces/user.interfaces';
+import { LoadingService } from '../../../core/services/loading.service';
 import { UsersService } from '../../../core/services/users.service';
 import { EditModalComponent } from '../edit-modal/edit-modal.component';
 
@@ -27,8 +28,10 @@ export class ProfileComponent implements OnInit {
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
   private readonly toastr: ToastrService = inject(ToastrService);
   private readonly router: Router = inject(Router);
+  private readonly loadingService = inject(LoadingService);
 
-  loading: boolean = false;
+
+  loading = this.loadingService.loading;
   pfp = PFP_URL;
 
   currentUser: UserSummary | null = this.usersService.getCurrentUser();
@@ -53,7 +56,6 @@ export class ProfileComponent implements OnInit {
   }
 
   async getUser(username: string): Promise<void> {
-    this.loading = true;
     try{
       const res = await this.usersService.getProfile(username);
       if (res.success) {
@@ -68,8 +70,6 @@ export class ProfileComponent implements OnInit {
     }catch(error){
       this.toastr.error('An unexpected error occurred');
       console.error(error);
-    }finally{
-      this.loading = false;
     }
   }
 

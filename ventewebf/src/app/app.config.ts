@@ -6,6 +6,7 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers:
@@ -14,6 +15,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withViewTransitions()), provideClientHydration(),
     provideAnimations(),
     provideToastr(),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor]))
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, loadingInterceptor]) ),
   ],
 };

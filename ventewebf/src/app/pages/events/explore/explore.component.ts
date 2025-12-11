@@ -10,6 +10,7 @@ import { LoadingComponent } from '../../../components/shared/loading/loading.com
 import { GetEventsSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { Event, EventCategory, EventFilter } from '../../../core/interfaces/events.interfaces';
 import { EventsService } from '../../../core/services/events.service';
+import { LoadingService } from '../../../core/services/loading.service';
 import { Visibility } from './../../../core/interfaces/events.interfaces';
 import { GeolocationService, UserLocation } from './../../../core/services/geolocation.service';
 import { createPopupClass } from './popup.class';
@@ -28,9 +29,10 @@ export class ExploreComponent implements OnInit {
   private readonly eventsService = inject(EventsService);
   private readonly router = inject(Router);
   private readonly toastr = inject(ToastrService);
+  private readonly loadingService = inject(LoadingService);
 
   viewMap: boolean = false;
-  loading: boolean = false;
+  loading = this.loadingService.loading;
   userLocation: UserLocation | null = null;
   filter: EventFilter = {
     page: 1,
@@ -123,7 +125,6 @@ export class ExploreComponent implements OnInit {
   }
 
   async getEvents(){
-    this.loading = true;
     try {
       const response = await this.eventsService.getEvents(this.filter);
       if(response.success){
@@ -136,9 +137,6 @@ export class ExploreComponent implements OnInit {
     } catch (error) {
       console.error('Error fetching events:', error);
       this.toastr.error('Refresh the page to try again','An unexpected error occurred');
-    }finally{
-      this.loading = false;
-      console.log(this.events())
     }
   }
 
