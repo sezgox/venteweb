@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { PFP_URL } from '../../../core/consts/pfp.const';
@@ -31,27 +31,27 @@ export class HeaderComponent implements OnInit{
   private readonly notificationsService = inject(NotificationsService);
 
   activeTheme: string = 'light';
-  loggedIn = false;
-  user: UserSummary | null = null;
+  user: UserSummary | null = this.sessionService.getCurrentUser();
+  loggedIn = !!this.user;
   notifications: Notification[] = [];
   showModalEventForm: boolean = false;
   pfp = PFP_URL;
 
-  ngOnInit(): void {
-    this.sessionService.currentUser$.subscribe(user => {
-        this.user = user;
-        if (user) {
-          console.log(user)
+  constructor(){
+    effect(() => {
+      this.user = this.sessionService.currentUser();
+      if (!!this.user) {
           this.loggedIn = true;
           this.getNotifications();
           const token = this.authService.getToken();
           this.notificationsService.connect(token!);
-        }else{
+      }else{
           this.loggedIn = false;
-        }
-      });
+      }
+    });
+  }
 
-
+  ngOnInit(): void {
       this.notificationsService.notifications$.subscribe(notifications => {
         this.notifications.unshift(...notifications);
       });
