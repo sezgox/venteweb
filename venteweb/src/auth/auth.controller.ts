@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthGuard } from 'src/core/guards/auth.guard';
 import { CustomResponse, LoginResponse, UserResponse } from 'src/core/interfaces/response.interface';
 import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/login-user.dto';
+import { MobileLoginDto } from './dto/mobile-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -35,11 +36,27 @@ export class AuthController {
       });
     }
   }
-  
-  @UseGuards(AuthGuard)
-  @Post('logout')
-  logout(@Req() req: Request) {
-    return this.authService.logout(req['user'].sub);
+
+  //TODO: Add login with no refresh token logic for mobiles
+
+  @Post('google/mobile')
+  async googleMobileLogin(@Body() mobileLoginDto: MobileLoginDto, @Res() res: Response<CustomResponse<LoginResponse>>) {
+    try {
+      const { userData, access_token } = await this.authService.loginWithMobileFirebase(mobileLoginDto.tokenId);
+      const userSummary = { username: userData.username, email: userData.email, id: userData.id, name: userData.name, permission: userData.permission, level: userData.level, locale: userData.locale, photo: userData.photo };
+
+      return res.status(201).json({
+        results: { access_token, user: userSummary },
+        message: 'User logged in with Google from mobile',
+        success: true,
+      });
+    } catch (err) {
+      return res.status(err.status ?? 401).json({
+        success: false,
+        message: err.message ?? 'Mobile login failed',
+        metadata: { provider: 'firebase' },
+      });
+    }
   }
 
   @Post('google')
@@ -67,6 +84,12 @@ export class AuthController {
         metadata: { err: err.message },
       });
     }
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  logout(@Req() req: Request) {
+    return this.authService.logout(req['user'].sub);
   }
 
   @UseGuards(AuthGuard)

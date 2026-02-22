@@ -8,7 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { jwtConfig } from 'src/core/consts/jwt-config.const';
+import { jwtVerificationSecrets } from 'src/core/consts/jwt-config.const';
 
 @WebSocketGateway({
   cors: {
@@ -24,6 +24,20 @@ export class NotificationsGateway
 
   constructor(private jwtService: JwtService) {}
 
+  private verifySocketToken(token: string) {
+    let verificationError: any;
+
+    for (const secret of jwtVerificationSecrets) {
+      try {
+        return this.jwtService.verify(token, { secret });
+      } catch (error) {
+        verificationError = error;
+      }
+    }
+
+    throw verificationError;
+  }
+
   afterInit(server: Server) {
     server.use((socket: Socket, next) => {
       const token = socket.handshake.auth?.token;
@@ -33,7 +47,7 @@ export class NotificationsGateway
       }
 
       try {
-        const payload = this.jwtService.verify(token, {secret: jwtConfig.secret});
+        const payload = this.verifySocketToken(token);
 
         // Lo guardamos para el socket
         socket.data.userId = payload.sub;

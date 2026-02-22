@@ -10,7 +10,7 @@ This document explains the backend architecture, folder structure, conventions, 
 - Framework: NestJS 10 (modular architecture, DI, pipes, guards)
 - Database: PostgreSQL via Prisma ORM
 - Storage: Cloudinary for image uploads
-- Auth: JWT-based, with Google Sign-In support
+- Auth: JWT-based, with Google Sign-In and Firebase mobile authentication support
 - Scheduling: @nestjs/schedule (cron jobs)
 - Validation: class-validator + class-transformer via global ValidationPipe
 - Tests: Jest (unit/e2e scaffolding present)
@@ -24,8 +24,10 @@ This document explains the backend architecture, folder structure, conventions, 
 
 Required env variables (non-exhaustive):
 - DATABASE_URL
-- JWT_SECRET, JWT_EXPIRES, JWT_ISSUER, JWT_AUDIENCE
+- JWT_SECRET, JWT_MOBILE_SECRET, JWT_EXPIRES, JWT_ISSUER, JWT_AUDIENCE
+- JWT_REFRESH_SECRET, JWT_REFRESH_EXPIRES
 - GOOGLE_CLIENT_ID
+- FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
 - CLOUDINARY_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 - EVENT_ENCRYPTION_KEY, EVENT_INVITATION_EXPIRES_IN
 
@@ -55,6 +57,7 @@ Required env variables (non-exhaustive):
 │  ├─ core/
 │  │  ├─ consts/
 │  │  │  ├─ event-image-default.const.ts
+│  │  │  ├─ firebase-config.const.ts
 │  │  │  └─ jwt-config.const.ts
 │  │  ├─ guards/
 │  │  │  └─ auth.guard.ts       # Protects routes using JWT
@@ -68,11 +71,12 @@ Required env variables (non-exhaustive):
 │  │  └─ services/
 │  │     └─ invitations.service.ts  # Invitation tokens (AES/JWT)
 │  ├─ auth/
-│  │  ├─ auth.controller.ts     # /api/auth login/logout/google
+│  │  ├─ auth.controller.ts     # /api/auth endpoints: login, logout, google, google/mobile, refresh
 │  │  ├─ auth.module.ts
 │  │  ├─ auth.service.ts
 │  │  └─ dto/
-│  │     └─ login-user.dto.ts   # DTOs for auth
+│  │     ├─ login-user.dto.ts
+│  │     └─ mobile-login.dto.ts # DTOs for auth
 │  ├─ user/
 │  │  ├─ user.controller.ts     # /api/users endpoints
 │  │  ├─ user.module.ts
@@ -130,12 +134,13 @@ Required env variables (non-exhaustive):
 - CORS enabled
 
 ### Authentication & Authorization
-- `AuthMiddleware` (applied to UserController and EventController) parses Bearer token and attaches `req.user` when valid. Requests without token are allowed to proceed as anonymous.
+- `AuthMiddleware` parses Bearer tokens and attaches `req.user` when valid. It supports both web JWT secret and mobile JWT secret. Requests without token are allowed to proceed as anonymous.
 - `AuthGuard` protects specific endpoints (decorated with `@UseGuards(AuthGuard)`) and rejects when token is missing/invalid. The guard relies on `jwt-config.const.ts` for verification.
-- JWT payload includes `sub`, `permission`, `level`, `location`, `email`, `photo`, `username`.
+- JWT payload includes `sub`, `permission`, `level`, `email`, `photo`, `username`, `name`, `locale`, `bio`. Mobile tokens also include `authSource: mobile`.
 
 ### Configuration
-- JWT sign options are read from env via `jwt-config.const.ts`. `.env` is loaded at runtime.
+- JWT sign options are read from env via `jwt-config.const.ts`. Web access tokens use expiration (`JWT_EXPIRES`), refresh tokens use `JWT_REFRESH_EXPIRES`, and mobile tokens are signed without expiration.
+- Firebase Admin credentials are read from env via `firebase-config.const.ts` (`FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`) to verify mobile Firebase ID tokens.
 - Cloudinary provider reads env: `CLOUDINARY_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 - Invitation service uses `EVENT_ENCRYPTION_KEY` and `EVENT_INVITATION_EXPIRES_IN`.
 
@@ -155,8 +160,9 @@ Required env variables (non-exhaustive):
 - Managed events: list events the user organizes or participates in; computed via domain logic in `User` entity and repositories.
 
 ### Auth (`/api/auth`)
-- `POST /auth/login`: username/email + password -> JWT.
-- `POST /auth/google`: verify Google token, create user if needed, then issue JWT.
+- `POST /auth/login`: username/email + password -> short-lived access JWT + refresh token cookie.
+- `POST /auth/google`: verify Google token, create user if needed, then issue short-lived access JWT + refresh token cookie.
+- `POST /auth/google/mobile`: verify Firebase ID token, create user if needed, then issue one mobile JWT without expiration and without refresh cookie.
 - `POST /auth/logout`: placeholder.
 
 ### Events (`/api/events`)

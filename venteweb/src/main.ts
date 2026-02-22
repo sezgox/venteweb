@@ -16,7 +16,13 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: 'http://localhost:4200', // tu frontend exacto
+    origin: [
+      'http://localhost:4200',   // Angular web dev
+      'http://localhost:8100',   // Ionic dev server
+      'https://localhost',        // Capacitor Android
+      'ionic://localhost',       // Capacitor iOS (viejo)
+      'capacitor://localhost',   // Capacitor iOS (nuevo)
+    ],
     credentials: true,
     exposedHeaders: ['x-access-token'],
   });

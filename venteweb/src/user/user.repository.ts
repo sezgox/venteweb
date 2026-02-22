@@ -107,4 +107,8 @@ export class UserRepository {
     async login(userId: string, refreshToken: string, lastLogin?: Date) {
         return await this.prisma.user.update({where: {id: userId}, data: {refreshToken, ...(lastLogin !== undefined && { lastLogin }),}});
     }
+
+    async updateLastLogin(userId: string, lastLogin: Date) {
+        return await this.prisma.user.update({ where: { id: userId }, data: { lastLogin } });
+    }
 }

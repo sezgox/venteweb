@@ -37,6 +37,7 @@
     "class-validator": "^0.14.2",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
+    "firebase-admin": "^13.6.1",
     "google-auth-library": "^10.4.2",
     "nestjs-uuid": "^0.1.4",
     "reflect-metadata": "^0.2.0",

@@ -1,28 +1,41 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
-import { jwtConfig } from 'src/core/consts/jwt-config.const';
+import { jwtVerificationSecrets } from 'src/core/consts/jwt-config.const';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(private jwtService: JwtService, private authService: AuthService) {}
 
+  private async verifyAccessToken(token: string) {
+    let verificationError: any;
+
+    for (const secret of jwtVerificationSecrets) {
+      try {
+        return await this.jwtService.verifyAsync(token, {
+          secret,
+          ignoreExpiration: true,
+        });
+      } catch (error) {
+        verificationError = error;
+      }
+    }
+
+    throw verificationError;
+  }
+
   async use(req: any, res: any, next: () => void) {
-    console.info('Middleware')
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
       // No hay token, dejamos pasar la request
       return next();
     }
 
-    console.log('Route:', req.route.path + ' Token: ' + authHeader);
     const token = authHeader.split(' ')[1];
     if (!token) return next();
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConfig.secret,
-        ignoreExpiration: true,
-      });
+      const payload = await this.verifyAccessToken(token);
+      console.log('Route:', req.route.path + ' User: ' + payload.username);
       const now = Math.floor(Date.now() / 1000);
       if (payload.exp && payload.exp < now) {
         const refreshToken = req.cookies['refresh_token'];
