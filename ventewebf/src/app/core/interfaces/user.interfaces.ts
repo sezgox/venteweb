@@ -8,6 +8,7 @@ export interface UserSummary {
   photo?: string;
   locale: string;
   bio: string;
+  active?: boolean;
 }
 
 export interface User extends UserSummary{

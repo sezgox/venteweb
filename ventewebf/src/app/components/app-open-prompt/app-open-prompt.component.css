@@ -1,0 +1,78 @@
+.app-open-prompt {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 120;
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(25, 52, 94, 0.96), rgba(52, 86, 209, 0.96)),
+    #19345e;
+  color: #fff;
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.28);
+}
+
+.app-open-prompt__eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.app-open-prompt h2 {
+  margin: 0 0 8px;
+  font-size: 1.35rem;
+}
+
+.app-open-prompt p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app-open-prompt__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-open-prompt__primary,
+.app-open-prompt__secondary,
+.app-open-prompt__dismiss {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+}
+
+.app-open-prompt__primary {
+  background: #fff;
+  color: #19345e;
+}
+
+.app-open-prompt__secondary {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.app-open-prompt__dismiss {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+@media (min-width: 768px) {
+  .app-open-prompt {
+    left: auto;
+    width: min(420px, calc(100vw - 32px));
+  }
+}
+

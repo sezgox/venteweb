@@ -18,6 +18,10 @@ export interface ApiError<T> {
     success: boolean
 }
 
+export interface ActivationRequiredMetadata {
+  activationRequired?: boolean;
+}
+
 interface LoginResponseDto {
   access_token: string;
   user: UserSummary;
@@ -27,10 +31,11 @@ interface RegisterResponseDto {
   email: string;
   name: string;
   username: string;
+  active?: boolean;
 }
 
 export type LoginSuccessResponse = ApiResponse<LoginResponseDto>;
-export type LoginErrorResponse = ApiError<LoginDto>;
+export type LoginErrorResponse = ApiError<LoginDto & ActivationRequiredMetadata>;
 
 export type RegisterSuccessResponse = ApiResponse<RegisterResponseDto>;
 export type RegisterErrorResponse = ApiError<RegisterDto>;
@@ -46,6 +51,8 @@ export type GetEventsErrorResponse = ApiError<{filter: EventFilter}>;
 
 export type GetEventSuccessResponse = ApiResponse<Event>;
 export type GetEventErrorResponse = ApiError<{id: string}>;
+export type InvitationTokenSuccessResponse = ApiResponse<{ invitation: string }>;
+export type InvitationTokenErrorResponse = ApiError<{ eventId: string }>;
 
 export type RequestCollaborationSuccessResponse = ApiResponse<Request>;
 export type RequestCollaborationErrorResponse = ApiError<{dto: CreateRequestDto}>;
@@ -80,6 +87,7 @@ export type ManageEventsResponse = ManageEventsSuccessResponse | ManageEventsErr
 export type CreateEventResponse = CreateEventSuccessResponse | CreateEventErrorResponse;
 export type GetEventsResponse = GetEventsSuccessResponse | GetEventsErrorResponse;
 export type GetEventResponse = GetEventSuccessResponse | GetEventErrorResponse;
+export type InvitationTokenResponse = InvitationTokenSuccessResponse | InvitationTokenErrorResponse;
 export type RequestCollaborationResponse = RequestCollaborationSuccessResponse | RequestCollaborationErrorResponse;
 export type ParticipationResponse = ParticipationSuccessResponse | ParticipationErrorResponse;
 export type UserResponse = UserSuccessReponse | UserErrorResponse;

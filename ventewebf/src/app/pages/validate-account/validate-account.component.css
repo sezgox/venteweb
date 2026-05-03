@@ -1,0 +1,41 @@
+.validate-account {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.validate-account__panel {
+  width: min(100%, 460px);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 16px;
+  padding: 32px;
+  background: var(--color-surface, #fff);
+  box-shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
+}
+
+.validate-account__eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.validate-account__panel h1 {
+  margin: 0 0 12px;
+  font-size: 2rem;
+}
+
+.validate-account__panel p {
+  color: var(--color-gray-600);
+}
+
+.validate-account__link {
+  display: inline-flex;
+  margin-top: 20px;
+  color: var(--color-primary);
+  font-weight: 700;
+}

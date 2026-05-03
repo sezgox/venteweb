@@ -25,6 +25,9 @@ export class AuthComponent implements AfterViewInit{
   private readonly router = inject(Router);
   private readonly usersService = inject(UsersService);
   isLogin = true;
+  activationPendingEmail = '';
+  activationPendingPassword = '';
+  activationRequired = false;
 
 
   loginPassword: string = '';
@@ -100,8 +103,15 @@ export class AuthComponent implements AfterViewInit{
       localStorage.setItem('access_token', (response as LoginSuccessResponse).results.access_token);
       this.onSuccessFeedback((response as LoginSuccessResponse).results.user);
     }else{
+      this.activationRequired = Boolean(response.metadata?.activationRequired);
+      if (this.activationRequired) {
+        this.activationPendingEmail = this.loginCredential;
+        this.activationPendingPassword = this.loginPassword;
+        this.toastr.warning(response.message, 'Activate your account');
+        return;
+      }
       this.onErrorFeedback();
-      this.toastr.clear();
+      this.toastr.error(response.message || 'Login failed');
     }
   }
 
@@ -110,10 +120,41 @@ export class AuthComponent implements AfterViewInit{
     if(response.success){
       this.loginCredential = this.registerData.email;
       this.loginPassword = this.registerData.password;
+      this.activationPendingEmail = this.registerData.email;
+      this.activationPendingPassword = this.registerData.password;
       this.isLogin = true;
-      this.onLogin();
+      try {
+        await this.authService.sendActivationEmail(
+          this.registerData.email,
+          this.registerData.password,
+        );
+        this.toastr.success('Check your email to activate your account.');
+      } catch (error) {
+        this.toastr.warning(
+          error instanceof Error ? error.message : 'Account created, but activation email could not be sent.',
+        );
+      }
     }else{
       this.onErrorFeedback();
+      this.toastr.error(response.message || 'Registration failed');
+    }
+  }
+
+  async resendActivationEmail() {
+    const email = this.activationPendingEmail || this.loginCredential;
+    const password = this.activationPendingPassword || this.loginPassword;
+    if (!email || !password) {
+      this.toastr.warning('Enter your email and password first.');
+      return;
+    }
+
+    try {
+      await this.authService.sendActivationEmail(email, password);
+      this.toastr.success('Activation email sent.');
+    } catch (error) {
+      this.toastr.error(
+        error instanceof Error ? error.message : 'Could not resend activation email.',
+      );
     }
   }
 

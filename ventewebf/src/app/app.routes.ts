@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   { path: '',  loadComponent: () => import('./pages/landing/landing.component').then(m => m.LandingComponent) },
+  { path: 'validate-account', loadComponent: () => import('./pages/validate-account/validate-account.component').then(m => m.ValidateAccountComponent) },
   {
     path: 'events',
     loadChildren: () =>

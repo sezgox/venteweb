@@ -1,0 +1,8 @@
+<main class="validate-account">
+  <section class="validate-account__panel">
+    <p class="validate-account__eyebrow">Account activation</p>
+    <h1>{{ state() === 'success' ? 'Account ready' : state() === 'error' ? 'Activation failed' : 'Activating account' }}</h1>
+    <p>{{ message() }}</p>
+    <a routerLink="/events" class="validate-account__link">Back to Vente</a>
+  </section>
+</main>

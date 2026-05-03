@@ -68,6 +68,15 @@
 
       <button type="submit" class="btn-primary w-full mt-4 py-3.5 text-base font-semibold">Log in</button>
 
+      @if (activationRequired) {
+        <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p>Your account is not active yet. Check your email or resend the activation link.</p>
+          <button type="button" class="mt-2 font-semibold text-[var(--color-primary)] hover:underline" (click)="resendActivationEmail()">
+            Resend activation email
+          </button>
+        </div>
+      }
+
       <p class="mt-6 text-center text-[var(--color-gray-600)] text-sm">
         Don't have an account?
         <a (click)="isLogin = false" class="text-[var(--color-primary)] font-semibold cursor-pointer hover:underline">Sign up</a>

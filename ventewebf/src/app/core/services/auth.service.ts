@@ -22,6 +22,30 @@ export class AuthService {
     return await this.api.request('POST', '/users', registerData);
   }
 
+  async sendActivationEmail(email: string, password: string): Promise<void> {
+    const res = await this.api.request<{ success?: boolean }>(
+      'POST',
+      '/auth/activation/request-email',
+      { email, password },
+    );
+    if (!res.success) {
+      throw new Error(
+        'message' in res ? String((res as { message?: string }).message) : 'Request failed',
+      );
+    }
+  }
+
+  async validateActivationCode(token: string): Promise<void> {
+    const res = await this.api.request('POST', '/auth/activation/confirm', {
+      token,
+    });
+    if (!res.success) {
+      throw new Error(
+        'message' in res ? String((res as { message?: string }).message) : 'Activation failed',
+      );
+    }
+  }
+
   async loginWithGoogle(tokenId: string) {
     return await this.api.request('POST', '/auth/google', { tokenId });
   }

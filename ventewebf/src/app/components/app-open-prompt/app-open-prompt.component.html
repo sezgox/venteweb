@@ -1,0 +1,16 @@
+@if (visible()) {
+  <section class="app-open-prompt" aria-label="Open app prompt">
+    <div class="app-open-prompt__content">
+      <p class="app-open-prompt__eyebrow">Android app available</p>
+      <h2>Abrir en la app</h2>
+      <p>Si la app está instalada, Android intentará abrir esta misma página dentro de la app.</p>
+    </div>
+
+    <div class="app-open-prompt__actions">
+      <a class="app-open-prompt__primary" [href]="currentUrl()">Abrir app</a>
+      <a class="app-open-prompt__secondary" [href]="playStoreUrl" rel="noopener noreferrer">Descargar app</a>
+      <button type="button" class="app-open-prompt__dismiss" (click)="dismiss()">Ahora no</button>
+    </div>
+  </section>
+}
+
