@@ -1,39 +1,34 @@
-import { NgClass } from '@angular/common';
 import { Component, effect, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { PFP_URL } from '../../../core/consts/pfp.const';
 import { NotificationsSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { Event } from '../../../core/interfaces/events.interfaces';
 import { UserSummary } from '../../../core/interfaces/user.interfaces';
 import { AuthService } from '../../../core/services/auth.service';
-import { Notification, NotificationsService, NotificationType } from '../../../core/services/notifications.service';
+import { NotificationsService } from '../../../core/services/notifications.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { UserSessionService } from '../../../core/services/user-session.service';
-import { UsersService } from '../../../core/services/users.service';
 import { EventFormComponent } from '../event-form/event-form.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, NgClass, EventFormComponent],
+  imports: [RouterLink, EventFormComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
 export class HeaderComponent implements OnInit{
 
-  private sub: Subscription | null = null;
   public themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly usersService = inject(UsersService);
   private readonly sessionService = inject(UserSessionService);
   private readonly notificationsService = inject(NotificationsService);
 
   activeTheme: string = 'light';
   user: UserSummary | null = this.sessionService.getCurrentUser();
   loggedIn = !!this.user;
-  notifications: Notification[] = [];
+  notificationsNotRead = false;
   showModalEventForm: boolean = false;
   pfp = PFP_URL;
 
@@ -53,42 +48,23 @@ export class HeaderComponent implements OnInit{
 
   ngOnInit(): void {
       this.notificationsService.notifications$.subscribe(notifications => {
-        this.notifications.unshift(...notifications);
+        this.notificationsNotRead = notifications.some(item => !item.read);
       });
   }
 
   async getNotifications() {
     const res = await this.notificationsService.getNotifications();
     if(res.success){
-      this.notifications = (res as NotificationsSuccessResponse).results;
+      this.notificationsNotRead = (res as NotificationsSuccessResponse).results.some(item => !item.read);
     }else{
-      this.notifications = [];
+      this.notificationsNotRead = false;
     }
   }
 
-  async markAsRead(id: string) {
-    const res = await this.notificationsService.markAsRead(id);
-    const notification = this.notifications.find(n => n.id === id);
-    if(res.success){
-      notification!.read = true;
-    }
-  }
-
-  goToNotification(notification: Notification){
-    this.markAsRead(notification.id);
-    const eventNotificationTypes = [
-      NotificationType.Participation,
-      NotificationType.RequestCollaboration,
-      NotificationType.InvitationAnswered,
-      NotificationType.Reminder,
-      NotificationType.Rating,
-      NotificationType.Post,
-    ];
-    if(eventNotificationTypes.includes(notification.type)){
-      this.router.navigate(['/events/event', notification.relatedId]);
-    }else{
-      this.router.navigate(['/events/dashboard'], {state: {menuOption: notification.type}});
-    }
+  goToSocial(): void {
+    this.router.navigate(['/events/social'], {
+      queryParams: { section: 'notifications' }
+    });
   }
 
   signIn(){
@@ -110,10 +86,6 @@ export class HeaderComponent implements OnInit{
 
   logout(){
     this.authService.logout();
-  }
-
-  get notificationsNotRead(): boolean{
-    return this.notifications.some(n => !n.read)
   }
 
   redirectToEvent(event: Event){

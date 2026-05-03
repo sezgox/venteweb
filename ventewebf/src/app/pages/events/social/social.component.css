@@ -1,0 +1,218 @@
+.social-page {
+  width: min(1100px, calc(100% - 1.5rem));
+  margin: 1rem auto 2rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.social-page__hero,
+.social-tabs,
+.notification-card,
+.state-box,
+.social-placeholder {
+  border: 1px solid var(--color-outline);
+  border-radius: 1.55rem;
+  background: var(--color-surface);
+  box-shadow: var(--color-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.social-page__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 1.5rem;
+}
+
+.social-page__eyebrow,
+.social-placeholder__eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--color-tertiary);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.social-page h1 {
+  margin: 0.85rem 0 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.social-page p {
+  margin: 0.9rem 0 0;
+  color: var(--color-gray-500);
+  line-height: 1.7;
+}
+
+.social-page__action {
+  align-self: center;
+}
+
+.social-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.85rem;
+}
+
+.social-tabs__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3.1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-outline);
+  border-radius: 1.15rem;
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.social-tabs__button--active {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #ff9a57 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 16px 34px rgba(255, 109, 87, 0.24);
+}
+
+.social-feed {
+  display: grid;
+  gap: 1rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.social-tabs__button--active .badge {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.notification-card {
+  padding: 1.2rem 1.25rem;
+  cursor: pointer;
+}
+
+.notification-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.notification-card__type {
+  display: inline-flex;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(31, 111, 235, 0.08);
+  color: var(--color-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.notification-card h3,
+.social-placeholder h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.notification-card p {
+  margin: 0.55rem 0 0;
+}
+
+.notification-card time {
+  display: block;
+  margin-top: 0.85rem;
+  color: var(--color-gray-500);
+  font-size: 0.84rem;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+}
+
+.state-box,
+.social-placeholder {
+  padding: 1.75rem;
+}
+
+.state-box {
+  color: var(--color-gray-500);
+  text-align: center;
+}
+
+.social-placeholder {
+  display: grid;
+  gap: 1rem;
+}
+
+.social-placeholder__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.social-placeholder__grid article {
+  padding: 1rem;
+  border-radius: 1.2rem;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-strong);
+}
+
+.social-placeholder__grid strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.social-placeholder__grid p {
+  margin-top: 0.55rem;
+}
+
+.social-placeholder code {
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.45rem;
+  background: rgba(20, 34, 56, 0.08);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 760px) {
+  .social-page {
+    width: min(100% - 1rem, 1100px);
+  }
+
+  .social-page__hero,
+  .social-tabs,
+  .social-placeholder__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .social-page__hero {
+    padding: 1rem;
+  }
+}

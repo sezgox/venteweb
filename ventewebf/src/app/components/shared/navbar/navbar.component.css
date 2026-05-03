@@ -1,0 +1,122 @@
+:host {
+  display: block;
+}
+
+.landing-navbar {
+  position: fixed;
+  top: 1rem;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 0 1rem;
+  font-family: 'Avenir Next', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.landing-navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 0.9rem 1.15rem;
+  border: 1px solid rgba(17, 32, 51, 0.08);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 20px 40px rgba(17, 32, 51, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.landing-navbar__brand {
+  color: #17263d;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.landing-navbar__links,
+.landing-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.landing-navbar__links a,
+.landing-navbar__ghost {
+  padding: 0.7rem 0.95rem;
+  border-radius: 999px;
+  color: #526173;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.landing-navbar__links a:hover,
+.landing-navbar__ghost:hover {
+  background: rgba(17, 32, 51, 0.05);
+  color: #17263d;
+}
+
+.landing-navbar__ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(17, 32, 51, 0.08);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.landing-navbar__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.9rem;
+  padding: 0.85rem 1.15rem;
+  border: none;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #ff6554 0%, #ff8a54 100%);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 12px 28px rgba(255, 101, 84, 0.24);
+}
+
+.landing-navbar__cta:hover {
+  filter: brightness(1.04);
+}
+
+@media (max-width: 960px) {
+  .landing-navbar__inner {
+    gap: 0.75rem;
+    padding: 0.8rem 0.95rem;
+  }
+
+  .landing-navbar__links {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-navbar {
+    top: 0.7rem;
+    padding: 0 0.65rem;
+  }
+
+  .landing-navbar__inner {
+    flex-wrap: wrap;
+  }
+
+  .landing-navbar__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .landing-navbar__ghost,
+  .landing-navbar__cta {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+}

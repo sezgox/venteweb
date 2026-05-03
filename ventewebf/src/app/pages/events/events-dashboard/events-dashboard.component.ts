@@ -1,9 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { EventCardComponent } from '../../../components/shared/event-card/event-card.component';
-import { ManageEventsSuccessResponse, RequestCollaborationErrorResponse } from '../../../core/interfaces/api-response.interface';
+import { RequestCollaborationErrorResponse } from '../../../core/interfaces/api-response.interface';
 import { Event, Invitation, Participation, Request } from '../../../core/interfaces/events.interfaces';
-import { ManageEvents } from '../../../core/interfaces/manage-events.interface';
 import { EventsService } from '../../../core/services/events.service';
 import { UsersService } from './../../../core/services/users.service';
 
@@ -30,20 +30,31 @@ export class EventsDashboardComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly eventsService = inject(EventsService);
   private readonly toastr = inject(ToastrService);
+  private readonly router = inject(Router);
 
-  optionSelected: string = 'events';
-  managedEvents: ManageEvents | null = null;
-
-  events: CategorizedEvents = {
-    upcoming: [],
-    inProgress: [],
-    finished: []
-  };
-  participations: CategorizedParticipations = {
-    upcoming: [],
-    inProgress: [],
-    finished: []
-  };
+  optionSelected: 'events' | 'participations' = 'events';
+  participationSection: 'participations' | 'invitations' | 'requests' = 'participations';
+  readonly managedEvents = this.usersService.managedEvents;
+  readonly eventsState = computed<CategorizedEvents>(() => {
+    const managedEvents = this.managedEvents();
+    const now = Date.now();
+    const events = managedEvents?.events ?? [];
+    return {
+      upcoming: events.filter(event => new Date(event.startDate).getTime() > now),
+      inProgress: events.filter(event => new Date(event.startDate).getTime() <= now && new Date(event.endDate).getTime() > now),
+      finished: events.filter(event => new Date(event.endDate).getTime() <= now),
+    };
+  });
+  readonly participationsState = computed<CategorizedParticipations>(() => {
+    const managedEvents = this.managedEvents();
+    const now = Date.now();
+    const participations = managedEvents?.participations ?? [];
+    return {
+      upcoming: participations.filter(participation => new Date(participation.event.startDate).getTime() > now),
+      inProgress: participations.filter(participation => new Date(participation.event.startDate).getTime() <= now && new Date(participation.event.endDate).getTime() > now),
+      finished: participations.filter(participation => new Date(participation.event.endDate).getTime() <= now),
+    };
+  });
 
   dialogType: 'invitation' | 'participation' | 'request' = 'invitation';
   showDialog: boolean = false;
@@ -52,27 +63,42 @@ export class EventsDashboardComponent implements OnInit {
   requestDialog: Request | null = null;
 
   ngOnInit(): void {
+    const currentUser = this.usersService.getCurrentUser();
+    if (!currentUser) {
+      this.toastr.info('Para ver los eventos debe iniciar sesión.', 'Login required');
+      this.router.navigate(['/events/explore']);
+      document.getElementById('auth-modal')?.showPopover();
+      return;
+    }
     this.getManagedEvents();
+  }
+
+  selectMainSection(section: 'events' | 'participations'): void {
+    this.optionSelected = section;
+    if (section === 'participations') {
+      this.participationSection = 'participations';
+    }
+  }
+
+  selectParticipationSection(section: 'participations' | 'invitations' | 'requests'): void {
+    this.participationSection = section;
+  }
+
+  get events(): CategorizedEvents {
+    return this.eventsState();
+  }
+
+  get participations(): CategorizedParticipations {
+    return this.participationsState();
   }
 
   async getManagedEvents(){
     const res = await this.usersService.getManagedEvents();
     if(res.success){
-      this.managedEvents = (res as ManageEventsSuccessResponse).results;
-      console.log(this.managedEvents);
-      this.categorizeEvents();
-    }else{
-      console.log(res.message);
+      return;
+    } else {
+      this.toastr.error(res.message, 'Could not load managed events');
     }
-  }
-
-  categorizeEvents(){
-    this.events.upcoming = this.managedEvents?.events.filter(event => new Date(event.startDate) > new Date()) ?? [];
-    this.events.inProgress = this.managedEvents?.events.filter(event => new Date(event.startDate) <= new Date() && new Date(event.endDate) > new Date()) ?? [];
-    this.events.finished = this.managedEvents?.events.filter(event => new Date(event.endDate) <= new Date()) ?? [];
-    this.participations.upcoming = this.managedEvents?.participations.filter(participation => new Date(participation.event.startDate) > new Date()) ?? [];
-    this.participations.inProgress = this.managedEvents?.participations.filter(participation => new Date(participation.event.startDate) <= new Date() && new Date(participation.event.endDate) > new Date()) ?? [];
-    this.participations.finished = this.managedEvents?.participations.filter(participation => new Date(participation.event.endDate) <= new Date()) ?? [];
   }
 
   async removeRequest(requestId: string, eventId: string){
@@ -97,6 +123,11 @@ export class EventsDashboardComponent implements OnInit {
   }
 
   async removeInvitation(invitation: Invitation){
+    if (!invitation.userId) {
+      this.toastr.error('This invitation is not linked to a registered user account', 'Error canceling invitation');
+      this.showDialog = false;
+      return;
+    }
     const res = await this.usersService.rejectOrCancelInvitation(invitation.userId, invitation.id);
     if(res.success){
       this.toastr.success('Invitation rejected');
@@ -108,14 +139,11 @@ export class EventsDashboardComponent implements OnInit {
   }
 
   async acceptInvitation(invitation: Invitation){
-    const participationDto = {
-      userId: invitation.userId,
-      eventId: invitation.eventId,
-      type: invitation.type,
-      invitationId: invitation.id,
-      invitation: invitation.invitationToken
-    }
-    const res = await this.usersService.acceptInvitation(invitation.userId, participationDto);
+    const res = await this.eventsService.acceptInvitationByEventParticipation(
+      invitation.eventId,
+      invitation.id,
+      invitation.invitationToken
+    );
     if(res.success){
       this.toastr.success('Invitation accepted');
       this.getManagedEvents();

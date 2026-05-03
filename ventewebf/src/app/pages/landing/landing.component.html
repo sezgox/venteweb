@@ -1,546 +1,284 @@
-<app-navbar></app-navbar>
+<div class="landing-shell">
+  <app-navbar></app-navbar>
 
-<!-- Hero Section -->
-<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 to-white px-6 pt-20">
-  <div class="w-full lg:w-[70vw] grid md:grid-cols-2 gap-12 items-center">
-    <!-- Left Content -->
-    <div>
-      <h1 class="text-5xl md:text-6xl font-bold text-black mb-6">
-        Connect with the world
-      </h1>
-      <p class="text-gray400 text-lg mb-8">
-        Join our vibrant community.
-      </p>
-      <button class="btn-primary px-8 py-4 text-lg font-bold w-full md:w-auto">
-        Pre-register
-      </button>
-    </div>
-    
-    <!-- Right Content - Illustrations -->
-    <div class="flex gap-6 justify-center">
-      <div class="bg-pink-100 rounded-3xl p-8 flex items-center justify-center">
-        <div class="text-6xl">📱</div>
-      </div>
-      <div class="bg-white rounded-3xl p-8 flex items-center justify-center shadow-lg">
-        <div class="text-6xl">👥</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Logos Section -->
-<section class="bg-gradient-to-b from-blue-50 to-blue-100 py-16 px-6">
-  <div class="w-full lg:w-[70vw] mx-auto text-center">
-    <p class="text-gray400 mb-8">Loved by thousands of users</p>
-    <div class="grid grid-cols-3 gap-8 items-center">
-      <div class="bg-white rounded-lg p-8 shadow-md">
-        <p class="text-gray400 font-bold">Logo</p>
-      </div>
-      <div class="bg-white rounded-lg p-8 shadow-md">
-        <p class="text-gray400 font-bold">Logo</p>
-      </div>
-      <div class="bg-white rounded-lg p-8 shadow-md">
-        <p class="text-gray400 font-bold">Logo</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Engaging Section -->
-<section class="py-20 px-6 bg-white">
-  <div class="w-full lg:w-[70vw] mx-auto grid md:grid-cols-2 gap-12 items-center">
-    <!-- Image -->
-    <div class="bg-pink-100 rounded-3xl p-12 flex items-center justify-center">
-      <div class="text-8xl">🔔</div>
-    </div>
-    
-    <!-- Content -->
-    <div>
-      <p class="text-primary text-sm font-bold mb-2">AWESOME FEATURE</p>
-      <h2 class="text-4xl font-bold text-text mb-6">
-        Engaging and user-friendly!
-      </h2>
-      <p class="text-gray400 mb-6">
-        Our platform connects individuals and businesses seamlessly, enhancing collaboration and communication effortlessly.
-      </p>
-      <button class="btn-primary px-6 py-3 font-bold">
-        Discover more
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- Simplicity Section -->
-<section class="py-20 px-6 bg-gray50">
-  <div class="w-full lg:w-[70vw] mx-auto grid md:grid-cols-2 gap-12 items-center">
-    <!-- Content -->
-    <div>
-      <p class="text-gray500 text-sm font-bold mb-2">FEATURE</p>
-      <h2 class="text-4xl font-bold text-text mb-6">
-        Simplicity at its best
-      </h2>
-      <p class="text-gray400 mb-6">
-        We prioritize user experience, ensuring an intuitive interface and straightforward navigation.
-      </p>
-      <button class="btn-primary px-6 py-3 font-bold">
-        Explore Features
-      </button>
-    </div>
-    
-    <!-- Image -->
-    <div class="bg-gray100 rounded-3xl p-12 flex items-center justify-center">
-      <div class="text-8xl">🎨</div>
-    </div>
-  </div>
-</section>
-
-<!-- Solutions Section -->
-<section class="py-20 px-6 bg-white">
-  <div class="w-full lg:w-[70vw] mx-auto grid md:grid-cols-2 gap-12 items-center">
-    <!-- Image -->
-    <div class="bg-pink-100 rounded-3xl p-12 flex items-center justify-center">
-      <div class="text-8xl">🏆</div>
-    </div>
-    
-    <!-- Content -->
-    <div>
-      <p class="text-gray500 text-sm font-bold mb-2">DISCOVER</p>
-      <h2 class="text-4xl font-bold text-text mb-6">
-        Solutions for everyone
-      </h2>
-      <p class="text-gray400 mb-6">
-        From individuals to enterprises, our platform adapts to your needs, fostering connections.
-      </p>
-      <button class="btn-primary px-6 py-3 font-bold">
-        Join now
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- Blog Section -->
-<section class="py-20 px-6 bg-primary text-white">
-  <div class="w-full lg:w-[70vw] mx-auto">
-    <h2 class="text-4xl md:text-5xl font-bold text-center mb-4">
-      Visit our blog
-    </h2>
-    <p class="text-center mb-12 text-white/90">
-      Stay updated with the latest trends and tips in social networking
-    </p>
-    
-    <!-- Blog Cards -->
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="bg-white text-text rounded-xl overflow-hidden shadow-lg">
-        <div class="h-48 bg-gray200 flex items-center justify-center">
-          <div class="text-4xl">📸</div>
-        </div>
-        <div class="p-6">
-          <h3 class="font-bold text-xl mb-2">How to engage effectively?</h3>
-          <p class="text-gray400 text-sm mb-4">
-            Building meaningful connections is essential for networking success.
+  <main class="landing-page">
+    <section class="hero" id="top">
+      <div class="landing-container hero__grid">
+        <div class="hero__content">
+          <span class="hero__eyebrow">Red social + portal de eventos</span>
+          <h1 class="hero__title">
+            Organiza, promociona y vive eventos que realmente conectan personas.
+          </h1>
+          <p class="hero__description">
+            Vente reúne comunidad, gestión y descubrimiento en una sola plataforma.
+            Sirve igual para una cena privada, una quedada de comunidad, una jornada especial
+            o un festival con más ambición operativa.
           </p>
-          <button class="text-primary font-bold hover:underline">
-            Emma Stone
-          </button>
+
+          <div class="hero__actions">
+            <a class="landing-button landing-button--primary" routerLink="/events">
+              Explorar eventos
+            </a>
+            <a class="landing-button landing-button--secondary" href="#platform">
+              Ver la plataforma
+            </a>
+          </div>
+
+          <div class="hero__chips">
+            <span>Invitaciones personalizadas</span>
+            <span>Control de aforo</span>
+            <span>Reputación y mérito</span>
+            <span>Participación en tiempo real</span>
+          </div>
+        </div>
+
+        <div class="hero__visual" aria-hidden="true">
+          <div class="hero__backdrop hero__backdrop--large"></div>
+          <div class="hero__backdrop hero__backdrop--small"></div>
+
+          <article class="showcase-card showcase-card--primary">
+            <div class="showcase-card__topline">
+              <span class="showcase-card__badge">Evento destacado</span>
+              <span class="showcase-card__status">En promoción</span>
+            </div>
+            <h2>Festival urbano de verano</h2>
+            <p>Publicación, capacidad, invitados y ritmo de asistencia coordinados desde un mismo panel.</p>
+            <div class="showcase-card__metrics">
+              <div>
+                <strong>1.240</strong>
+                <span>Interacciones</span>
+              </div>
+              <div>
+                <strong>84%</strong>
+                <span>Aforo previsto</span>
+              </div>
+              <div>
+                <strong>3</strong>
+                <span>Equipos</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="showcase-card showcase-card--floating showcase-card--agenda">
+            <span class="showcase-card__mini-label">Esta semana</span>
+            <h3>Quedada afterwork</h3>
+            <p>Invitación privada con confirmación rápida y recordatorios inteligentes.</p>
+          </article>
+
+          <article class="showcase-card showcase-card--floating showcase-card--profile">
+            <span class="showcase-card__mini-label">Confianza de comunidad</span>
+            <div class="showcase-card__profile-row">
+              <div class="showcase-card__avatar">V</div>
+              <div>
+                <strong>Perfil organizador</strong>
+                <p>Nivel, reputación y asistencia validada.</p>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
-      
-      <div class="bg-white text-text rounded-xl overflow-hidden shadow-lg">
-        <div class="h-48 bg-gray200 flex items-center justify-center">
-          <div class="text-4xl">💡</div>
-        </div>
-        <div class="p-6">
-          <h3 class="font-bold text-xl mb-2">Embrace innovation</h3>
-          <p class="text-gray400 text-sm mb-4">
-            Innovation drives progress and creates avenues for connection.
+    </section>
+
+    <section class="signal-band">
+      <div class="landing-container signal-band__content">
+        <div>
+          <span class="section-kicker">Hecho para eventos reales</span>
+          <p>
+            Una sola plataforma para descubrir planes, organizar experiencias
+            y reforzar la confianza entre organizadores y asistentes.
           </p>
-          <button class="text-primary font-bold hover:underline">
-            Liam Smith
-          </button>
+        </div>
+        <div class="signal-band__stats">
+          <div>
+            <strong>Social</strong>
+            <span>Descubrimiento y comunidad</span>
+          </div>
+          <div>
+            <strong>Operativa</strong>
+            <span>Aforo, invitaciones y control</span>
+          </div>
+          <div>
+            <strong>Escalable</strong>
+            <span>Desde grupos pequeños hasta grandes citas</span>
+          </div>
         </div>
       </div>
-      
-      <div class="bg-white text-text rounded-xl overflow-hidden shadow-lg">
-        <div class="h-48 bg-gray200 flex items-center justify-center">
-          <div class="text-4xl">💼</div>
-        </div>
-        <div class="p-6">
-          <h3 class="font-bold text-xl mb-2">Achieve work-life balance</h3>
-          <p class="text-gray400 text-sm mb-4">
-            Balancing professional and personal life is crucial for wellbeing.
+    </section>
+
+    <section class="section" id="platform">
+      <div class="landing-container">
+        <div class="section__header">
+          <span class="section-kicker">Plataforma</span>
+          <h2>La capa social y la capa operativa trabajan juntas.</h2>
+          <p>
+            Vente no separa promoción, asistencia y comunidad. Las integra para que el evento
+            funcione mejor antes, durante y después.
           </p>
-          <button class="text-primary font-bold hover:underline">
-            Ava Brown
-          </button>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- CTA Section -->
-<section class="py-20 px-6 bg-white text-center">
-  <div class="w-full lg:w-[70vw] mx-auto">
-    <h2 class="text-4xl font-bold text-text mb-4">
-      Take the leap into social networking
-    </h2>
-    <p class="text-gray400 mb-8">
-      Join us and elevate your connections to new heights.
-    </p>
-    <button class="btn-primary px-8 py-4 text-lg font-bold">
-      Join now
-    </button>
-  </div>
-</section>
+        <div class="pillar-grid">
+          @for (pillar of pillars; track pillar.title) {
+            <article class="pillar-card">
+              <span class="pillar-card__eyebrow">{{ pillar.eyebrow }}</span>
+              <h3>{{ pillar.title }}</h3>
+              <p>{{ pillar.description }}</p>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
 
-<!-- Testimonials Section -->
-<section class="py-20 px-6 bg-gray50">
-  <div class="w-full lg:w-[70vw] mx-auto">
-    <h2 class="text-4xl font-bold text-center text-text mb-4">
-      What our users say
-    </h2>
-    <p class="text-center text-gray400 mb-12">
-      Join millions in connecting and sharing. Read their thoughtful testimonials.
-    </p>
-    
-    <!-- Testimonial Cards -->
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-xl shadow-md">
-        <div class="flex mb-3">
-          <span class="text-yellow-500">★★★★★</span>
+    <section class="section section--dark" id="capabilities">
+      <div class="landing-container">
+        <div class="section__header section__header--light">
+          <span class="section-kicker">Capacidades clave</span>
+          <h2>Todo lo necesario para mover un evento sin dispersarte en cinco herramientas.</h2>
+          <p>
+            La plataforma está pensada para organizadores que necesitan claridad y para asistentes
+            que valoran descubrir experiencias con contexto, confianza y seguimiento real.
+          </p>
         </div>
-        <p class="text-gray700 mb-6">
-          "This platform transformed how we connect. Highly recommend it."
-        </p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gray300 rounded-full"></div>
-          <div>
-            <p class="font-bold text-text">Ava Williams</p>
-            <p class="text-sm text-gray500">Product Designer</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white p-6 rounded-xl shadow-md">
-        <div class="flex mb-3">
-          <span class="text-yellow-500">★★★★★</span>
-        </div>
-        <p class="text-gray700 mb-6">
-          "A fantastic way to network and grow! Feel at ease!"
-        </p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gray300 rounded-full"></div>
-          <div>
-            <p class="font-bold text-text">Liza Davis</p>
-            <p class="text-sm text-gray500">Creative Writer</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white p-6 rounded-xl shadow-md">
-        <div class="flex mb-3">
-          <span class="text-yellow-500">★★★★★</span>
-        </div>
-        <p class="text-gray700 mb-6">
-          "Since you join, you'll forever feel social networking community."
-        </p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gray300 rounded-full"></div>
-          <div>
-            <p class="font-bold text-text">Mark Thompson</p>
-            <p class="text-sm text-gray500">Marketing Guru</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- Connect Section -->
-<section class="py-20 px-6 bg-primary text-white">
-  <div class="w-full lg:w-[70vw] mx-auto grid md:grid-cols-2 gap-12 items-center">
-    <!-- Content -->
-    <div>
-      <p class="text-white/80 text-sm font-bold mb-2">FEATURE</p>
-      <h2 class="text-4xl md:text-5xl font-bold mb-6">
-        Connect with ease
-      </h2>
-      <p class="text-white/90 mb-8">
-        Pre-register now and be the first to know about our launch.
-      </p>
-      <button class="bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray100 transition">
-        Pre-register
-      </button>
-    </div>
-    
-    <!-- Image -->
-    <div class="bg-white rounded-3xl p-12 flex items-center justify-center">
-      <div class="text-8xl">👥</div>
-    </div>
-  </div>
-</section>
+        <div class="capability-grid">
+          @for (capability of capabilities; track capability.title) {
+            <article class="capability-card" [class]="capability.accent">
+              <h3>{{ capability.title }}</h3>
+              <p>{{ capability.description }}</p>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
 
-<!-- Social Platforms Section -->
-<section class="py-20 px-6 bg-gray50">
-  <div class="w-full lg:w-[70vw] mx-auto grid md:grid-cols-2 gap-12 items-center">
-    <!-- Content -->
-    <div>
-      <h2 class="text-4xl font-bold text-text mb-6">
-        Link with your favorite platforms
-      </h2>
-      <p class="text-gray400 mb-8">
-        Learn how to integrate our platform with your social tools.
-      </p>
-      <button class="btn-primary px-6 py-3 font-bold">
-        Connect now
-      </button>
-    </div>
-    
-    <!-- Social Icons -->
-    <div class="grid grid-cols-3 gap-6">
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">f</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">🐦</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">in</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">📷</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">👻</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">💬</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">📌</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">✈️</span>
-      </div>
-      <div class="bg-white w-20 h-20 rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition">
-        <span class="text-2xl">▶️</span>
-      </div>
-    </div>
-  </div>
-</section>
+    <section class="section" id="formats">
+      <div class="landing-container formats-layout">
+        <div class="section__header section__header--left">
+          <span class="section-kicker">Escenarios</span>
+          <h2>Igual de útil para lo cercano que para lo grande.</h2>
+          <p>
+            La plataforma está diseñada para acompañar diferentes escalas sin perder naturalidad:
+            reuniones privadas, encuentros sociales, acciones de comunidad, marcas o festivales.
+          </p>
+        </div>
 
-<!-- Final CTA Section -->
-<section class="py-20 px-6 bg-primary text-white text-center">
-  <div class="w-full lg:w-[70vw] mx-auto">
-    <h2 class="text-4xl md:text-5xl font-bold mb-4">
-      Start for free
-    </h2>
-    <p class="text-white/90 mb-8">
-      No credit card needed. Enjoy a 14-day free access.
-    </p>
-    <div class="flex gap-4 justify-center flex-wrap">
-      <button class="bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray100 transition">
-        Start Now
-      </button>
-      <button class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white/10 transition">
-        Contact Support
-      </button>
-    </div>
-  </div>
-</section>
+        <div class="formats-grid">
+          @for (format of formats; track format.title) {
+            <article class="format-card">
+              <h3>{{ format.title }}</h3>
+              <p>{{ format.description }}</p>
+              <span>{{ format.detail }}</span>
+            </article>
+          }
+        </div>
+      </div>
+    </section>
 
-<!-- About Section (Pre-Registration) -->
-<section class="py-20 px-6 bg-white" id="about">
-  <div class="w-full lg:w-[70vw] mx-auto">
-    <div class="grid md:grid-cols-2 gap-12 mb-16">
-      <div>
-        <h1 class="text-5xl font-bold text-text mb-6">Pre-Registration</h1>
-        <p class="text-gray400 text-lg">Sign Up Now</p>
-      </div>
-      <div class="bg-gray100 rounded-xl p-8 flex items-center justify-center">
-        <div class="text-6xl">👥</div>
-      </div>
-    </div>
-    
-    <!-- Join Community Banner -->
-    <div class="bg-primary text-white rounded-xl p-12 text-center mb-16">
-      <h2 class="text-3xl font-bold mb-4">Join the Community</h2>
-      <p class="text-white/90">
-        Discover amazing people and events around you. Connect with like-minded individuals and expand your network effortlessly.
-      </p>
-    </div>
-    
-    <!-- Benefits Grid -->
-    <div class="grid md:grid-cols-2 gap-8 mb-16">
-      <div class="bg-primary/90 text-white rounded-xl p-8">
-        <h3 class="text-xl font-bold mb-4">Benefits:</h3>
-        <ul class="space-y-2 text-white/90">
-          <li>• Access exclusive events</li>
-          <li>• Connect with thought leaders</li>
-          <li>• Participate in discussions</li>
-          <li>• Share insights and experiences</li>
-          <li>• Enjoy hassle-free networking</li>
-        </ul>
-      </div>
-      
-      <div class="bg-primary/90 text-white rounded-xl p-8">
-        <h3 class="text-xl font-bold mb-4">Requirements:</h3>
-        <ul class="space-y-2 text-white/90">
-          <li>• Must be 18 years or older</li>
-          <li>• Valid email address</li>
-          <li>• Agree to terms and conditions</li>
-          <li>• Active social media accounts</li>
-        </ul>
-      </div>
-    </div>
-    
-    <!-- What We Offer -->
-    <div class="mb-16">
-      <h2 class="text-4xl font-bold text-center text-text mb-12">What we offer</h2>
-      <div class="grid md:grid-cols-4 gap-6">
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">📱</span>
+    <section class="section section--soft" id="community">
+      <div class="landing-container community-layout">
+        <div class="community-copy">
+          <span class="section-kicker">Comunidad y mérito</span>
+          <h2>La confianza no se declara: se construye.</h2>
+          <p>
+            Vente incorpora reputación, constancia organizativa, participación verificada y una lógica
+            de recompensas que impulsa comportamientos útiles para la comunidad.
+          </p>
+          <div class="workflow-list">
+            @for (step of workflowSteps; track step; let index = $index) {
+              <div class="workflow-step">
+                <span>{{ index + 1 }}</span>
+                <p>{{ step }}</p>
+              </div>
+            }
           </div>
-          <h3 class="font-bold text-text mb-2">Profile Creation</h3>
-          <p class="text-gray400 text-sm">Secure</p>
         </div>
-        
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">✅</span>
-          </div>
-          <h3 class="font-bold text-text mb-2">Verification System</h3>
-          <p class="text-gray400 text-sm">Reliable</p>
-        </div>
-        
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">🔔</span>
-          </div>
-          <h3 class="font-bold text-text mb-2">Real-time Notifications</h3>
-          <p class="text-gray400 text-sm">Instant Updates</p>
-        </div>
-        
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">📊</span>
-          </div>
-          <h3 class="font-bold text-text mb-2">Modern Interface</h3>
-          <p class="text-gray400 text-sm">User-Friendly</p>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-4 gap-6 mt-6">
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">💬</span>
-          </div>
-          <h3 class="font-bold text-text mb-2">Community Support</h3>
-          <p class="text-gray400 text-sm">24/7 Available</p>
-        </div>
-        
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">🎯</span>
-          </div>
-          <h3 class="font-bold text-text mb-2">Article & Events</h3>
-          <p class="text-gray400 text-sm">Engaging</p>
-        </div>
-        
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">🌐</span>
-          </div>
-          <h3 class="font-bold text-text mb-2">Networking Tools</h3>
-          <p class="text-gray400 text-sm">Enhanced Connections</p>
-        </div>
-        
-        <div class="text-center">
-          <div class="bg-primary w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span class="text-white text-2xl">⚙️</span>
-          </div>
-          <h3 class="font-bold text-text mb-2">Modern Interface</h3>
-          <p class="text-gray400 text-sm">Intuitive Design</p>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Join Today CTA -->
-    <div class="text-center mb-16">
-      <h2 class="text-4xl font-bold text-text mb-8">Join Today</h2>
-      <button class="btn-primary px-12 py-4 text-lg font-bold">
-        Sign Up
-      </button>
-    </div>
-    
-    <!-- Available Features -->
-    <div class="bg-pink-50 rounded-xl p-8">
-      <h2 class="text-3xl font-bold text-center text-text mb-8">Available Features</h2>
-      <div class="space-y-4">
-        <div class="bg-white rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-text">User Profiles</h3>
-            <p class="text-gray400 text-sm">Secure</p>
-          </div>
-          <button class="btn-primary px-6 py-2">Explore</button>
-        </div>
-        
-        <div class="bg-white rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-text">Messaging</h3>
-            <p class="text-gray400 text-sm">Networking</p>
-          </div>
-          <button class="btn-primary px-6 py-2">Explore</button>
-        </div>
-        
-        <div class="bg-white rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-text">Community Forums</h3>
-            <p class="text-gray400 text-sm">Discussion</p>
-          </div>
-          <button class="btn-primary px-6 py-2">Explore</button>
-        </div>
-        
-        <div class="bg-white rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-text">Feedback</h3>
-            <p class="text-gray400 text-sm">Reviews</p>
-          </div>
-          <button class="btn-primary px-6 py-2">Explore</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- Footer -->
-<footer class="bg-gray50 py-12 px-6 border-t border-gray200">
-  <div class="w-full lg:w-[70vw] mx-auto">
-    <div class="grid md:grid-cols-2 gap-8 mb-8">
-      <!-- Left Column -->
-      <div>
-        <h3 class="font-bold text-text mb-4">🌐 Social</h3>
-        <ul class="space-y-2 text-gray400">
-          <li><a href="#" class="hover:text-primary">About Us</a></li>
-          <li><a href="#" class="hover:text-primary">Our Community</a></li>
-          <li><a href="#" class="hover:text-primary">Careers</a></li>
-        </ul>
+        <aside class="community-panel">
+          <div class="community-panel__card">
+            <span class="community-panel__label">Visión de organizador</span>
+            <h3>Menos fricción operativa, más foco en la experiencia.</h3>
+            <p>
+              Notificaciones inteligentes, seguimiento de participación y señales de confianza para tomar
+              mejores decisiones antes y después de cada evento.
+            </p>
+          </div>
+          <div class="community-panel__mini-grid">
+            <div>
+              <strong>Suscripción y acceso flexible</strong>
+              <span>Modelo preparado para usuarios ocasionales y perfiles profesionales.</span>
+            </div>
+            <div>
+              <strong>Visibilidad accionable</strong>
+              <span>Datos útiles para ajustar promoción, capacidad y experiencia.</span>
+            </div>
+          </div>
+        </aside>
       </div>
-      
-      <!-- Right Column -->
-      <div>
-        <h3 class="font-bold text-text mb-4">Contact Us</h3>
-        <ul class="space-y-2 text-gray400">
-          <li>✉️ info&#64;socialdemo.com</li>
-          <li>📞 +34 123 456 789</li>
-        </ul>
-        <div class="flex gap-4 mt-4">
-          <a href="#" class="text-gray400 hover:text-primary">📘</a>
-          <a href="#" class="text-gray400 hover:text-primary">🐦</a>
-          <a href="#" class="text-gray400 hover:text-primary">📷</a>
+    </section>
+
+    <section class="section">
+      <div class="landing-container">
+        <div class="section__header">
+          <span class="section-kicker">Voz de producto</span>
+          <h2>Una herramienta seria sin perder cercanía.</h2>
+          <p>
+            La plataforma está pensada para reforzar conexiones humanas reales usando la tecnología
+            como soporte, no como barrera.
+          </p>
+        </div>
+
+        <div class="testimonial-grid">
+          @for (testimonial of testimonials; track testimonial.author) {
+            <article class="testimonial-card">
+              <p class="testimonial-card__quote">“{{ testimonial.quote }}”</p>
+              <div class="testimonial-card__meta">
+                <strong>{{ testimonial.author }}</strong>
+                <span>{{ testimonial.role }}</span>
+              </div>
+            </article>
+          }
         </div>
       </div>
-    </div>
-  </div>
-</footer>
+    </section>
+
+    <section class="section section--cta" id="cta">
+      <div class="landing-container">
+        <div class="cta-banner">
+          <div>
+            <span class="section-kicker section-kicker--light">Preparado para crecer contigo</span>
+            <h2>Lanza tu siguiente evento con una plataforma pensada para comunidad, control y escala.</h2>
+            <p>
+              Explora eventos, descubre cómo se mueve la plataforma y entra en el lado organizador
+              cuando quieras dar el siguiente paso.
+            </p>
+          </div>
+          <div class="cta-banner__actions">
+            <a class="landing-button landing-button--primary-light" routerLink="/events">
+              Entrar a eventos
+            </a>
+            <a class="landing-button landing-button--ghost-light" href="#top">
+              Volver arriba
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <div class="landing-container landing-footer__content">
+        <div>
+          <strong>Vente</strong>
+          <p>
+            Plataforma para organizar, promocionar y compartir eventos de cualquier calibre con una base social,
+            operativa y reputacional.
+          </p>
+        </div>
+        <div class="landing-footer__links">
+          <a href="#platform">Plataforma</a>
+          <a href="#capabilities">Capacidades</a>
+          <a href="#community">Comunidad</a>
+          <a routerLink="/events">Eventos</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+</div>

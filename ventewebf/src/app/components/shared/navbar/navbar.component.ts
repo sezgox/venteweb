@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -22,9 +22,9 @@ export class NavbarComponent implements OnInit {
 
   addYourEvent(){
     if( this.authService.isAuthenticated()){
-      this.router.navigate(['events/add']);
+      this.router.navigate(['events/dashboard']);
     }else{
-      this.authService.setRedirectUrl('events/add');
+      this.authService.setRedirectUrl('events/dashboard');
       const popover = document.getElementById('auth-modal');
       popover?.showPopover();
     }

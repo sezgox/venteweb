@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { CreateEventResponse, GetEventResponse, GetEventsResponse, ParticipationResponse, RequestCollaborationResponse } from '../interfaces/api-response.interface';
-import { CreateEventDto, CreateParticipationDto, CreateRequestDto, EventFilter } from '../interfaces/events.interfaces';
+import { CreateEventResponse, GetEventResponse, GetEventsResponse, InvitationResponse, InvitationTokenResponse, ParticipationResponse, RequestCollaborationResponse } from '../interfaces/api-response.interface';
+import { CreateEventDto, CreateParticipationDto, CreateRequestDto, EventFilter, ExternalInvitationActionDto, ExternalInvitationDto, PrepareInvitationDto } from '../interfaces/events.interfaces';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -21,11 +21,16 @@ export class EventsService {
   }
 
   async getEvent(id: string, invitation?: string): Promise<GetEventResponse>{
-    return await this.apiService.request('GET', `/events/${id}?invitation=${invitation}`);
+    const suffix = invitation?.trim() ? `?invitation=${encodeURIComponent(invitation.trim())}` : '';
+    return await this.apiService.request('GET', `/events/${id}${suffix}`);
   }
 
   async deleteEvent(id: string): Promise<GetEventResponse>{
     return await this.apiService.request('DELETE', `/events/${id}`);
+  }
+
+  async getInvitationToken(id: string): Promise<InvitationTokenResponse> {
+    return await this.apiService.request('GET', `/events/${id}/invitationToken`);
   }
 
   async requestCollaboration(createRequestDto: CreateRequestDto): Promise<RequestCollaborationResponse>{
@@ -34,6 +39,48 @@ export class EventsService {
 
   async participate(createParticipationDto: CreateParticipationDto): Promise<ParticipationResponse>{
     return await this.apiService.request('POST', `/events/${createParticipationDto.eventId}/participations`, createParticipationDto);
+  }
+
+  async acceptInvitationByEventParticipation(
+    eventId: string,
+    invitationId: string,
+    token?: string
+  ): Promise<ParticipationResponse> {
+    const payload: { invitationId: string; invitationToken?: string } = { invitationId };
+    if (token?.trim()) {
+      payload.invitationToken = token.trim();
+    }
+    return await this.apiService.request('POST', `/events/${eventId}/participations`, payload);
+  }
+
+  async createExternalInvitation(eventId: string, payload: ExternalInvitationDto): Promise<InvitationResponse> {
+    return await this.apiService.request('POST', `/events/${eventId}/invitations/external`, payload);
+  }
+
+  async prepareInvitation(eventId: string, payload: PrepareInvitationDto): Promise<InvitationResponse> {
+    return await this.apiService.request('POST', `/events/${eventId}/invitations`, payload);
+  }
+
+  async acceptExternalInvitation(
+    externalUserId: string,
+    payload: ExternalInvitationActionDto,
+  ): Promise<ParticipationResponse> {
+    return await this.apiService.request(
+      'POST',
+      `/users/external/${externalUserId}/participations`,
+      payload,
+    );
+  }
+
+  async rejectExternalInvitation(
+    externalUserId: string,
+    payload: ExternalInvitationActionDto,
+  ): Promise<InvitationResponse> {
+    return await this.apiService.request(
+      'POST',
+      `/users/external/${externalUserId}/invitations/reject`,
+      payload,
+    );
   }
 
   async removeRequest(requestId: string, eventId: string): Promise<RequestCollaborationResponse>{
@@ -90,10 +137,6 @@ export class EventsService {
     if (event.poster) {
       formData.append('poster', event.poster);
     }
-    console.log('FormData:');
-    formData.forEach((value, key) => {
-      console.log(`${key} ->`, value);
-    });
     return formData;
   }
 

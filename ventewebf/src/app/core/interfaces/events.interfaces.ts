@@ -3,7 +3,7 @@ import { UserSummary } from "./user.interfaces";
 export interface Event {
   id: string;
   organizerId: string;
-  poster: string;
+  poster?: string | null;
   name: string;
   visibility: Visibility;
   categories: EventCategory[];
@@ -26,7 +26,8 @@ export interface Event {
 
 export interface ParticipationSummary{
     id: string;
-    userId: string;
+    userId?: string;
+    externalUserId?: string;
     eventId: string;
     type: ParticipationType;
     createdAt: Date;
@@ -53,19 +54,21 @@ export interface Request {
 
 export interface Invitation {
     id: string;
-    userId: string;
+    userId?: string;
+    externalUserId?: string;
     eventId: string;
     invitationToken: string;
     createdAt: Date;
     updatedAt: Date;
     text: string;
-    user: UserSummary;
+    user?: UserSummary;
+    externalUser?: ExternalUserSummary;
     event: Event;
     type: ParticipationType;
 }
 
 export enum ParticipationType {
-  Collaboration = "Collaboration",
+  Volunteer = "Volunteer",
   Attendance = "Attendance"
 }
 
@@ -146,10 +149,43 @@ export interface CreateParticipationDto {
     requestId?: string;
 }
 
+export interface ExternalInvitationActionDto {
+  eventId?: string;
+  invitation: string;
+}
+
 export interface InvitationDto {
   eventId: string;
   text: string;
   type: ParticipationType;
+}
+
+export interface ExternalInvitationDto {
+  eventId: string;
+  text: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface PrepareInvitationDto {
+  eventId: string;
+  text: string;
+  type: ParticipationType;
+  userId?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface ExternalUserSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export enum RequestStatus {

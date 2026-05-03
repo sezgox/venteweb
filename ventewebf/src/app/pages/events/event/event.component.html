@@ -1,9 +1,9 @@
 
-<div class="max-w-5xl mx-auto mt-10 p-4">
+<div class="event-page max-w-5xl mx-auto mt-10 p-4">
   @if(!loading()){
     @if (event) {
     <!-- Event Detail Card -->
-    <div class="bg-gradient-to-br from-gray50 to-bg rounded-2xl shadow-lg overflow-hidden border border-gray200 relative">
+    <div class="event-detail-surface bg-gradient-to-br from-gray50 to-bg rounded-2xl shadow-lg overflow-hidden border border-gray200 relative">
 
       <!-- Requests Button (only for event organizer) -->
       @if(isOwnEvent && !eventAlreadyStarted){
@@ -27,12 +27,12 @@
 
         <!-- Poster Section -->
         <div class="flex flex-col gap-3">
-          <div class="aspect-[3/4] bg-gray100 rounded-lg overflow-hidden shadow-md">
-            <img [src]="event.poster" [alt]="event.name" class="w-full h-full object-cover">
+          <div class="event-detail-poster aspect-[3/4] bg-gray100 rounded-lg overflow-hidden shadow-md">
+            <img [src]="getPosterUrl(event.poster)" (error)="onPosterError($event)" [alt]="event.name" class="w-full h-full object-cover">
           </div>
 
           <!-- Organizer Info -->
-          <div class="bg-gray50 p-3 rounded-lg border border-gray200 cursor-pointer"
+          <div class="event-detail-organizer bg-gray50 p-3 rounded-lg border border-gray200 cursor-pointer"
             [routerLink]="['/user', event.organizer.username]">
             <p class="text-xs font-semibold text-gray600 mb-2">Organized by</p>
             <div class="flex items-center gap-2">
@@ -68,12 +68,13 @@
                   }
                   Attendees
                   @if(event.maxCollaborators){
-                  <span class="ml-3">🙋 {{ collaboratorsCount }} / {{ event.maxCollaborators }} Collaborators
+                  <span class="ml-3">🙋 {{ collaboratorsCount }} / {{ event.maxCollaborators }} Volunteers
                     @if(event.requiresRequest){
                     📝
                     }
                   </span>
                   }
+                </p>
               </div>
             </div>
 
@@ -119,88 +120,127 @@
 
       <!-- Description Section -->
       <div class="px-6 pb-6">
-        <div class="bg-bg p-4 rounded-lg border border-gray200">
+        <div class="event-detail-description bg-bg p-4 rounded-lg border border-gray200">
           <p class="font-semibold text-text mb-2">About the event</p>
-          <p class="text-gray600 leading-relaxed" [innerHTML]="getSafeDescription()"></p>
+          <p class="text-gray600 leading-relaxed description-text" [innerHTML]="getSafeDescription()"></p>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="px-6 pb-6">
-        <div class="flex gap-3 flex-wrap">
-
+        <div class="event-detail-actions flex gap-3 flex-wrap">
           <!-- Show Collaborate/Attend buttons if NOT own event -->
-          @if(!isOwnEvent){
-          @if(!isParticipating){
-          <app-button-loader [loading]="attendLoading"
-            btnClass="btn-secondary w-full min-w-[200px] flex items-center justify-center gap-2" (action)="onAttend()">
-            <span>👤</span>
-            <span>Attend</span>
-          </app-button-loader>
-          @if(event.maxCollaborators){
-          <app-button-loader [loading]="collaborateLoading"
-            btnClass="btn-primary flex-1 min-w-[200px] flex items-center justify-center gap-2" (action)="onCollaborate()">
-            <span>🙋</span>
-            <span>Collaborate</span>
-          </app-button-loader>
+          @if(!isOwnEvent && !guest){
+            @if(!isParticipating){
+            <app-button-loader [loading]="attendLoading"
+              btnClass="btn-secondary w-full min-w-[200px] flex items-center justify-center gap-2" (action)="onAttend()">
+              <span>👤</span>
+              <span>Attend</span>
+            </app-button-loader>
+            @if(event.maxCollaborators){
+            <app-button-loader [loading]="collaborateLoading"
+              btnClass="btn-primary flex-1 min-w-[200px] flex items-center justify-center gap-2" (action)="onCollaborate()">
+              <span>🙋</span>
+              <span>Volunteer</span>
+            </app-button-loader>
 
-          @if(event.requiresRequest && sendRequestDialog){
-          <dialog [open]="sendRequestDialog" class="fixed inset-0 z-50 bg-transparent">
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
-              <div class="bg-bg rounded-xl shadow-2xl w-full h-auto sm:max-w-lg flex flex-col border-2 border-gray200">
+            @if(event.requiresRequest && sendRequestDialog){
+            <dialog [open]="sendRequestDialog" class="fixed inset-0 z-50 bg-transparent">
+              <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
+                <div class="bg-bg rounded-xl shadow-2xl w-full h-auto sm:max-w-lg flex flex-col border-2 border-gray200">
 
-                <!-- Header -->
-                <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200 bg-gray50">
-                  <div>
-                    <h3 class="text-xl sm:text-2xl font-bold text-text">Send Request</h3>
-                    <p class="text-sm text-gray600 mt-1">Request to join this event</p>
+                  <!-- Header -->
+                  <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200 bg-gray50">
+                    <div>
+                      <h3 class="text-xl sm:text-2xl font-bold text-text">Send Request</h3>
+                      <p class="text-sm text-gray600 mt-1">Request to join this event</p>
+                    </div>
+                    <button class="text-gray600 hover:text-text transition-colors p-2" (click)="sendRequestDialog = false">
+                      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </button>
                   </div>
-                  <button class="text-gray600 hover:text-text transition-colors p-2" (click)="sendRequestDialog = false">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </button>
-                </div>
 
-                <!-- Content -->
-                <div class="p-4 sm:p-6">
-                  <label class="block text-sm font-semibold text-text mb-2">Message (optional)</label>
-                  <textarea [(ngModel)]="requestMessage" placeholder="Tell the organizer why you'd like to join..."
-                    class="w-full px-4 py-3 rounded-lg border-2 border-gray200 bg-bg text-text focus:outline-none focus:border-primary transition-colors resize-none"
-                    rows="5"></textarea>
-                </div>
+                  <!-- Content -->
+                  <div class="p-4 sm:p-6">
+                    <label class="block text-sm font-semibold text-text mb-2">Message (optional)</label>
+                    <textarea [(ngModel)]="requestMessage" placeholder="Tell the organizer why you'd like to volunteer..."
+                      class="w-full px-4 py-3 rounded-lg border-2 border-gray200 bg-bg text-text focus:outline-none focus:border-primary transition-colors resize-none"
+                      rows="5"></textarea>
+                  </div>
 
-                <!-- Footer -->
-                <div class="flex gap-3 p-4 sm:p-6 border-t border-gray200 bg-gray50">
-                  <button class="btn-other flex-1" (click)="sendRequestDialog = false">
-                    Cancel
-                  </button>
-                  <app-button-loader [loading]="requestLoading"
-                    btnClass="btn-primary flex-1 flex items-center justify-center gap-2" (action)="sendRequest()">
-                    <span>Send</span>
-                  </app-button-loader>
-                </div>
+                  <!-- Footer -->
+                  <div class="flex gap-3 p-4 sm:p-6 border-t border-gray200 bg-gray50">
+                    <button class="btn-other flex-1" (click)="sendRequestDialog = false">
+                      Cancel
+                    </button>
+                    <app-button-loader [loading]="requestLoading"
+                      btnClass="btn-primary flex-1 flex items-center justify-center gap-2" (action)="sendRequest()">
+                      <span>Send</span>
+                    </app-button-loader>
+                  </div>
 
+                </div>
               </div>
-            </div>
-          </dialog>
+            </dialog>
+            }
+            }
+            }@else if(!eventFinished){
+            <app-button-loader [loading]="removeParticipationLoading"
+              btnClass="btn-other w-[50%] min-w-[200px] flex items-center justify-center gap-2"
+              (action)="removeParticipation()">
+              <span>👤</span>
+              <span>Remove participation</span>
+            </app-button-loader>
+            }@else{
+            <button class="btn-other w-[50%] min-w-[200px] flex items-center justify-center gap-2"
+              (click)="toastr.info('Feature in progress','Ups!')">
+              <span>⭐</span>
+              <span>Rate the event!</span>
+            </button>
+            }
           }
-          }
-          }@else if(!eventFinished){
-          <app-button-loader [loading]="removeParticipationLoading"
-            btnClass="btn-other w-[50%] min-w-[200px] flex items-center justify-center gap-2"
-            (action)="removeParticipation()">
-            <span>👤</span>
-            <span>Remove participation</span>
-          </app-button-loader>
-          }@else{
-          <button class="btn-other w-[50%] min-w-[200px] flex items-center justify-center gap-2"
-            (click)="toastr.info('Feature in progress','Ups!')">
-            <span>⭐</span>
-            <span>Rate the event!</span>
-          </button>
-          }
-
+          @if(guest && !isOwnEvent){
+            <section class="guest-invitation-panel">
+              <div class="guest-invitation-panel__copy">
+                <p class="guest-invitation-panel__eyebrow">External invitation</p>
+                @if(isParticipating){
+                  <h2>Invitation already accepted</h2>
+                  <p>This invitation token is already attached to a guest participation in this event.</p>
+                } @else {
+                  <h2>Respond to this invite</h2>
+                  <p>Use these actions to join the event as an external guest or reject the invitation.</p>
+                }
+                @if(externalInvitationActionMessage){
+                  <p
+                    class="guest-invitation-panel__feedback"
+                    [class.guest-invitation-panel__feedback--error]="externalInvitationActionStatus === 'error'"
+                    [class.guest-invitation-panel__feedback--success]="externalInvitationActionStatus === 'success'"
+                  >
+                    {{ externalInvitationActionMessage }}
+                  </p>
+                }
+              </div>
+              @if(!isParticipating){
+                <div class="guest-invitation-panel__actions">
+                  <button
+                    class="btn-primary guest-invitation-panel__action"
+                    [disabled]="externalInvitationActionLoading"
+                    (click)="handleExternalInvitation('accept')"
+                  >
+                    {{ externalInvitationActionLoading ? 'Processing...' : 'Accept invitation' }}
+                  </button>
+                  <button
+                    class="btn-other guest-invitation-panel__action"
+                    [disabled]="externalInvitationActionLoading"
+                    (click)="handleExternalInvitation('reject')"
+                  >
+                    {{ externalInvitationActionLoading ? 'Processing...' : 'Reject invitation' }}
+                  </button>
+                </div>
+              }
+            </section>
           }
           <!-- Show Delete button if own event -->
           @if(isOwnEvent && !eventAlreadyStarted){
@@ -335,12 +375,13 @@
             @for(invitation of event?.invitations; track invitation.id) {
             <details class="border border-gray200 rounded-lg overflow-hidden bg-bg">
               <summary class="cursor-pointer px-4 py-3 hover:bg-gray50 transition-colors text-text">
-                <span class="font-medium">{{ invitation.user.name }}</span>
+                <span class="font-medium">{{ getInvitationRecipientName(invitation) }}</span>
                 <span class="text-sm text-gray600 ml-2">{{ invitation.createdAt | date:'short' }}</span>
               </summary>
               <div class="px-4 py-3 border-t border-gray200 space-y-2">
                 <p class="text-sm text-gray600">{{ invitation.text || 'No message provided' }}</p>
                 <div class="flex gap-2 mt-3">
+                  <button class="btn-secondary flex-1" (click)="shareInvitation(invitation)">Share</button>
                   <button class="btn-other flex-1" (click)="cancelInvitation(invitation)">Remove</button>
                 </div>
               </div>
@@ -350,9 +391,24 @@
             }
           </div>
         </details>
-        <button class="text-sm btn-tertiary " (click)="openInviteDialog($event)">
-          Invite
-        </button>
+        <div class="flex flex-col items-start gap-2">
+          <app-button-loader
+            [loading]="shareLoading"
+            btnClass="btn-other !px-0 !py-0 w-12 h-12 rounded-full flex items-center justify-center"
+            (action)="shareEvent()"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8.59 13.51 15.42 17.5" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M15.41 6.5 8.59 10.49" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+            </svg>
+          </app-button-loader>
+          <button class="text-sm btn-tertiary" (click)="openInviteDialog($event)">
+            Invite
+          </button>
+        </div>
       </div>
 
     </div>
@@ -370,9 +426,12 @@
           ✖
         </button>
       </div>
+      <button class="btn-secondary w-full mb-4" (click)="openExternalInvitationDialog()">
+        Generate invitation for external contact
+      </button>
 
       <!-- Search bar -->
-      <input type="text" [(ngModel)]="userSearch" (input)="searchUsers()" placeholder="Search users..."
+      <input type="text" [(ngModel)]="userSearch" (input)="searchUsers()" placeholder="Search friends..."
         class="w-full px-4 py-2 rounded-lg border border-gray300 bg-bg text-text mb-4" />
 
       <!-- Users list -->
@@ -385,7 +444,7 @@
 
           <button class="px-3 py-1 bg-primary text-white text-sm rounded-md hover:opacity-90 ml-auto"
             (click)="openSendInvitationDialog(u)">
-            Invite
+            Generate
           </button>
 
 
@@ -408,8 +467,8 @@
         <!-- Header -->
         <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200 bg-gray50">
           <div>
-            <h3 class="text-xl sm:text-2xl font-bold text-text">Send Invitation</h3>
-            <p class="text-sm text-gray600 mt-1">Invite {{ invitedUser?.name }} to join this event</p>
+            <h3 class="text-xl sm:text-2xl font-bold text-text">Generate Invitation</h3>
+            <p class="text-sm text-gray600 mt-1">Prepare an invitation for {{ invitedUser?.name }}</p>
           </div>
           <button class="text-gray600 hover:text-text transition-colors p-2" (click)="sendInvitationDialog = false">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -420,9 +479,9 @@
 
         <div class=" mt-2 flex gap-1 items-center justify-around">
           <div class="flex gap-2">
-            <input type="radio" name="type" id="invitationCollab" [value]="participationTypes.Collaboration"
+            <input type="radio" name="type" id="invitationVolunteer" [value]="participationTypes.Volunteer"
               [(ngModel)]="invitationType">
-            <label for="invitationCollab">Collaboration</label>
+            <label for="invitationVolunteer">Volunteer</label>
           </div>
           <div class="flex gap-2">
             <input type="radio" name="type" id="invitationAttend" [value]="participationTypes.Attendance"
@@ -434,7 +493,7 @@
         <!-- Content -->
         <div class="py-4 px-2 sm:p-6">
           <label class="block text-sm font-semibold text-text mb-2">Message (optional)</label>
-          <textarea [(ngModel)]="invitationMessage" placeholder="Tell the organizer why you'd like to join..."
+          <textarea [(ngModel)]="invitationMessage" placeholder="Tell the organizer why you'd like to volunteer..."
             class="w-full px-4 py-3 rounded-lg border-2 border-gray200 bg-bg text-text focus:outline-none focus:border-primary transition-colors resize-none"
             rows="5"></textarea>
         </div>
@@ -445,11 +504,92 @@
             Cancel
           </button>
           <app-button-loader [loading]="inviteLoading"
-            btnClass="btn-primary flex-1 flex items-center justify-center gap-2" (action)="inviteUser()">
-            <span>Send</span>
+            btnClass="btn-primary flex-1 flex items-center justify-center gap-2" (action)="generateFriendInvitation()">
+            <span>Generate invitation</span>
           </app-button-loader>
         </div>
 
+      </div>
+    </div>
+  </dialog>
+  }
+
+  @if(sendExternalInvitationDialog){
+  <dialog [open]="sendExternalInvitationDialog" class="fixed inset-0 z-50 bg-transparent">
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-bg rounded-xl shadow-2xl w-full h-auto sm:max-w-lg flex flex-col border-2 border-gray200">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200 bg-gray50">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-bold text-text">Generate External Invitation</h3>
+            <p class="text-sm text-gray600 mt-1">Prepare an invitation for someone outside Vente</p>
+          </div>
+          <button class="text-gray600 hover:text-text transition-colors p-2" (click)="sendExternalInvitationDialog = false">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="py-4 px-2 sm:p-6 space-y-3">
+          <div class="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-text">
+            External invitations are generated as <strong>Attendance</strong>.
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="text" [(ngModel)]="externalFirstName" placeholder="First name *"
+              class="w-full px-4 py-2 rounded-lg border border-gray300 bg-bg text-text" />
+            <input type="text" [(ngModel)]="externalLastName" placeholder="Last name *"
+              class="w-full px-4 py-2 rounded-lg border border-gray300 bg-bg text-text" />
+          </div>
+          <input type="email" [(ngModel)]="externalEmail" placeholder="Email"
+            class="w-full px-4 py-2 rounded-lg border border-gray300 bg-bg text-text" />
+          <input type="tel" [(ngModel)]="externalPhone" placeholder="Phone"
+            class="w-full px-4 py-2 rounded-lg border border-gray300 bg-bg text-text" />
+
+          <label class="block text-sm font-semibold text-text mb-2">Message (optional, max 150 chars)</label>
+          <textarea [(ngModel)]="invitationMessage" maxlength="150"
+            class="w-full px-4 py-3 rounded-lg border-2 border-gray200 bg-bg text-text focus:outline-none focus:border-primary transition-colors resize-none"
+            rows="4"></textarea>
+        </div>
+
+        <div class="flex gap-3 p-4 sm:p-6 border-t border-gray200 bg-gray50">
+          <button class="btn-other flex-1" (click)="sendExternalInvitationDialog = false">
+            Cancel
+          </button>
+          <app-button-loader [loading]="inviteLoading"
+            btnClass="btn-primary flex-1 flex items-center justify-center gap-2" (action)="generateExternalInvitation()">
+            <span>Generate invitation</span>
+          </app-button-loader>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  }
+
+  @if(previewInvitationDialog && preparedInvitation){
+  <dialog [open]="previewInvitationDialog" class="fixed inset-0 z-50 bg-transparent">
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-bg rounded-xl shadow-2xl w-full h-auto sm:max-w-lg flex flex-col border-2 border-gray200">
+        <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray200 bg-gray50">
+          <div>
+            <h3 class="text-xl sm:text-2xl font-bold text-text">Invitation Ready</h3>
+            <p class="text-sm text-gray600 mt-1">{{ getInvitationRecipientName(preparedInvitation) }}</p>
+          </div>
+          <button class="text-gray600 hover:text-text transition-colors p-2" (click)="previewInvitationDialog = false">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="py-4 px-2 sm:p-6 space-y-3">
+          <p class="text-sm text-gray600">Share URL</p>
+          <div class="rounded-lg border border-gray200 bg-gray50 p-3 break-all text-sm text-text">{{ preparedInvitationUrl }}</div>
+          <p class="text-sm text-gray600">{{ preparedInvitation.text || 'No message provided' }}</p>
+        </div>
+
+        <div class="flex gap-3 p-4 sm:p-6 border-t border-gray200 bg-gray50">
+          <button class="btn-other flex-1" (click)="sharePreparedInvitation()">Share</button>
+        </div>
       </div>
     </div>
   </dialog>

@@ -1,26 +1,20 @@
-<nav class="bg-bg text-text shadow-md px-6 py-4 flex justify-center fixed top-0 left-0 right-0 z-50 lg:w-[70vw] m-auto">
-  <div class="w-full  flex justify-between items-center mx-auto">
+<nav class="landing-navbar">
+  <div class="landing-navbar__inner">
+    <a class="landing-navbar__brand" routerLink="/">Vente</a>
 
-    <!-- Izquierda: Logo + Nav Links -->
-    <div class="flex items-center gap-6">
-      <!-- Logo -->
-      <button class="text-primary font-bold text-2xl cursor-pointer select-none">
-        Vente
+    <div class="landing-navbar__links" aria-label="Navegación principal">
+      <a href="#platform">Plataforma</a>
+      <a href="#capabilities">Capacidades</a>
+      <a href="#formats">Escenarios</a>
+      <a href="#community">Comunidad</a>
+      <a routerLink="/events">Eventos</a>
+    </div>
+
+    <div class="landing-navbar__actions">
+      <a class="landing-navbar__ghost" routerLink="/events">Explorar</a>
+      <button class="landing-navbar__cta" type="button" (click)="addYourEvent()">
+        Área organizador
       </button>
-
-      <!-- Nav Links -->
-        <button class="hover:text-primary transition" >Home</button>
-        <button class="hover:text-primary transition">Features</button>
-        <button class="hover:text-primary transition">About</button>
-        <button class="hover:text-primary transition">Pricing</button>
-        <button class="hover:text-primary transition">Support</button>
-
     </div>
-
-    <div class="flex items-center gap-4">
-      <!-- Create your event -->
-      <button class="btn-primary px-6 py-3 font-bold" (click)="addYourEvent()">Create your event</button>
-    </div>
-
   </div>
 </nav>

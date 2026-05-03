@@ -20,6 +20,12 @@ export const EVENTS_ROUTES: Routes = [
             m => m.EventComponent
           ),
       },
+      {
+        path: 'social',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./social/social.component').then(m => m.SocialComponent),
+      },
       { path: 'dashboard',  canActivate: [authGuard], loadComponent: () => import('./events-dashboard/events-dashboard.component').then(m => m.EventsDashboardComponent) },
       { path: '', pathMatch: 'full', redirectTo: 'explore' },
     ],

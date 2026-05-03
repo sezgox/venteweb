@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../../enviroments/enviroment';
 import { EventCardComponent } from '../../../components/shared/event-card/event-card.component';
 import { LoadingComponent } from '../../../components/shared/loading/loading.component';
+import { EVENT_POSTER_DEFAULT_URL } from '../../../core/consts/event-poster.const';
 import { GetEventsSuccessResponse } from '../../../core/interfaces/api-response.interface';
 import { Event, EventCategory, EventFilter } from '../../../core/interfaces/events.interfaces';
 import { EventsService } from '../../../core/services/events.service';
@@ -24,6 +25,7 @@ import { createPopupClass } from './popup.class';
   styleUrl: './explore.component.css'
 })
 export class ExploreComponent implements OnInit {
+  readonly defaultEventPoster = EVENT_POSTER_DEFAULT_URL;
 
   private readonly geolocationService = inject(GeolocationService);
   private readonly eventsService = inject(EventsService);
@@ -183,13 +185,14 @@ export class ExploreComponent implements OnInit {
   }
 
   buildMiniCard(event: Event) {
+  const poster = this.getPosterUrl(event.poster);
   return `
     <div class="flex w-[300px] rounded-xl overflow-hidden shadow-xl bg-bg cursor-pointer">
 
       <!-- Imagen izquierda -->
       <div class="w-[100px] h-[130px] shrink-0 overflow-hidden">
         <img
-          src="${event.poster}"
+          src="${poster}"
           alt="${event.name}"
           class="w-full h-full object-cover"
         >
@@ -215,6 +218,10 @@ export class ExploreComponent implements OnInit {
     </div>
   `;
 
+  }
+
+  getPosterUrl(poster?: string | null): string {
+    return poster?.trim() ? poster : this.defaultEventPoster;
   }
 
   async addEventMarkers() {
