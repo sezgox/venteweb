@@ -55,8 +55,13 @@ enum Category {
 }
 
 enum ParticipationType {
-  Collaboration
+  Volunteer
   Attendance
+}
+
+enum EventMode {
+  OnSite
+  Virtual
 }
 
 enum NotificationType {
@@ -93,6 +98,10 @@ model User {
   password          String?
   email             String           @unique
   photo             String?
+  active            Boolean          @default(true)
+  activatedAt       DateTime?
+  firebaseUid       String?          @unique
+  emailSent         Boolean          @default(false)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   lastLogin         DateTime?
@@ -110,7 +119,22 @@ model User {
   followers         Follow[]         @relation("UserFollowers")
   following         Follow[]         @relation("UserFollowing")
   notifications   Notification[]
+  activationTokens ActivationToken[]
+  ratings          Rating[]
 
+}
+
+model ActivationToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // ========================================
@@ -119,28 +143,18 @@ model User {
 
 model Event {
   id                String           @id
-  organizerId            String
-  poster            String           @default("https://res.cloudinary.com/doqla97yu/image/upload/fl_preserve_transparency/v1760896293/events/default_d16vth.jpg?_s=public-apps")
+  organizerId       String
+  poster            String?
   name              String
   categories        Category[]
   description       String
   visibility        Visibility
-  maxAttendees      Int?
-  maxCollaborators   Int?
-  lat               Float
-  lng               Float
-  location          String
-  locationAlias     String?
-  startDate         DateTime
-  endDate           DateTime
-  requiresRequest   Boolean          @default(false)
-  totalRate         Float?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   tags              String[]
   language          String?
   allowPosts        Boolean          @default(false)
-  invitation        String?
+  onlyVirtual       Boolean          @default(false)
 
   // Relations
   organizer           User             @relation("UserEvents", fields: [organizerId], references: [id])
@@ -149,6 +163,59 @@ model Event {
   invitations       Invitation[]
   posts             Post[]
   sections          Section[]
+  ratings           Rating[]
+  onSiteEvent       OnSiteEvent?
+  virtualEvent      VirtualEvent?
+}
+
+model OnSiteEvent {
+  eventId            String       @id
+  maxAttendees       Int?
+  maxCollaborators   Int?
+  lat                Float
+  lng                Float
+  location           String
+  locationAlias      String?
+  startDate          DateTime
+  endDate            DateTime
+  requiresRequest    Boolean      @default(false)
+  invitation         String?
+  totalRate          Float?
+  ratingCount        Int          @default(0)
+
+  event              Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  requests           Request[]    @relation("OnSiteEventRequests")
+  invitations        Invitation[] @relation("OnSiteEventInvitations")
+  ratings            Rating[]     @relation("OnSiteEventRatings")
+}
+
+model VirtualEvent {
+  eventId            String       @id
+  maxAttendees       Int?
+  maxCollaborators   Int?
+  requiresRequest    Boolean      @default(false)
+  invitation         String?
+  totalRate          Float?
+  ratingCount        Int          @default(0)
+  startDate          DateTime
+  endDate            DateTime
+
+  event              Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  platforms          Platform[]
+  requests           Request[]    @relation("VirtualEventRequests")
+  invitations        Invitation[] @relation("VirtualEventInvitations")
+  ratings            Rating[]     @relation("VirtualEventRatings")
+}
+
+model Platform {
+  id                 String       @id @default(cuid())
+  virtualEventId     String
+  name               String
+  link               String
+
+  virtualEvent       VirtualEvent @relation(fields: [virtualEventId], references: [eventId], onDelete: Cascade)
+
+  @@index([virtualEventId])
 }
 
 // ========================================
@@ -214,17 +281,22 @@ model Interaction {
 model Participation {
   id              String    @id @default(cuid())
   userId          String?
+  externalUserId  String?
   eventId         String
+  eventMode       EventMode @default(OnSite)
   type            ParticipationType
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   invitation      String?
 
   user            User?      @relation(fields: [userId], references: [id])
+  externalUser    ExternalUser? @relation(fields: [externalUserId], references: [id])
   event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
   rating          Rating?
 
-  @@unique([userId, eventId])
+  @@unique([userId, eventId, eventMode])
+  @@unique([externalUserId, eventId, eventMode])
+  @@index([eventId, eventMode])
 }
 
 // ========================================
@@ -233,17 +305,26 @@ model Participation {
 
 model Rating {
   id              String    @id @default(cuid())
-  userId          String? 
+  userId          String
   eventId         String
+  eventMode       EventMode @default(OnSite)
+  onSiteEventId   String?
+  virtualEventId  String?
   participationId String    @unique
   text            String?
-  score           Float?
+  score           Int
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   participation   Participation @relation(fields: [participationId], references: [id])
+  event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id])
+  onSiteEvent     OnSiteEvent?  @relation("OnSiteEventRatings", fields: [onSiteEventId], references: [eventId], onDelete: Cascade)
+  virtualEvent    VirtualEvent? @relation("VirtualEventRatings", fields: [virtualEventId], references: [eventId], onDelete: Cascade)
 
-  @@unique([userId, eventId])
+  @@unique([userId, eventId, eventMode])
+  @@index([eventId, eventMode])
+  @@index([eventId, eventMode, updatedAt])
 }
 
 
@@ -256,11 +337,16 @@ model Request {
   text            String
   userId          String?
   eventId         String
+  eventMode       EventMode        @default(OnSite)
+  onSiteEventId   String?
+  virtualEventId  String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
   user            User?             @relation(fields: [userId], references: [id])
   event           Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  onSiteEvent     OnSiteEvent?     @relation("OnSiteEventRequests", fields: [onSiteEventId], references: [eventId], onDelete: Cascade)
+  virtualEvent    VirtualEvent?    @relation("VirtualEventRequests", fields: [virtualEventId], references: [eventId], onDelete: Cascade)
 }
 
 // ========================================
@@ -271,14 +357,37 @@ model Invitation {
   id              String           @id @default(cuid())
   text            String
   userId          String?
+  externalUserId  String?
   eventId         String
+  eventMode       EventMode        @default(OnSite)
+  onSiteEventId   String?
+  virtualEventId  String?
   invitationToken String
   type            ParticipationType
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
   user            User?            @relation(fields: [userId], references: [id])
+  externalUser    ExternalUser?    @relation(fields: [externalUserId], references: [id])
   event           Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  onSiteEvent     OnSiteEvent?     @relation("OnSiteEventInvitations", fields: [onSiteEventId], references: [eventId], onDelete: Cascade)
+  virtualEvent    VirtualEvent?    @relation("VirtualEventInvitations", fields: [virtualEventId], references: [eventId], onDelete: Cascade)
+}
+
+model ExternalUser {
+  id              String          @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  invitations     Invitation[]
+  participations  Participation[]
+
+  @@index([email])
+  @@index([phone])
 }
 
 // ========================================
