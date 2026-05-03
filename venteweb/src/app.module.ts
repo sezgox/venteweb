@@ -21,10 +21,20 @@ import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [UserModule, EventModule, ParticipationModule, AuthModule, CloudinaryModule, UuidModule, ScheduleModule.forRoot(), EventEmitterModule.forRoot(), NotificationsModule,],
+  imports: [
+    UserModule,
+    EventModule,
+    ParticipationModule,
+    AuthModule,
+    CloudinaryModule,
+    UuidModule,
+    ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
+    NotificationsModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService, JwtService, InvitationsService],
-  exports: [AuthModule]
+  exports: [AuthModule],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
@@ -36,7 +46,7 @@ export class AppModule {
         EventController,
         AuthController,
         NotificationsGateway,
-        NotificationsController
+        NotificationsController,
       );
   }
 }

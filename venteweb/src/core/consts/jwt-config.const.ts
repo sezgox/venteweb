@@ -20,5 +20,7 @@ export const refreshTokenConfig = {
 } as JwtSignOptions;
 
 export const jwtVerificationSecrets = Array.from(
-  new Set([jwtConfig.secret, mobileJwtConfig.secret].filter(Boolean) as string[]),
+  new Set(
+    [jwtConfig.secret, mobileJwtConfig.secret].filter(Boolean) as string[],
+  ),
 );
