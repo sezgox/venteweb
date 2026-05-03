@@ -1,14 +1,33 @@
-import { Type } from "class-transformer";
-import { IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString, Min, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
-import { Category, Visibility } from "generated/prisma";
+import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
+import { Category, Visibility } from 'generated/prisma';
 
 @ValidatorConstraint({ name: 'DistanceSortRequiresLocation', async: false })
 class DistanceSortRequiresLocation implements ValidatorConstraintInterface {
   validate(_: any, args: ValidationArguments): boolean {
     const o = args.object as FilterEventDto;
     if (o.sortBy !== 'distance') return true;
-    const hasCenter = o.lat !== undefined && o.lng !== undefined && o.radius !== undefined;
-    const hasBBox = o.latMin !== undefined && o.latMax !== undefined && o.lngMin !== undefined && o.lngMax !== undefined;
+    const hasCenter =
+      o.lat !== undefined && o.lng !== undefined && o.radius !== undefined;
+    const hasBBox =
+      o.latMin !== undefined &&
+      o.latMax !== undefined &&
+      o.lngMin !== undefined &&
+      o.lngMax !== undefined;
     return hasCenter || hasBBox;
   }
   defaultMessage(): string {
@@ -17,72 +36,93 @@ class DistanceSortRequiresLocation implements ValidatorConstraintInterface {
 }
 
 export class FilterEventDto {
-    @IsOptional()
-    @IsString()
-    search?: string;
+  @IsOptional()
+  @IsString()
+  search?: string;
 
-    @IsOptional()
-    @IsDate()
-    @Type(() => Date)
-    date?: Date;
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  date?: Date;
 
-    @IsOptional()
-    @IsDate()
-    @Type(() => Date)
-    endDate?: Date;
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  endDate?: Date;
 
-    @IsOptional()
-    @IsEnum(Category)
-    category?: Category;
+  @IsOptional()
+  @IsEnum(Category)
+  category?: Category;
 
-    @IsOptional()
-    @IsString()
-    language?: string;
+  @IsOptional()
+  @IsString()
+  language?: string;
 
-    @IsOptional()
-    @IsEnum(Visibility)
-    visibility?: Visibility;
+  @IsOptional()
+  @IsEnum(Visibility)
+  visibility?: Visibility;
 
-    @IsOptional()
-    @IsBoolean()
-    collaboration?: boolean;
+  @IsOptional()
+  @IsBoolean()
+  volunteer?: boolean;
 
-    // Centro + radio
-    @IsOptional()
-    @IsNumber()
-    lat?: number;
+  @IsOptional()
+  @IsBoolean()
+  collaboration?: boolean;
 
-    @IsOptional()
-    @IsNumber()
-    lng?: number;
+  @IsOptional()
+  @IsBoolean()
+  virtual?: boolean;
 
-    @IsOptional()
-    @IsNumber()
-    radius?: number;
+  @IsOptional()
+  @IsEnum(['hybrid', 'all'])
+  virtualScope?: 'hybrid' | 'all';
 
-    // Bounding box
-    @IsOptional()
-    @IsNumber()
-    latMin?: number;
+  // Centro + radio
+  @IsOptional()
+  @IsNumber()
+  lat?: number;
 
-    @IsOptional()
-    @IsNumber()
-    latMax?: number;
+  @IsOptional()
+  @IsNumber()
+  lng?: number;
 
-    @IsOptional()
-    @IsNumber()
-    lngMin?: number;
+  @IsOptional()
+  @IsNumber()
+  radius?: number;
 
-    @IsOptional()
-    @IsNumber()
-    lngMax?: number;
-    
-    @IsNumber()
-    @Min(1)
-    page: number;
+  // Bounding box
+  @IsOptional()
+  @IsNumber()
+  latMin?: number;
 
-    @IsOptional()
-    @IsEnum(['date', 'popularity', 'distance'])
-    @Validate(DistanceSortRequiresLocation)
-    sortBy?: 'date' | 'popularity' | 'distance' ;
+  @IsOptional()
+  @IsNumber()
+  latMax?: number;
+
+  @IsOptional()
+  @IsNumber()
+  lngMin?: number;
+
+  @IsOptional()
+  @IsNumber()
+  lngMax?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+
+  @IsOptional()
+  @IsEnum(['date', 'popularity', 'distance'])
+  @Validate(DistanceSortRequiresLocation)
+  sortBy?: 'date' | 'popularity' | 'distance';
 }

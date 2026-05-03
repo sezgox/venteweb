@@ -1,18 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { Cloudinary } from './cloudinary';
+import { CloudinaryProvider } from './cloudinary';
 
-describe('Cloudinary', () => {
-  let provider: Cloudinary;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [Cloudinary],
-    }).compile();
-
-    provider = module.get<Cloudinary>(Cloudinary);
-  });
-
-  it('should be defined', () => {
-    expect(provider).toBeDefined();
+describe('CloudinaryProvider', () => {
+  it('should register CLOUDINARY token with a factory', () => {
+    expect(CloudinaryProvider.provide).toBe('CLOUDINARY');
+    expect(typeof CloudinaryProvider.useFactory).toBe('function');
   });
 });

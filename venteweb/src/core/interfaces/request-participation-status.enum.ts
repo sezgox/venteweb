@@ -1,4 +1,4 @@
-export enum RequestStatus{
-    Pending,
-    Accepted,
+export enum RequestStatus {
+  Pending,
+  Accepted,
 }
