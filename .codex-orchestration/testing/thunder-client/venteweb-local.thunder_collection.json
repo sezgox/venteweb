@@ -1,0 +1,75 @@
+{
+  "version": "2.0",
+  "client": "Thunder Client",
+  "collections": [
+    {
+      "_id": "venteweb-local",
+      "name": "venteweb-local",
+      "folders": [],
+      "requests": [
+        {
+          "_id": "ratings-summary",
+          "colId": "venteweb-local",
+          "name": "Ratings - Summary",
+          "method": "GET",
+          "url": "{{baseUrl}}/events/{{eventId}}/ratings/summary",
+          "sortNum": 1000,
+          "headers": []
+        },
+        {
+          "_id": "ratings-list",
+          "colId": "venteweb-local",
+          "name": "Ratings - List",
+          "method": "GET",
+          "url": "{{baseUrl}}/events/{{eventId}}/ratings?page=1&limit=20",
+          "sortNum": 1001,
+          "headers": []
+        },
+        {
+          "_id": "ratings-upsert",
+          "colId": "venteweb-local",
+          "name": "Ratings - Upsert",
+          "method": "POST",
+          "url": "{{baseUrl}}/events/{{eventId}}/ratings",
+          "sortNum": 1002,
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{accessToken}}"
+            }
+          ],
+          "body": {
+            "type": "json",
+            "raw": "{\n  \"score\": 5,\n  \"text\": \"Great event\"\n}"
+          }
+        },
+        {
+          "_id": "ratings-update-mine",
+          "colId": "venteweb-local",
+          "name": "Ratings - Update Mine",
+          "method": "PATCH",
+          "url": "{{baseUrl}}/events/{{eventId}}/ratings/me",
+          "sortNum": 1003,
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{accessToken}}"
+            }
+          ],
+          "body": {
+            "type": "json",
+            "raw": "{\n  \"score\": 4,\n  \"text\": \"Updated after another look\"\n}"
+          }
+        }
+      ]
+    }
+  ]
+}

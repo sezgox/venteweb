@@ -1,0 +1,112 @@
+---
+description: Karpathy-inspired behavior (primary) + Vente monorepo, tools, and documentation references
+alwaysApply: true
+---
+
+# Vente: agent behavior
+
+Behavioral and project rules for Cursor in this repository. The **first half** is adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) (content derived from [Andrej Karpathy’s observations on LLM coding pitfalls](https://github.com/forrestchang/andrej-karpathy-skills)). **Use those principles first;** the Vente section below **adds** monorepo-specific policy and pointers (docs, scripts, MCP, hooks, per-package guidance). It does not relax the four principles.
+
+**Tradeoff:** these guidelines favor caution over speed. For trivial changes (e.g. obvious one-liners), use judgment.
+
+## 1. Think Before Coding
+
+**Do not assume. Do not hide confusion. Surface tradeoffs.**
+
+Before implementing:
+
+- State assumptions explicitly. If uncertain, **ask** rather than guess.
+- If multiple interpretations exist, **present** them; do not pick one silently.
+- If a simpler approach exists, **say so**. Push back when warranted.
+- If something is unclear, **stop**, name what is confusing, and ask for clarification.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No “flexibility” or “configurability” that was not requested.
+- No error handling for impossible scenarios.
+- If you could write 50 lines instead of 200, **rewrite**.
+
+Ask: *Would a senior engineer say this is overcomplicated?* If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+
+- Do not “improve” adjacent code, comments, or formatting unless the task requires it.
+- Do not refactor what is not broken.
+- **Match** existing style, naming, and patterns, even if you would do it differently.
+- If you notice unrelated dead code, **mention** it; do not delete it unless the user asked.
+
+When your changes create orphans: remove imports/variables/functions that **your** changes made unused. Do not remove pre-existing dead code unless asked.
+
+**The test:** every changed line should trace **directly** to the user’s request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Turn tasks into verifiable goals, for example:
+
+- “Add validation” → write tests for invalid inputs, then make them pass.
+- “Fix the bug” → reproduce with a test (or clear steps), then make it pass.
+- “Refactor X” → ensure tests pass before and after (or an agreed check).
+
+For multi-step work, state a short plan with verification:
+
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+```
+
+**These guidelines are working if:** there are fewer unnecessary diffs, fewer rewrites from overcomplication, and **clarifying questions happen before** implementation, not only after mistakes.
+
+---
+
+## 5. Vente monorepo (add-on policy)
+
+- **Packages:** `venteweb` (NestJS API), `vente-mobile` (Ionic/Angular/Capacitor), `ventewebf` (Angular web). **Experimental/alternate client:** `vente-mobile-flutter` (see its `AGENTS.md` when working there).
+- **Source of truth:** `.codex-orchestration/project-context.md` (architecture, run commands, constraints, product narrative, **Run & Verify**). Keep it the canonical reference; do not replace it with guesses.
+- **Mobile roadmap / phases:** `.codex-orchestration/mobile-roadmap.md` (phases, decisions, backlog).
+- **Per-package guides:** `venteweb/AGENTS.md`, `ventewebf/AGENTS.md`, `vente-mobile/AGENTS.md`, `vente-mobile-flutter/AGENTS.md`, plus each package `README.md` as needed.
+- **Language:** code, comments, and commit messages in **English**.
+
+### Product priority (align with `project-context.md`)
+
+- **MOBILE APP FIRST:** primary target is a **closed Android MVP** in `vente-mobile`; **iOS** is after that milestone. Scope should still express product values.
+- **Backend (`venteweb`) and web (`ventewebf`)** back the mobile client: **API stability**, **DTO alignment** with mobile, and **small, targeted** web fixes. **Avoid** large web-only refactors unless explicitly scoped (e.g. Planner/orchestration).
+
+### Codex orchestration (when using multi-agent handoffs)
+
+- **Roles (only):** Planner, Coder, Verifier, Tester — see `.codex-orchestration/agents/*.md`.
+- **Handoffs and reports:** `.codex-orchestration/handoffs/` (`planner-handoff.md`, `coder-notes.md`, `verifier-report.md`, `tester-report.md`).
+- **Bootstrap:** `codex-bootstrap.ps1` (repo root) scaffolds the orchestration workspace; after changes, keep `project-context.md` and agent contexts aligned with the monorepo.
+
+### Tools: RTK, MCP, Cursor hooks
+
+- **RTK (Rust Token Killer):** [rtk-ai/rtk](https://github.com/rtk-ai/rtk). Prefer **`rtk`-prefixed** shell for noisy output (`rtk git status`, `rtk npm test`, etc.). In this repo: `RTK.md` (root; Codex) and the global **Cursor** hook (`%USERPROFILE%\.cursor\hooks.json` → `rtk hook cursor`) when the agent runs shell through the path that the hook rewrites. See **Run & Verify** in `project-context.md` for install/PATH. On native Windows, explicit `rtk` is still recommended for verbose commands; full hook parity is best in **WSL**.
+
+- **MCP (Model Context Protocol):**  
+  - **Codex CLI (this repo):** `.codex/config.toml` (e.g. `playwright`, `mobile_next` with explicit `npx` paths).  
+  - **Cursor:** `.cursor/mcp.json` in the repo (merge with your user-level MCP config; Cursor may combine them). **Capability notes** for agents: `.codex-orchestration/mcp-browser-capability.md`, `.codex-orchestration/mcp-mobile-next-capability.md`.  
+  - **Angular (`vente-mobile`, `ventewebf`):** Prefer MCP **`user-angular-cli`** for documentation and examples (`search_documentation`, `find_examples`, `get_best_practices`, `list_projects`) instead of ad‑hoc browsing of angular.dev alone; see each package `AGENTS.md`.
+  - Use MCP tools that match the task (e.g. browser or device automation readmes under `.codex-orchestration/testing/` when relevant).
+
+- **Project testing assets:** `.codex-orchestration/testing/` (e.g. Postman/Thunder collections, seed scripts, QA notes). Follow paths referenced from `project-context.md`.
+
+### “Test myself” / APK (physical phone)
+
+**Default:** global policy — emulator first; see Cursor **User Rules** (`%USERPROFILE%\.cursor\USER_RULES_ANDROID_TESTING.md`) or `~\.codex\AGENTS.md` (Codex CLI). When the **physical device** path applies **in Vente**, use **`.cursor/rules/mobile-self-test-apk.mdc`** + **`.codex-orchestration/testing/mobile-apk-self-test.md`** (Postgres + `venteweb`, build/sync/APK path, paths and network for the phone).
+
+### Build / dev (policy)
+
+- **Do not** run production **`build`** unless new dependencies (or explicit bootstrap) require it. Prefer: `npm run start:dev` (`venteweb`), `ionic cap run android` or `npm run android:live` (`vente-mobile` per `README`), `ng s` (`ventewebf`). Details: `project-context.md` → **Run & Verify** and **Constraints**.
+
+### When project rules and Karpathy seem to conflict
+
+The four principles in sections **1–4** are the behavioral baseline. Vente “do / don’t” in section **5** and in `project-context.md` **constrains domain and process** (e.g. DTOs, API stability, which directory to use); they are **not** an excuse to skip surgical editing, simplicity, or verifiable success criteria.

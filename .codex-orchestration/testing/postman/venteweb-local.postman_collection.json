@@ -1,0 +1,913 @@
+{
+  "info": {
+    "name": "venteweb-local",
+    "_postman_id": "venteweb-local-template",
+    "description": "Local dev API validation flows for VenteWeb backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health - API root",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}",
+          "host": [
+            "{{baseUrl}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth - Login (username/email + password)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{loginUsername}}\",\n  \"password\": \"{{loginPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is one of expected auth outcomes', function () {",
+              "  pm.expect([200, 201, 400, 401]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "const token = json && json.results && json.results.access_token;",
+              "if (token) pm.collectionVariables.set('accessToken', token);",
+              "const userId = json && json.results && json.results.user && json.results.user.id;",
+              "if (userId) pm.collectionVariables.set('organizerId', userId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events - Create (poster optional)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const now = new Date();",
+              "const start = new Date(now.getTime() + 2 * 60 * 60 * 1000);",
+              "const end = new Date(now.getTime() + 3 * 60 * 60 * 1000);",
+              "pm.collectionVariables.set('eventStartDate', start.toISOString());",
+              "pm.collectionVariables.set('eventEndDate', end.toISOString());",
+              "pm.collectionVariables.set('eventName', `API Event ${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('Event was created', function () {",
+              "    pm.expect(json.results).to.exist;",
+              "    pm.expect(json.results.id).to.exist;",
+              "  });",
+              "  pm.collectionVariables.set('eventId', json.results.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "organizerId",
+              "value": "{{organizerId}}",
+              "type": "text"
+            },
+            {
+              "key": "name",
+              "value": "{{eventName}}",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "<p>Created from Postman flow</p>",
+              "type": "text"
+            },
+            {
+              "key": "visibility",
+              "value": "Public",
+              "type": "text"
+            },
+            {
+              "key": "startDate",
+              "value": "{{eventStartDate}}",
+              "type": "text"
+            },
+            {
+              "key": "endDate",
+              "value": "{{eventEndDate}}",
+              "type": "text"
+            },
+            {
+              "key": "location",
+              "value": "C. de Emilio Castelar, 4, 28807 Alcala de Henares, Madrid, Espana",
+              "type": "text"
+            },
+            {
+              "key": "locationAlias",
+              "value": "C. de Emilio Castelar, 4, 28807 Alcala de Henares, Madrid, Espana",
+              "type": "text"
+            },
+            {
+              "key": "lat",
+              "value": "40.48781637671616",
+              "type": "text"
+            },
+            {
+              "key": "lng",
+              "value": "-3.365213550676929",
+              "type": "text"
+            },
+            {
+              "key": "categories",
+              "value": "Art",
+              "type": "text"
+            },
+            {
+              "key": "poster",
+              "type": "file",
+              "src": "{{eventPosterFile}}"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events"
+          ]
+        },
+        "description": "Poster is optional. Use multipart/form-data with `poster` file only when needed."
+      }
+    },
+    {
+      "name": "Events - Create (without poster)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const now = new Date();",
+              "const start = new Date(now.getTime() + 2 * 60 * 60 * 1000);",
+              "const end = new Date(now.getTime() + 3 * 60 * 60 * 1000);",
+              "pm.collectionVariables.set('eventStartDate', start.toISOString());",
+              "pm.collectionVariables.set('eventEndDate', end.toISOString());",
+              "pm.collectionVariables.set('eventName', `API Event No Poster ${Date.now()}`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('Event was created without poster', function () {",
+              "    pm.expect(json.results).to.exist;",
+              "    pm.expect(json.results.id).to.exist;",
+              "    pm.expect(json.results.poster === null || json.results.poster === undefined || typeof json.results.poster === 'string').to.eql(true);",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "organizerId",
+              "value": "{{organizerId}}",
+              "type": "text"
+            },
+            {
+              "key": "name",
+              "value": "{{eventName}}",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "<p>Created from Postman flow without poster</p>",
+              "type": "text"
+            },
+            {
+              "key": "visibility",
+              "value": "Public",
+              "type": "text"
+            },
+            {
+              "key": "startDate",
+              "value": "{{eventStartDate}}",
+              "type": "text"
+            },
+            {
+              "key": "endDate",
+              "value": "{{eventEndDate}}",
+              "type": "text"
+            },
+            {
+              "key": "location",
+              "value": "C. de Emilio Castelar, 4, 28807 Alcala de Henares, Madrid, Espana",
+              "type": "text"
+            },
+            {
+              "key": "locationAlias",
+              "value": "C. de Emilio Castelar, 4, 28807 Alcala de Henares, Madrid, Espana",
+              "type": "text"
+            },
+            {
+              "key": "lat",
+              "value": "40.48781637671616",
+              "type": "text"
+            },
+            {
+              "key": "lng",
+              "value": "-3.365213550676929",
+              "type": "text"
+            },
+            {
+              "key": "categories[0]",
+              "value": "Art",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events"
+          ]
+        },
+        "description": "Create event without poster. Backend should accept this payload."
+      }
+    },
+    {
+      "name": "Events - List (page=1, sortBy=date)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/events?page=1&sortBy=date",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "sortBy",
+              "value": "date"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200 for event listing', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invite External - Case A Registered User By Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"text\": \"Invite registered by email\",\n  \"firstName\": \"Registered\",\n  \"lastName\": \"User\",\n  \"email\": \"{{registeredUserEmail}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events/{{eventId}}/invitations/external",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events",
+            "{{eventId}}",
+            "invitations",
+            "external"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403, 404]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('Registered invite links to user', function () {",
+              "    pm.expect(json.results.userId).to.exist;",
+              "    pm.expect(json.results.externalUserId).to.not.exist;",
+              "    pm.expect(json.results.invitationToken).to.exist;",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invite External - Case B New External By Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"text\": \"Invite external by email\",\n  \"firstName\": \"External\",\n  \"lastName\": \"EmailNew\",\n  \"email\": \"{{externalEmailNew}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events/{{eventId}}/invitations/external",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events",
+            "{{eventId}}",
+            "invitations",
+            "external"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403, 404]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('External email invite request succeeds', function () {",
+              "    pm.expect(json.success).to.eql(true);",
+              "  });",
+              "  pm.test('External email invite links to external user', function () {",
+              "    pm.expect(json.results.externalUserId).to.exist;",
+              "    pm.expect(json.results.userId).to.not.exist;",
+              "    pm.expect(json.results.type).to.eql('Attendance');",
+              "  });",
+              "  pm.test('External email invite keeps async delivery out of API contract', function () {",
+              "    pm.expect(json.results.invitationToken).to.be.a('string');",
+              "  });",
+              "  pm.collectionVariables.set('externalUserEmailId', json.results.externalUserId);",
+              "  pm.collectionVariables.set('invitationId', json.results.id);",
+              "  pm.collectionVariables.set('invitationToken', json.results.invitationToken);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invite External - Case C Existing External By Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"text\": \"Invite same external email again\",\n  \"firstName\": \"External\",\n  \"lastName\": \"EmailExisting\",\n  \"email\": \"{{externalEmailNew}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events/{{eventId}}/invitations/external",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events",
+            "{{eventId}}",
+            "invitations",
+            "external"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403, 404]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('Existing external email reuses same external user id', function () {",
+              "    pm.expect(json.results.externalUserId).to.exist;",
+              "    const previous = pm.collectionVariables.get('externalUserEmailId');",
+              "    if (previous) pm.expect(json.results.externalUserId).to.eql(previous);",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invite External - Case D New External By Phone",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"text\": \"Invite external by phone\",\n  \"firstName\": \"External\",\n  \"lastName\": \"PhoneNew\",\n  \"phone\": \"{{externalPhoneNew}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events/{{eventId}}/invitations/external",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events",
+            "{{eventId}}",
+            "invitations",
+            "external"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403, 404]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('External phone invite request succeeds', function () {",
+              "    pm.expect(json.success).to.eql(true);",
+              "  });",
+              "  pm.test('External phone invite links to external user', function () {",
+              "    pm.expect(json.results.externalUserId).to.exist;",
+              "    pm.expect(json.results.userId).to.not.exist;",
+              "    pm.expect(json.results.type).to.eql('Attendance');",
+              "  });",
+              "  pm.collectionVariables.set('externalUserPhoneId', json.results.externalUserId);",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invite External - Case E Existing External By Phone",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"text\": \"Invite same external phone again\",\n  \"firstName\": \"External\",\n  \"lastName\": \"PhoneExisting\",\n  \"phone\": \"{{externalPhoneNew}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events/{{eventId}}/invitations/external",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events",
+            "{{eventId}}",
+            "invitations",
+            "external"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403, 404]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('Existing external phone reuses same external user id', function () {",
+              "    pm.expect(json.results.externalUserId).to.exist;",
+              "    const previous = pm.collectionVariables.get('externalUserPhoneId');",
+              "    if (previous) pm.expect(json.results.externalUserId).to.eql(previous);",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events - Accept Invitation Participation (auth required)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invitationId\": \"{{invitationId}}\",\n  \"invitation\": \"{{invitationToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/events/{{eventId}}/participations",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "events",
+            "{{eventId}}",
+            "participations"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Participation acceptance endpoint status is expected', function () {",
+              "  pm.expect([200, 201, 400, 401, 403, 404]).to.include(pm.response.code);",
+              "});",
+              "let json = {};",
+              "try { json = pm.response.json(); } catch (e) {}",
+              "if ([200, 201].includes(pm.response.code)) {",
+              "  pm.test('Participation was created', function () {",
+              "    pm.expect(json.results).to.exist;",
+              "    pm.expect(json.results.eventId).to.exist;",
+              "  });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Event Ratings",
+      "item": [
+        {
+          "name": "Ratings - Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/ratings/summary?invitation={{invitationToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}",
+                "ratings",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "invitation",
+                  "value": "{{invitationToken}}",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ratings - List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/ratings?page=1&limit=20&invitation={{invitationToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}",
+                "ratings"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "invitation",
+                  "value": "{{invitationToken}}",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ratings - Upsert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 5,\n  \"text\": \"Great event\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/ratings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}",
+                "ratings"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ratings - Update Mine",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 4,\n  \"text\": \"Updated after another look\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/ratings/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events",
+                "{{eventId}}",
+                "ratings",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "loginUsername",
+      "value": "demo"
+    },
+    {
+      "key": "loginPassword",
+      "value": "demo1234"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    },
+    {
+      "key": "invitationId",
+      "value": ""
+    },
+    {
+      "key": "invitationToken",
+      "value": ""
+    },
+    {
+      "key": "registeredUserEmail",
+      "value": ""
+    },
+    {
+      "key": "externalEmailNew",
+      "value": "external.automation@example.com"
+    },
+    {
+      "key": "externalPhoneNew",
+      "value": "+34111111111"
+    },
+    {
+      "key": "externalUserEmailId",
+      "value": ""
+    },
+    {
+      "key": "externalUserPhoneId",
+      "value": ""
+    },
+    {
+      "key": "organizerId",
+      "value": ""
+    },
+    {
+      "key": "eventName",
+      "value": ""
+    },
+    {
+      "key": "eventStartDate",
+      "value": ""
+    },
+    {
+      "key": "eventEndDate",
+      "value": ""
+    },
+    {
+      "key": "eventPosterFile",
+      "value": ".codex-orchestration/testing/fixtures/event-poster.png"
+    }
+  ]
+}

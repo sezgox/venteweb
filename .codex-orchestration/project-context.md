@@ -1,0 +1,157 @@
+# Project Context
+
+## Purpose
+- Monorepo for Vente with three active surfaces:
+  - `venteweb`: NestJS backend API and realtime notifications.
+  - `vente-mobile`: Ionic/Angular/Capacitor mobile client.
+  - `ventewebf`: Angular web frontend.
+- Product positioning:
+  - Vente is conceived as a hybrid between a social network and an event platform.
+  - The product is intended to support experiences across very different scales:
+    - personal plans, private gatherings, and community meetups
+    - cultural activities, special-day events, concerts, and festivals
+  - Core value proposition:
+    - help users create, discover, promote, and share real-world or virtual experiences
+    - strengthen trust and interaction through participation signals, reputation, and community continuity
+  - Product pillars repeatedly referenced by stakeholders:
+    - event organization and promotion in one place
+    - personalized invitations, attendance tracking, and capacity control
+    - subscription/free access flexibility for casual and professional use
+    - reputation, merit, rewards, and transparent participation flows
+- Primary global flows:
+  - Authentication shared across web and mobile against the backend.
+  - Email/password accounts require Firebase email verification before backend login; Google/Firebase Google accounts are auto-active.
+  - Event exploration, detail, invitations, participation, and notifications.
+  - Cross-project contract alignment between backend DTOs and frontend/mobile interfaces.
+
+## Product priority
+- **MOBILE APP FIRST** (rolling focus, ~one month from each update): the main delivery target is a **closed Android MVP** for `vente-mobile`. The MVP is intentionally somewhat ambitious so the app can express its own personality and stay aligned with Vente values and goals; **iOS** is planned after that milestone.
+- **`venteweb`** and **`ventewebf`** support the mobile client: stable APIs/DTOs, bugfixes, and targeted web changes as needed. Avoid large web-only refactors while this priority is active unless Planner explicitly scopes them.
+- **Mobile roadmap (phases, decisions, backlog):** `.codex-orchestration/mobile-roadmap.md`. Update that file when milestones or priorities change; keep this section in sync for high-level framing only.
+
+## Architecture
+- Tech stack:
+  - Backend: NestJS 11.1.x + Prisma + PostgreSQL + Socket.IO.
+  - Mobile: Angular 21.2.x + Ionic 8.8.x + Capacitor 8.
+  - Web: Angular 21.2.x standalone application.
+- Entry points:
+  - Backend API: `venteweb/src/main.ts`
+  - Mobile app: `vente-mobile/src/main.ts`
+  - Web app: `ventewebf/src/main.ts`
+- Key directories:
+  - `venteweb/src`, `venteweb/prisma`
+  - `vente-mobile/src/app`
+  - `ventewebf/src/app`
+  - Root orchestration: `.codex-orchestration/`
+
+## Functional Map
+- Backend contracts and business rules:
+  - Files: `venteweb/src/auth`, `venteweb/src/event`, `venteweb/src/participation`, `venteweb/src/user`, `venteweb/src/notifications`
+  - Dependencies: Prisma schema, JWT/Firebase config, Cloudinary, Resend (transactional email), websocket notifications
+  - Email/password registration creates inactive users with `firebaseUid`; backend login activates them only after Firebase reports `emailVerified`.
+  - Registered user event invitations are centralized in `venteweb/src/core/services/event-invitations.service.ts`; both `UserService` and `EventService` must reuse that flow instead of duplicating token/persistence logic.
+  - Registered invitation acceptance stays in `POST /events/:id/participations` (guarded); external invitation acceptance belongs to the public `POST /users/external/:externalId/participations` flow and must validate the token against `externalUserId`.
+  - External invitation rejection is public through `POST /users/external/:externalId/invitations/reject` and resolves the invitation by `externalUserId + token`, not by exposing invitation ids in guest links.
+- Mobile client:
+  - Files: `vente-mobile/src/app/core`, `vente-mobile/src/app/pages`, `vente-mobile/src/app/components`
+  - Dependencies: backend DTO/contracts, Ionic navigation, Capacitor plugins, Google Maps JS API
+  - `EventDetailPage` now consumes the public external accept/reject endpoints with `{ eventId, invitation }` payloads for guest links.
+- Web client:
+  - Files: `ventewebf/src/app/core`, `ventewebf/src/app/pages`, `ventewebf/src/app/components`
+  - Dependencies: backend DTO/contracts, Angular router, Google Maps JS API
+  - `events/event` guest mode now calls the public external accept/reject endpoints and must derive guest state from live `queryParamMap` updates rather than only route snapshots.
+  - Current product/UI framing used for recent web design passes:
+    - Vente must read as a hybrid between event platform and social layer, not as a ticketing-only product.
+    - The visual direction should feel corporate but friendly:
+      - trustworthy enough for organizers, brands, venues, and larger productions
+      - warm and approachable enough for personal plans, meetups, and smaller private events
+    - The design system currently leans on:
+      - warm off-white surfaces instead of flat pure white
+      - coral/orange primary accents instead of generic purple SaaS styling
+      - deep navy text and soft neutral outlines for readability and contrast
+      - glass/surface layering, large radii, and soft shadows to create depth without looking noisy
+    - Page-level patterns currently preferred:
+      - hero block plus concise summary strip on main index pages
+      - large cards with clearer hierarchy, cleaner metadata, and stronger imagery
+      - anchored popovers on desktop and bottom-sheet behavior on smaller screens
+      - sticky headers/footers inside dense overlays and forms so primary actions stay reachable
+    - Product semantics that influenced recent copy/layout decisions:
+      - explore should support everything from private plans to concerts and festivals
+      - social is being positioned as a hub for typed notifications first, then organizer updates/threads and friend activity later
+      - event creation should emphasize clarity, capacity management, visibility, and collaboration controls
+      - designs should signal community, discovery, trust, and operational control at the same time
+    - Interaction constraints:
+      - avoid fragile UI assumptions about complete DTOs; list/detail cards must tolerate partial backend payloads
+      - logged-out states should still communicate product value even when guarded routes bounce back to explore
+      - new web surfaces should reuse the same tokens and visual language instead of creating isolated one-off styles
+- Current orchestration state:
+  - Root `.codex-orchestration` is the only active orchestration workspace for cross-project work.
+  - Shared testing assets live under `.codex-orchestration/testing/`.
+  - Shared backend implementation skill lives under `.codex-orchestration/skills/coder-design-pattern/SKILL.md`.
+  - Shared MCP capability notes live at `.codex-orchestration/mcp-browser-capability.md` and `.codex-orchestration/mcp-mobile-next-capability.md`.
+
+## Run & Verify
+- **AI agent rules (Cursor + Codex):** [Karpathy-inspired guidelines + Vente](https://github.com/forrestchang/andrej-karpathy-skills) are merged in the repo: `.cursor/rules/karpathy-guidelines.mdc` (Cursor, always on) and root `AGENTS.md` (Codex; also `@RTK.md`). Global Codex: `%USERPROFILE%\.codex\AGENTS.md` defers to per-repo `AGENTS.md` when present.
+- **RTK (Rust Token Killer)** — [rtk-ai/rtk](https://github.com/rtk-ai/rtk): global setup for **Cursor** (`%USERPROFILE%\.cursor\hooks.json`, `preToolUse` → `rtk hook cursor`) and **Codex** (`%USERPROFILE%\.codex\AGENTS.md` + `RTK.md`; this repo has root `AGENTS.md` and `RTK.md`). Install the Windows binary to `%USERPROFILE%\.local\bin` and ensure that folder is on the **user** `PATH` (then `rtk --version` / `rtk gain`). **Restart Cursor** after the first install so hooks see `rtk` on `PATH`. On native Windows, prefer explicit `rtk` for noisy commands; full bash auto-rewrite is best under WSL.
+- Install:
+  - Backend: run dependency install only inside `venteweb` when packages changed.
+  - Mobile: run dependency install only inside `vente-mobile` when packages changed.
+  - Web: run dependency install only inside `ventewebf` when packages changed.
+- Dev run:
+  - Backend: `npm run start:dev` in `venteweb`
+  - Mobile native/emulator: `ionic cap run android` in `vente-mobile`; for **live reload** against the Angular dev server use `npm run android:live` (see `vente-mobile/README.md`)
+  - Web frontend: `ng s` in `ventewebf`
+- Build:
+  - Global policy: do not use build commands unless new dependencies were installed or dependency/bootstrap changes explicitly require it.
+  - Until that condition is met, agents must stay on dev flows only:
+    - `npm run start:dev`
+    - `ionic cap run android` or `npm run android:live` in `vente-mobile` when live reload is needed
+    - `ng s`
+- Tests:
+  - Backend: `npm run test`, `npm run test:e2e`
+  - Mobile: `npm test`, `npm run lint`
+  - Web: `npm test`
+- APK for personal device testing (user pulls via SFTP): `.codex-orchestration/testing/mobile-apk-self-test.md` (agents: see `.cursor/rules/mobile-self-test-apk.mdc` when the user asks to “test myself” on mobile).
+
+## Constraints
+- Security/performance constraints:
+  - Preserve backend auth, invitation, and visibility rules as the source of truth.
+  - Treat frontend/mobile as contract consumers; verify DTO/interface impact before changing either side.
+  - Reuse active dev servers and emulator runs instead of restarting or rebuilding unnecessarily.
+- Coding conventions:
+  - Code and comments in English.
+  - Planner/Coder/Verifier/Tester are the only orchestration roles for this monorepo.
+  - Use root `.codex-orchestration/agents/*.md` for all orchestration work.
+  - For guest invitation pages in Angular, avoid deriving participation state from nullable `currentUserId`; compare against `externalUserId` explicitly to prevent false positives when `userId` is `null`.
+- Web/mobile test parity (Tester):
+  - **Mobile-only** work (no `ventewebf` UI changes and no shared contract change): **mobile evidence is mandatory** (Android emulator or device; Mobile MCP when applicable). **Web comparison and web/mobile similarity reporting are optional** unless Planner marks **cross-cutting impact**.
+  - **Cross-cutting** work (web UI, shared DTOs, or user-visible behavior on both clients): follow paired validation and similarity rules in `tester-context.md` and package `AGENTS.md`.
+- Environments and secrets policy:
+  - Keep backend secrets in env files only.
+  - Do not commit permanent Capacitor live-reload `server.url`.
+  - Restrict browser/API keys at provider level.
+
+## Upgrade Status
+- Angular/Nest baseline updated on 2026-03-16:
+  - `venteweb`: NestJS core/platform/testing upgraded to 11.1.x.
+  - `vente-mobile`: Angular upgraded from 20 to 21.2.x; Ionic upgraded to 8.8.x.
+  - `ventewebf`: Angular upgraded from 18 to 21.2.x; `ngx-quill` and `ngx-toastr` aligned to Angular 21 peers.
+- Required config changes discovered during upgrade:
+  - Angular 21 apps need modern package export resolution. `vente-mobile/tsconfig.json` now uses `moduleResolution: "bundler"`.
+  - Angular 21 rejected the legacy mobile Browserslist ranges. `vente-mobile/.browserslistrc` was modernized to current major-version queries.
+  - `angular-eslint` 21 enforces built-in control flow more aggressively; mobile templates should prefer `@if`, `@for`, and `@switch`.
+  - Nest 11 runs on Express 5 semantics. Existing backend routes build successfully, but future wildcard/catch-all routes must follow Express 5 syntax.
+- Verification snapshot after upgrade:
+  - Backend: `npm install` completed, `npm run build` passes.
+  - Mobile: `npm install --force`, `npm run build`, and `npm run lint` pass.
+  - Web: `npm install --force` and `npm run build` pass.
+- Known follow-up items after upgrade:
+  - Backend lint now surfaces 22 stricter ESLint/type-aware findings under the newer toolchain; these are mainly unused vars, one `require()` import, and one unsafe `Function` type.
+  - Backend unit tests still have a pre-existing failure in `src/cloudinary/cloudinary/cloudinary.spec.ts` due an invalid import (`Cloudinary` not exported from `./cloudinary`).
+  - Web build still warns about initial bundle budget, `map.component.css` budget, unused `RouterLink` in `landing.component.ts`, and `quill-delta` being CommonJS.
+  - Mobile build still warns on SCSS size budgets for `add-event`, `auth`, `event-detail`, and `explore`.
+- Upgrade recommendations:
+  - Keep Angular apps on `moduleResolution: "bundler"` unless the entire toolchain is intentionally migrated to `nodenext`.
+  - Do not add new `*ngIf/*ngFor` in Angular 21 codepaths; use built-in control flow to stay lint-clean.
+  - When touching backend lint next, fix the reported issues instead of downgrading the ESLint stack; the stricter rules are now accurately catching real dead code.
+  - Before adopting new backend catch-all routes or middleware wildcards, validate them against Express 5 / Nest 11 route matching behavior.

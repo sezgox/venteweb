@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mobile_next": {
+      "command": "C:\\nvm4w\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "--package",
+        "@mobilenext/mobile-mcp@0.0.50",
+        "mcp-server-mobile",
+        "--stdio"
+      ]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to NestJS (venteweb)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "protocol": "inspector",
+      "timeout": 30000,
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/venteweb/dist/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/venteweb/dist/**/*.js"
+      ],
+      "cwd": "${workspaceFolder}/venteweb",
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/venteweb/node_modules/**"
+      ]
+    },
+    {
+      "name": "Launch NestJS (venteweb)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "start:debug"
+      ],
+      "cwd": "${workspaceFolder}/venteweb",
+      "console": "integratedTerminal",
+      "restart": true,
+      "protocol": "inspector",
+      "port": 9229,
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/venteweb/dist/**/*.js",
+        "!**/node_modules/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/venteweb/dist/**/*.js"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "${workspaceFolder}/venteweb/node_modules/**"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+---
+description: Vente monorepo — physical-phone self-test APK (vente-mobile); complements global emulator vs device rule
+globs:
+alwaysApply: false
+---
+
+# Vente: “test myself” / APK for SFTP (physical phone)
+
+**Intent** (self-install, APK, “on my phone”, etc.) is defined globally: Cursor **User Rules** (canonical text `%USERPROFILE%\.cursor\USER_RULES_ANDROID_TESTING.md`; optional twin `.cursor\rules\android-emulator-vs-physical-device.mdc`). Codex global `~\.codex\AGENTS.md` has the same policy.
+
+When that path applies to **this repo**, follow:
+
+`.codex-orchestration/testing/mobile-apk-self-test.md`
+
+**Non-negotiables (Vente)**
+
+1. **Postgres + Nest (`venteweb`) must be up** and API reachable on the host/port the bundled `apiUrl` uses (smoke: `GET /api` on port 3000).
+2. **Build** web + `cap sync`, then **Gradle `assembleDebug`**. Debug APK output: **`vente-mobile/android/app/build/outputs/apk/debug/app-debug.apk`** (optional timestamped copy under `vente-mobile/artifacts/apk/`).
+3. Tell the user the **full path** to the APK and any **network** requirement (e.g. Tailscale) so the phone can reach the backend.
+
+Uses **production-configuration** `ng build` so `environment.prod.ts` is embedded. Do not skip backend verification just to produce an APK.
