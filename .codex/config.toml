@@ -1,0 +1,22 @@
+# Vente monorepo — MCP for Codex CLI (project-scoped, trusted workspace).
+# Cursor merges MCP from .cursor/mcp.json; restart clients after changes.
+#
+# Impeccable design skills: installed at repo root with `npx skills add pbakaus/impeccable -y`
+# (see `.agents/skills/` and `.impeccable.md`). Codex loads project skills from standard paths.
+
+# Use absolute paths to npx so GUI clients (Cursor) find Node when nvm/PATH is not loaded.
+# Adjust C:\nvm4w\nodejs if you use a different Node install.
+[mcp_servers.playwright]
+command = "C:\\nvm4w\\nodejs\\npx.cmd"
+args = ["-y", "@playwright/mcp@latest"]
+
+# Do not commit secrets. Set in your environment before starting Codex CLI, e.g. PowerShell:
+#   $env:PLAYWRIGHT_MCP_EXTENSION_TOKEN = "<token-from-playwright-mcp>"
+# Or add a local, gitignored fragment; see `.codex/README.md`.
+
+[mcp_servers.mobile_next]
+command = "C:\\nvm4w\\nodejs\\npx.cmd"
+args = ["-y", "--package", "@mobilenext/mobile-mcp@0.0.50", "mcp-server-mobile", "--stdio"]
+
+[features]
+codex_hooks = true

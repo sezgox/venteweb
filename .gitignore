@@ -1,0 +1,23 @@
+# Local / machine-specific
+.codex/hooks.json
+
+
+# MCP and test artifacts (noisy, not source)
+.playwright-mcp/
+
+# Emulator and ad-hoc debug logs
+logs/
+
+# Accidental screenshots at repo root
+/device-screen.png
+/device-screen-pull.png
+
+# Optional local worktrees / experiments
+/_worktrees/
+
+# Mobile app is a separate git repository; do not nest-track it from monorepo root
+/vente-mobile/
+
+# OS
+.DS_Store
+Thumbs.db
