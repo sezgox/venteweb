@@ -5,7 +5,10 @@ import { jwtVerificationSecrets } from 'src/core/consts/jwt-config.const';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private jwtService: JwtService, private authService: AuthService) {}
+  constructor(
+    private jwtService: JwtService,
+    private authService: AuthService,
+  ) {}
 
   private async verifyAccessToken(token: string) {
     let verificationError: any;
@@ -39,7 +42,8 @@ export class AuthMiddleware implements NestMiddleware {
       const now = Math.floor(Date.now() / 1000);
       if (payload.exp && payload.exp < now) {
         const refreshToken = req.cookies['refresh_token'];
-        const {user, access_token, rotatedRefreshToken} = await this.authService.refreshToken(refreshToken)
+        const { user, access_token, rotatedRefreshToken } =
+          await this.authService.refreshToken(refreshToken);
         res.cookie('refresh_token', rotatedRefreshToken, {
           httpOnly: true,
           secure: false,
@@ -47,8 +51,7 @@ export class AuthMiddleware implements NestMiddleware {
           path: '/',
         });
         res.setHeader('x-access-token', access_token);
-        console.log('New Access Token: ' + access_token);
-      }else{
+      } else {
         req['user'] = payload;
       }
     } catch (err) {

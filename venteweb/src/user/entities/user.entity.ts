@@ -1,5 +1,11 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { Follow, Level, ParticipationType, Permission, Visibility } from 'generated/prisma';
+import {
+  Follow,
+  Level,
+  ParticipationType,
+  Permission,
+  Visibility,
+} from 'generated/prisma';
 import { EventStatus } from 'src/core/interfaces/event-status.enum';
 import { CreateEventDto } from 'src/event/dto/create-event.dto';
 import { Event } from 'src/event/entities/event.entity';
@@ -9,68 +15,74 @@ import { Invitation } from 'src/participation/entities/participation-invitation.
 import { Participation } from 'src/participation/entities/participation.entity';
 
 export class User {
-    id: string;
-    username: string;
-    name: string;
-    password?: string;
-    email: string;
-    photo: string;
-    permission: Permission = Permission.Standard;
-    level: Level = Level.New;
-    bio?: string;
-    location?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-    lastLogin?: Date;
+  id: string;
+  username: string;
+  name: string;
+  password?: string;
+  email: string;
+  photo: string;
+  active: boolean = true;
+  activatedAt?: Date;
+  firebaseUid?: string;
+  emailSent: boolean = false;
+  permission: Permission = Permission.Standard;
+  level: Level = Level.New;
+  bio?: string;
+  location?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  lastLogin?: Date;
 
-    events: Event[] = [];
-    participations: Participation[] = [];
-    invitations: Invitation[] = [];
-    requests: Request[] = [];
-    followers: Follow[] = [];
-    following: Follow[] = [];
+  events: Event[] = [];
+  participations: Participation[] = [];
+  invitations: Invitation[] = [];
+  requests: Request[] = [];
+  followers: Follow[] = [];
+  following: Follow[] = [];
 
-    constructor(partial: Partial<User> = {}) {
-        const { events, ...rest } = partial;
-        
-        Object.assign(this, rest);
-        
-        // Transformar los eventos planos en instancias de Event
-        if (events && Array.isArray(events)) {
-            this.events = events.map(event => new Event(event));
-        } else {
-            this.events = [];
-        }
+  constructor(partial: Partial<User> = {}) {
+    const { events, ...rest } = partial;
+
+    Object.assign(this, rest);
+
+    // Transformar los eventos planos en instancias de Event
+    if (events && Array.isArray(events)) {
+      this.events = events.map((event) => new Event(event));
+    } else {
+      this.events = [];
     }
+  }
 
-    canFollow(followingUser: User){
-        if(this.following.find(follow => follow.followedId === followingUser.id)) throw new BadRequestException('Ya sigues a este usuario');
-    }
-    canUnfollow(followingUser: User){
-        console.log(this.following);
-        console.log(followingUser.id)
-        if(!this.following.find(follow => follow.followedId === followingUser.id)) throw new BadRequestException('No sigues a este usuario');
-    }
+  canFollow(followingUser: User) {
+    if (this.following.find((follow) => follow.followedId === followingUser.id))
+      throw new BadRequestException('Ya sigues a este usuario');
+  }
+  canUnfollow(followingUser: User) {
+    if (
+      !this.following.find((follow) => follow.followedId === followingUser.id)
+    )
+      throw new BadRequestException('No sigues a este usuario');
+  }
 
-    upgradePermission(): void {
-        if (this.permission === Permission.Premium) {
-            throw new BadRequestException('User is already premium.');
-        }
-        this.permission = Permission.Premium;
+  upgradePermission(): void {
+    if (this.permission === Permission.Premium) {
+      throw new BadRequestException('User is already premium.');
     }
+    this.permission = Permission.Premium;
+  }
 
-    upgradeLevel(): void {
-        const next: Record<Level, Level> = {
-            [Level.New]: Level.Active,
-            [Level.Active]: Level.Featured,
-            [Level.Featured]: Level.Influencer,
-            [Level.Influencer]: Level.Influencer,
-        };
-        this.level = next[this.level];
-    }
+  upgradeLevel(): void {
+    const next: Record<Level, Level> = {
+      [Level.New]: Level.Active,
+      [Level.Active]: Level.Featured,
+      [Level.Featured]: Level.Influencer,
+      [Level.Influencer]: Level.Influencer,
+    };
+    this.level = next[this.level];
+  }
 
-    private canCreateThisEvent(event: CreateEventDto) {
-/*         this.events.forEach(e => e.status)
+  private canCreateThisEvent(event: CreateEventDto) {
+    /*         this.events.forEach(e => e.status)
         const activeEvents = this.events.filter(
             (e) => e.status !== EventStatus.Finished,
         );
@@ -152,101 +164,154 @@ export class User {
         if (diffDuration > durationLimits[this.permission][this.level]) {
             throw new BadRequestException(`La duración del evento excede el máximo permitido para tu nivel (${this.level}).`);
         } */
+  }
 
+  canGetUpgraded(): boolean {
+    const now = new Date();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+    // 🔹 Eventos creados por el usuario y finalizados en el último año
+    const finishedOwnEvents = this.events.filter(
+      (e) =>
+        e.status === EventStatus.Finished &&
+        new Date(e.endDate) >= oneYearAgo &&
+        e.visibility === Visibility.Public,
+    );
+
+    console.log(
+      `Usuario ${this.username} tiene ${finishedOwnEvents.length} eventos finalizados en el último año`,
+    );
+    // 🔹 Eventos en los que el usuario participó (si existe la propiedad)
+    const finishedParticipations = (this.participations ?? []).filter(
+      (p) =>
+        p.event.status === EventStatus.Finished &&
+        new Date(p.event.endDate) >= oneYearAgo &&
+        p.event.visibility === Visibility.Public,
+    );
+    console.log(
+      `Usuario ${this.username} tiene ${finishedParticipations.length} eventos en los que ha participado en el último año`,
+    );
+    // 🧠 Funciones auxiliares
+    const countOwnEventsWith = (minParticipants: number) =>
+      finishedOwnEvents.filter((e) => e.participations.length > minParticipants)
+        .length;
+
+    const countParticipatedEventsWith = (minParticipants: number) =>
+      finishedParticipations.filter(
+        (p) => p.event.participations.length > minParticipants,
+      ).length;
+
+    // ----------------------------------------------------------
+    // 🔸 Lógica según el nivel actual
+    // ----------------------------------------------------------
+    switch (this.level) {
+      case Level.New: {
+        if (countOwnEventsWith(5) >= 5) return true;
+        if (countOwnEventsWith(5) >= 3 && countParticipatedEventsWith(5) >= 3)
+          return true;
+        if (countParticipatedEventsWith(10) > 15) return true;
+        break;
+      }
+
+      case Level.Active: {
+        if (countOwnEventsWith(10) >= 10) return true;
+        if (
+          countOwnEventsWith(10) >= 5 &&
+          countParticipatedEventsWith(10) >= 10
+        )
+          return true;
+        break;
+      }
+
+      case Level.Featured: {
+        if (countOwnEventsWith(20) >= 20) return true;
+        if (
+          countOwnEventsWith(15) >= 15 &&
+          countParticipatedEventsWith(20) >= 20
+        )
+          return true;
+        break;
+      }
+
+      case Level.Influencer:
+        return false; // 👑 no puede subir más
     }
+  }
 
-    canGetUpgraded(): boolean {
-        const now = new Date();
-        const oneYearAgo = new Date();
-        oneYearAgo.setFullYear(now.getFullYear() - 1);
+  createEvent(createEventDto: CreateEventDto): Event {
+    this.canCreateThisEvent(createEventDto);
+    return new Event(createEventDto);
+  }
 
-        // 🔹 Eventos creados por el usuario y finalizados en el último año
-        const finishedOwnEvents = this.events.filter(
-            (e) => e.status === EventStatus.Finished && new Date(e.endDate) >= oneYearAgo && e.visibility === Visibility.Public,
+  inviteFriendToEvent(
+    invited: User,
+    event: Event,
+    createInvitationDto: CreateInvitationDto,
+  ): Invitation {
+    // Si el usuario a invitar es el usuario que está invitando...
+    if (this.id === invited.id) {
+      throw new BadRequestException('No puedes invitarte a ti mismo!');
+    }
+    // Si el usuario que está invitando no es el creador del evento...
+    if (event.organizerId !== this.id) {
+      throw new ForbiddenException(
+        'No puedes invitar a un evento que no eres creador!',
+      );
+    }
+    // Si el usuario ya aparece en las participaciones del evento...
+    if (event.hasAlreadyParticipated(invited.id))
+      throw new BadRequestException(
+        'El usuario que estás tratando de invitar ya está participando en este evento!',
+      );
+
+    //Si la invitación es para colaborar...(o si no lo es...)
+    if (createInvitationDto.type === ParticipationType.Volunteer) {
+      if (!event.hasAvailableSlots())
+        throw new BadRequestException(
+          'No hay más cupos para colaborar en este evento, no puedes invitar a más personas para colaborar de momento...',
         );
-
-        console.log(`Usuario ${this.username} tiene ${finishedOwnEvents.length} eventos finalizados en el último año`);
-        // 🔹 Eventos en los que el usuario participó (si existe la propiedad)
-        const finishedParticipations = (this.participations ?? []).filter(
-            (p) => p.event.status === EventStatus.Finished && new Date(p.event.endDate) >= oneYearAgo && p.event.visibility === Visibility.Public,
+    } else {
+      if (
+        event.maxAttendees &&
+        event.maxAttendees >= event.participations.length
+      )
+        throw new BadRequestException(
+          'No hay más cupos para atender como público :(',
         );
-        console.log(`Usuario ${this.username} tiene ${finishedParticipations.length} eventos en los que ha participado en el último año`);
-        // 🧠 Funciones auxiliares
-        const countOwnEventsWith = (minParticipants: number) =>
-            finishedOwnEvents.filter((e) => e.participations.length > minParticipants).length;
-
-        const countParticipatedEventsWith = (minParticipants: number) =>
-            finishedParticipations.filter((p) => p.event.participations.length > minParticipants).length;
-
-        // ----------------------------------------------------------
-        // 🔸 Lógica según el nivel actual
-        // ----------------------------------------------------------
-        switch (this.level) {
-            case Level.New: {
-                if (countOwnEventsWith(5) >= 5) return true;
-                if (countOwnEventsWith(5) >= 3 && countParticipatedEventsWith(5) >= 3) return true;
-                if (countParticipatedEventsWith(10) > 15) return true;
-                break;
-            }
-
-            case Level.Active: {
-                if (countOwnEventsWith(10) >= 10) return true;
-                if (countOwnEventsWith(10) >= 5 && countParticipatedEventsWith(10) >= 10) return true;
-                break;
-            }
-
-            case Level.Featured: {
-                if (countOwnEventsWith(20) >= 20) return true;
-                if (countOwnEventsWith(15) >= 15 && countParticipatedEventsWith(20) >= 20) return true;
-                break;
-            }
-
-            case Level.Influencer:
-                return false; // 👑 no puede subir más
-        }
     }
+    const invitation = new Invitation(createInvitationDto);
+    return invitation;
+  }
 
-    createEvent(createEventDto: CreateEventDto): Event {
-        this.canCreateThisEvent(createEventDto)
-        return new Event(createEventDto);
-    }
+  removeInvitation(invitation: Invitation, invited: User) {
+    const isCancellation = this.id === invitation.event.organizerId;
+    const isRejection = invited.id === invitation.userId;
+    if (!isRejection && !isCancellation)
+      throw new ForbiddenException(
+        'No puedes eliminar una invitación de la cual no eres el usuario que hizo la invitación o el usuario invitado',
+      );
+    return isCancellation ? 'Invitación cancelada' : 'Invitación rechazada';
+  }
 
-    inviteUserToEvent(invited: User, event: Event, createInvitationDto: CreateInvitationDto): Invitation {
-        // Si el usuario a invitar es el usuario que está invitando...
-        if(this.id === invited.id){
-            throw new BadRequestException('No puedes invitarte a ti mismo!');
-        }
-        // Si el usuario que está invitando no es el creador del evento...
-        if(event.organizerId !== this.id){
-            throw new ForbiddenException('No puedes invitar a un evento que no eres creador!');
-        }
-        // Si el usuario ya aparece en las participaciones del evento...
-        if(event.hasAlreadyParticipated(invited.id)) throw new BadRequestException('El usuario que estás tratando de invitar ya está participando en este evento!');
+  acceptInvitation(
+    invitation: Invitation,
+    createParticipationDto: CreateParticipationDto,
+  ) {
+    if (invitation.userId !== this.id)
+      throw new ForbiddenException(
+        'No puedes aceptar una invitación de otro usuario',
+      );
+    if (createParticipationDto.eventId !== invitation.eventId)
+      throw new BadRequestException('La invitación no es para este evento');
+  }
 
-        //Si la invitación es para colaborar...(o si no lo es...)
-        if(createInvitationDto.type === ParticipationType.Collaboration){
-            if(!event.hasAvailableSlots()) throw new BadRequestException('No hay más cupos para colaborar en este evento, no puedes invitar a más personas para colaborar de momento...');
-        }else{
-            if(event.maxAttendees && event.maxAttendees >= event.participations.length) throw new BadRequestException('No hay más cupos para atender como público :(')
-        }
-        const invitation = new Invitation(createInvitationDto);
-        return invitation;
-    }
-
-    removeInvitation(invitation: Invitation, invited: User){
-        const isCancellation = this.id === invitation.event.organizerId;
-        const isRejection = invited.id === invitation.userId;
-        if(!isRejection && !isCancellation) throw new ForbiddenException('No puedes eliminar una invitación de la cual no eres el usuario que hizo la invitación o el usuario invitado');
-        return isCancellation ? "Invitación cancelada"  : "Invitación rechazada" ;
-    }
-
-    acceptInvitation(invitation: Invitation, createParticipationDto: CreateParticipationDto){
-        if(invitation.userId !== this.id) throw new ForbiddenException('No puedes aceptar una invitación de otro usuario');
-        if(createParticipationDto.eventId !== invitation.eventId) throw new BadRequestException('La invitación no es para este evento');
-    }
-
-    getManagedEvents(){
-        return {events: this.events, participations: this.participations, invitations: this.invitations, requests: this.requests};
-    }
-
+  getManagedEvents() {
+    return {
+      events: this.events,
+      participations: this.participations,
+      invitations: this.invitations,
+      requests: this.requests,
+    };
+  }
 }
