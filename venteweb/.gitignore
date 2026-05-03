@@ -19,6 +19,14 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Compiled one-off script outputs (use ts-node / npm script on .ts)
+/scripts/seed-rating-qa.js
+/scripts/seed-rating-qa.js.map
+/scripts/seed-rating-qa.d.ts
+
 # IDEs and editors
 /.idea
 .project
