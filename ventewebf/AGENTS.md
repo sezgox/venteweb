@@ -4,9 +4,13 @@ This document defines how this Angular project is structured and how agents/cont
 
 Important: All code (identifiers, comments, commit messages) must be written in English.
 
+## Product priority (supporting role)
+
+During **MOBILE APP FIRST** (see `.codex-orchestration/project-context.md` → **Product priority**), treat this web app as **supporting** the `vente-mobile` Android MVP: keep shared contracts and UX aligned where it matters, prefer small targeted UI changes, and avoid large web-only refactors unless Planner scopes them.
+
 ## 1) Tech Stack
 
-- Angular 18 (Standalone Components, Angular Router)
+- Angular (Standalone Components, Angular Router). Use the latest recommended APIs (signals, control flow, hydration, etc.). **Prefer Cursor MCP `user-angular-cli`** (`list_projects`, `get_best_practices`, `search_documentation`, `find_examples`) for lookups instead of relying on arbitrary web search; use [angular.dev](https://angular.dev) manually only when MCP is insufficient.
 - TypeScript (strict mode)
 - RxJS
 - TailwindCSS + PostCSS + Autoprefixer
@@ -177,7 +181,7 @@ ventewebf/
 - Routing: Root routes in `app.routes.ts`. Feature routes in `pages/**/..routes.ts` using lazy component/module loading.
 - Core layer:
   - `ApiService` abstracts HTTP calls and error mapping.
-  - `AuthService` handles login/register/Google, JWT decoding, and redirect URL.
+  - `AuthService` handles login/register/Google, Firebase email activation, JWT decoding, and redirect URL.
   - `UsersService` exposes `currentUser$` via `BehaviorSubject` based on decoded JWT.
   - `EventsService` provides event endpoints plus request shaping (FormData, query params).
   - `GeolocationService` resolves user location (browser geolocation → IP fallback → default).
@@ -187,7 +191,17 @@ ventewebf/
 - UI: Tailwind utility-first styling with custom CSS variables for theming.
 - Maps: Google Maps JS API loaded via `@googlemaps/js-api-loader` and `importLibrary` (maps, marker, geocoding).
 
-## 4) Coding Standards
+## 4) Angular syntax and references
+
+- **Use the latest recommended Angular syntax.** **Documentation lookup**: Prefer **MCP `user-angular-cli`** (`search_documentation`, `find_examples`, `get_best_practices`) first; defer to [angular.dev](https://angular.dev) only when needed. Current API surface (for orientation):
+  - **Signals** for reactive state: `signal()`, `computed()`, `effect()` where appropriate; use signals instead of `BehaviorSubject` for new state that does not need to be an Observable stream.
+  - **Input/output as functions**: use `input()`, `input.required()`, `output()`, `model()` instead of the `@Input()`, `@Output()`, `ngModel` decorators.
+  - **Control flow in templates**: use `@if`, `@for`, `@switch`, `@defer` instead of `*ngIf`, `*ngFor`, `*ngSwitch`, `NgIf`/`NgFor`; see [angular.dev – Control flow](https://angular.dev/guide/control-flow).
+  - **Standalone components** by default; avoid NgModules for new features unless required by a library.
+  - Prefer `inject()` over constructor injection when there is no need to expose tokens to subclasses.
+- Align with style guide, signals, SSR/hydration, and performance using **MCP `user-angular-cli`** first, then [angular.dev](https://angular.dev).
+
+## 5) Coding Standards
 
 - Language: All code and comments must be in English.
 - Naming:
@@ -217,7 +231,16 @@ ventewebf/
 - Commits:
   - Use clear, English commit messages describing intent (e.g., `feat: add events filter by category`).
 
-## 5) Implementation Guidelines
+## 6) Web app robustness and mobile alignment
+
+- **Web app (ventewebf)**: Build a robust, scalable application with good practices:
+  - **In-memory state**: Keep frequently used or shared data in services via signals (e.g. explore events, user session) so the UI always has something to show and does not refetch unnecessarily when switching views.
+  - **Background loading**: Prefer loading or refreshing data in the background (e.g. services that update a signal when the API responds) while the UI shows existing or placeholder content; avoid blocking the screen on every request.
+  - **Placeholders and hydration**: Use placeholders (skeleton UI, minimal static content) where appropriate so that server-rendered or pre-rendered output is useful before client bootstrap. Plan for and apply [Angular hydration](https://angular.dev/guide/ssr/hydration) effectively (preserve server-rendered DOM, avoid layout shift, defer non-critical interactivity with `@defer` where it helps).
+  - **Event poster fallback**: backend may return `poster: null`; event cards, map popups, and event detail views must always render a default poster URL when poster is missing or fails to load.
+- **Mobile app (vente-mobile)**: Use the web version as **inspiration** for features, UX, and data shape. Reuse or mirror interfaces and service contracts where it makes sense. Improve and adapt layouts and styles for mobile (touch targets, density, navigation); the mobile UI does not need to match the web pixel-for-pixel, but behaviour and data (e.g. event cards, filters, map) should align conceptually.
+
+## 7) Implementation Guidelines
 
 - Adding a new page:
   1) Create a standalone component under `src/app/pages/<feature>/<feature>.component.*`.
@@ -236,6 +259,7 @@ ventewebf/
 
 - Authentication:
   - Read tokens through `AuthService`. Do not duplicate token storage logic.
+  - Email/password registration must not auto-login. It sends Firebase verification email and waits for `/validate-account` before backend login succeeds.
   - If adding 401/403 handling, prefer a centralized approach in the interceptor.
 
 - UI Modals and state:
@@ -249,15 +273,16 @@ ventewebf/
   - Keep environment values under `src/enviroments/`. Add `environment.prod.ts` and use Angular `fileReplacements` for builds.
   - API keys must be restricted at the provider level (domain, usage, quotas). Do not rely on frontend secrecy.
 
-## 6) Documentation Policy (Mandatory)
+## 8) Documentation Policy (Mandatory)
 
 Whenever any change affects behavior, public APIs, environment variables, routing, folder structure, build scripts, or architecture decisions, you must update documentation:
 
 Add to every pull request:
 
-## 7) PR Checklist (Copy into your PR template)
+## 9) PR Checklist (Copy into your PR template)
 
 - [ ] Code is written in English (identifiers and comments).
+- [ ] Uses current Angular syntax (signals, input()/output(), control flow, standalone); lookups use **MCP `user-angular-cli`** where practical, consistent with AGENTS §4.
 - [ ] Follows naming and layering conventions.
 - [ ] No direct DOM access (or justified with SSR-safe guards).
 - [ ] No stray console logs; user-facing errors handled.
@@ -266,7 +291,7 @@ Add to every pull request:
 - [ ] README updated where user-facing behavior changed.
 - [ ] AGENTS updated where architecture/rules/structure changed.
 
-## 8) Definition of Done
+## 10) Definition of Done
 
 A change is considered complete when:
 

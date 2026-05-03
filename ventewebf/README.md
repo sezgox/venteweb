@@ -12,6 +12,13 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
+## Account activation
+
+- Email/password registration creates the backend account but does not log in automatically.
+- The auth modal signs into Firebase client-side and sends the verification email.
+- `/validate-account?token=...` (or `oobCode`) applies the Firebase email action code and sends users back to login.
+- Inactive backend login responses show a resend activation action.
+
 ## Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
