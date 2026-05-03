@@ -1,18 +1,22 @@
 import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
-import { ParticipationType } from 'generated/prisma';
+import { EventMode, ParticipationType } from 'generated/prisma';
 
 export class CreateInvitationDto {
-    @IsOptional()
-    @IsString()
-    userId: string;
+  @IsOptional()
+  @IsString()
+  userId: string;
 
-    @IsString()
-    eventId: string;
+  @IsString()
+  eventId: string;
 
-    @IsString()
-    @MaxLength(150, { message: 'El texto no puede superar los 150 caracteres' })
-    text: string;
+  @IsString()
+  @MaxLength(150, { message: 'El texto no puede superar los 150 caracteres' })
+  text: string;
 
-    @IsEnum(ParticipationType)
-    type: ParticipationType;
+  @IsOptional()
+  @IsEnum(EventMode)
+  eventMode?: EventMode;
+
+  @IsEnum(ParticipationType)
+  type: ParticipationType;
 }

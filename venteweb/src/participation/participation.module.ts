@@ -3,6 +3,6 @@ import { PrismaService } from 'src/prisma.service';
 import { ParticipationRepository } from './participation.repository';
 
 @Module({
-  providers: [ PrismaService, ParticipationRepository],
+  providers: [PrismaService, ParticipationRepository],
 })
 export class ParticipationModule {}

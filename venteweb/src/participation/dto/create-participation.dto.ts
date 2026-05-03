@@ -1,27 +1,36 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { ParticipationType } from "generated/prisma";
+import { EventMode, ParticipationType } from 'generated/prisma';
 
 export class CreateParticipationDto {
-    @IsOptional()
-    @IsString()
-    userId: string;
-    
-    @IsOptional()
-    @IsString()
-    eventId: string
+  @IsOptional()
+  @IsString()
+  userId?: string;
 
-    @IsEnum(ParticipationType)
-    type: ParticipationType;
+  @IsOptional()
+  @IsString()
+  externalUserId?: string;
 
-    @IsOptional()
-    @IsString()
-    invitationId?: string;
+  @IsOptional()
+  @IsString()
+  eventId?: string;
 
-    @IsOptional()
-    @IsString()
-    invitation?: string;
+  @IsOptional()
+  @IsEnum(EventMode)
+  eventMode?: EventMode;
 
-    @IsOptional()
-    @IsString()
-    requestId?: string;
+  @IsOptional()
+  @IsEnum(ParticipationType)
+  type?: ParticipationType;
+
+  @IsOptional()
+  @IsString()
+  invitationId?: string;
+
+  @IsOptional()
+  @IsString()
+  invitation?: string;
+
+  @IsOptional()
+  @IsString()
+  requestId?: string;
 }

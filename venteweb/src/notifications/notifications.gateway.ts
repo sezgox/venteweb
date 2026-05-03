@@ -72,7 +72,7 @@ export class NotificationsGateway
 
   // Método para enviar notificación
   notifyUser(userId: string, notification: any) {
-    console.log(notification)
+    console.log(notification);
     this.server.to(`user:${userId}`).emit('notification', notification);
   }
 }

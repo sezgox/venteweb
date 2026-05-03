@@ -7,7 +7,7 @@ import { NotificationRepository } from './notifications.repository';
 export class NotificationsService {
   constructor(
     private repo: NotificationRepository,
-    private gateway: NotificationsGateway
+    private gateway: NotificationsGateway,
   ) {}
 
   /**
@@ -19,7 +19,7 @@ export class NotificationsService {
     type: NotificationType,
     title: string,
     message: string,
-    relatedId?: string
+    relatedId?: string,
   ) {
     // 1️⃣ Guardar en la base de datos
     const notification = await this.repo.create({
@@ -43,6 +43,4 @@ export class NotificationsService {
   async markAsRead(id: string) {
     return await this.repo.markAsRead(id);
   }
-
-
 }
