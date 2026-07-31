@@ -68,7 +68,9 @@ export class InvitationMailService {
     const { data, error } = await this.resend.emails.send({
       from,
       to: payload.recipientEmail,
-      subject: buildExternalInvitationEmailSubject({ eventName: payload.eventName }),
+      subject: buildExternalInvitationEmailSubject({
+        eventName: payload.eventName,
+      }),
       html: buildExternalInvitationEmailHtml({
         recipientFirstName: payload.recipientFirstName,
         recipientLastName: payload.recipientLastName,

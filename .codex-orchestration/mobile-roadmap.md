@@ -9,6 +9,8 @@
 
 ## Phase 1 - MUST BE DONE (review and close)
 
+**Corte MVP 2026-07-05:** perfil mínimo editable; Level/Permission visibles con límites iniciales y placeholder de Logros; calendario `.ics` tras unirse; cancelación persistente mediante `Event.canceledAt`; cancelados fuera de Explore y presentes en Eventos; edición presencial reutiliza formulario. Push y compra Premium permanecen fuera del MVP.
+
 **Meaning:** esta tabla Phase 1 queda reducida a **Notifications** y **Feed API**. El resto del MVP (auth, detalle de evento, explore mapa, crear evento, etc.) no se lista aqui; retomar segun prioridad o backlog.
 
 | Area | Scope |

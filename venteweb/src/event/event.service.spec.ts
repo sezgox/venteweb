@@ -46,7 +46,9 @@ describe('EventService.findAll', () => {
       | 'findEventIdsByDistance'
     >
   >;
-  let userRepository: jest.Mocked<Pick<UserRepository, 'findOne' | 'getFriends'>>;
+  let userRepository: jest.Mocked<
+    Pick<UserRepository, 'findOne' | 'getFriends'>
+  >;
 
   beforeEach(() => {
     eventRepository = {
@@ -269,9 +271,11 @@ describe('EventService.findAll', () => {
       },
       participations: [{ type: ParticipationType.Attendance }],
     });
-    eventRepository.findManyOrdered.mockResolvedValue(
-      [needsVolunteers, fullEvent, noVolunteerYet] as any,
-    );
+    eventRepository.findManyOrdered.mockResolvedValue([
+      needsVolunteers,
+      fullEvent,
+      noVolunteerYet,
+    ] as any);
 
     const out = await service.findAll(
       {

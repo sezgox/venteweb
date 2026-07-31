@@ -126,11 +126,12 @@ export class EventService {
 
     const volunteerOnly =
       filter.volunteer === true || filter.collaboration === true;
-    const virtualScope = filter.virtualScope === 'all'
-      ? 'all'
-      : filter.virtual === true
-        ? 'hybrid'
-        : undefined;
+    const virtualScope =
+      filter.virtualScope === 'all'
+        ? 'all'
+        : filter.virtual === true
+          ? 'hybrid'
+          : undefined;
 
     // Distance ordering (raw SQL through repository)
     if (filter.sortBy === 'distance' && virtualScope !== 'all') {
@@ -194,7 +195,7 @@ export class EventService {
 
     const baseWhere = this.getBaseWhere(filter, virtualScope);
 
-    const where = { ...baseWhere, ...visibilityWhere };
+    const where = { ...baseWhere, ...visibilityWhere, canceledAt: null };
 
     const orderBy = this.getOrderBy(filter);
 
@@ -256,10 +257,7 @@ export class EventService {
     };
   }
 
-  private filterEventsNeedingVolunteers(
-    events: any[],
-    mode: EventMode,
-  ): any[] {
+  private filterEventsNeedingVolunteers(events: any[], mode: EventMode): any[] {
     return events.filter(
       (e: any) =>
         (mode === EventMode.OnSite
@@ -307,7 +305,10 @@ export class EventService {
     }
   }
 
-  private getBaseWhere(filter: FilterEventDto, virtualScope?: 'hybrid' | 'all') {
+  private getBaseWhere(
+    filter: FilterEventDto,
+    virtualScope?: 'hybrid' | 'all',
+  ) {
     const where: Prisma.EventWhereInput = {
       language: filter.language || undefined,
       categories: filter.category ? { has: filter.category } : undefined,
@@ -556,7 +557,7 @@ export class EventService {
         )
       : false;
     let areFriends = false;
-    
+
     if (user) {
       // Si el usuario es el creador del evento, devuelve el evento
       if (user.id === event.organizerId) {
@@ -576,10 +577,14 @@ export class EventService {
         }
       }
     }
-    if(invitationIsValid || event.visibility === Visibility.Public || areFriends){
+    if (
+      invitationIsValid ||
+      event.visibility === Visibility.Public ||
+      areFriends
+    ) {
       // Si el usuario tiene una invitación válida o el evento es público o son amigos, devuelve el evento
-          return this.sanitizeEventForPublicView(event);
-    }else if(event.visibility === Visibility.Private && !invitationIsValid){
+      return this.sanitizeEventForPublicView(event);
+    } else if (event.visibility === Visibility.Private && !invitationIsValid) {
       throw new ForbiddenException(
         'El evento no es público y no tienes una invitación válida, así que no puedes verlo!',
       );
@@ -606,36 +611,30 @@ export class EventService {
     );
   }
 
-  update(id: string, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async update(id: string, updateEventDto: UpdateEventDto, reqUserId: string) {
+    const event = await this.eventRepository.findOne(id);
+    if (event.organizerId !== reqUserId)
+      throw new ForbiddenException('Only the organizer can edit this event');
+    this.assertEventActive(event);
+    const started = new Event(event).startDate.getTime() <= Date.now();
+    if (started && (updateEventDto.onSite?.startDate || updateEventDto.virtual?.startDate))
+      throw new BadRequestException('Started event dates cannot be changed');
+    return await this.eventRepository.update(id, updateEventDto);
   }
 
   async remove(id: string, reqUserId: string) {
     const user = await this.userRepository.findOne(reqUserId);
     const eventData = await this.eventRepository.findOne(id);
     const event = new Event(eventData);
-    if (event.endDate < new Date())
-      throw new BadRequestException('No puedes eliminar eventos ya acabados');
-    if (event.startDate < new Date())
-      throw new BadRequestException('No puedes eliminar eventos ya comenzados');
     if (!event) throw new NotFoundException('El evento no existe');
     if (!user) throw new NotFoundException('El usuario solicitante no existe');
-    if (user.id === event.organizerId) {
-      try {
-        if (event.poster) {
-          const public_id = this.getPublicId(event.poster);
-          this.cloudinaryService.deleteFile(public_id);
-        }
-      } catch (error) {
-        throw new BadRequestException('Error al eliminar poster del evento!');
-      } finally {
-        return this.eventRepository.remove(id);
-      }
-    } else {
+    if (user.id !== event.organizerId)
       throw new ForbiddenException(
-        'No eres el creador del evento, no puedes eliminarlo',
+        'No puedes cancelar eventos de otros usuarios',
       );
-    }
+    if (event.canceledAt)
+      throw new BadRequestException('El evento ya está cancelado');
+    return await this.eventRepository.cancel(id);
   }
 
   getPublicId(url: string): string {
@@ -653,6 +652,7 @@ export class EventService {
     reqUserId: string,
   ) {
     const eventData = await this.eventRepository.findOne(eventId);
+    this.assertEventActive(eventData);
     const requester = await this.userRepository.findOne(reqUserId);
     const eventFromAFriend = await this.userRepository.usersAreFriends(
       eventData.organizerId,
@@ -727,6 +727,7 @@ export class EventService {
     requesterId: string,
   ) {
     const eventData = await this.eventRepository.findOne(eventId);
+    this.assertEventActive(eventData);
     const requesterData = await this.userRepository.findOne(requesterId);
 
     if (!eventData) throw new NotFoundException('Event not found');
@@ -823,7 +824,9 @@ export class EventService {
       externalUser &&
       event
         .invitationsForMode(eventMode)
-        .some((invitation: any) => invitation.externalUserId === externalUser.id)
+        .some(
+          (invitation: any) => invitation.externalUserId === externalUser.id,
+        )
     ) {
       throw new BadRequestException(
         'This external contact already has a pending invitation',
@@ -1115,9 +1118,8 @@ export class EventService {
       );
     }
 
-    const { eventData, event } = await this.loadEventParticipationContext(
-      eventId,
-    );
+    const { eventData, event } =
+      await this.loadEventParticipationContext(eventId);
     const eventMode = this.resolveEventMode(
       eventData,
       createParticipationDto.eventMode ?? invitation.eventMode,
@@ -1200,6 +1202,7 @@ export class EventService {
       createParticipationDto.userId,
     );
     const eventData = await this.eventRepository.findOne(eventId);
+    this.assertEventActive(eventData);
     if (!requesterData || !participantData)
       throw new NotFoundException(
         'No puedes participar en este evento, usuario no existe',
@@ -1251,10 +1254,17 @@ export class EventService {
 
   private async loadEventParticipationContext(eventId: string) {
     const eventData = await this.eventRepository.findOne(eventId);
+    this.assertEventActive(eventData);
     const event = new Event(eventData);
     event.participations =
       await this.participationRepository.getParticipationsByEvent(eventId);
     return { eventData, event };
+  }
+
+  private assertEventActive(event: { canceledAt?: Date | null }): void {
+    if (event.canceledAt) {
+      throw new BadRequestException('Canceled events no longer accept actions');
+    }
   }
 
   async cancelOrRejectRequest(
@@ -1315,10 +1325,18 @@ export class EventService {
     fallback?: EventMode,
   ) {
     if (!requestId) return fallback;
-    if (eventData.onSiteEvent?.requests?.some((request) => request.id === requestId)) {
+    if (
+      eventData.onSiteEvent?.requests?.some(
+        (request) => request.id === requestId,
+      )
+    ) {
       return EventMode.OnSite;
     }
-    if (eventData.virtualEvent?.requests?.some((request) => request.id === requestId)) {
+    if (
+      eventData.virtualEvent?.requests?.some(
+        (request) => request.id === requestId,
+      )
+    ) {
       return EventMode.Virtual;
     }
     return fallback;

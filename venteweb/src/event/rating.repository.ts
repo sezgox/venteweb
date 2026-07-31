@@ -6,7 +6,11 @@ import { PrismaService } from 'src/prisma.service';
 export class RatingRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findRegisteredParticipation(eventId: string, userId: string, eventMode: EventMode) {
+  findRegisteredParticipation(
+    eventId: string,
+    userId: string,
+    eventMode: EventMode,
+  ) {
     return this.prisma.participation.findFirst({
       where: { eventId, userId, eventMode },
       include: { rating: true },
@@ -81,7 +85,12 @@ export class RatingRepository {
     });
   }
 
-  findManyByEvent(eventId: string, eventMode: EventMode, skip: number, take: number) {
+  findManyByEvent(
+    eventId: string,
+    eventMode: EventMode,
+    skip: number,
+    take: number,
+  ) {
     return this.prisma.rating.findMany({
       where: { eventId, eventMode },
       orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],

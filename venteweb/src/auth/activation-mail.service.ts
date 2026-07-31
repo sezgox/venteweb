@@ -28,7 +28,9 @@ export class ActivationMailService {
     webActivationUrl: string;
   }): Promise<void> {
     if (!this.resend) {
-      throw new InternalServerErrorException('RESEND_API_KEY is not configured');
+      throw new InternalServerErrorException(
+        'RESEND_API_KEY is not configured',
+      );
     }
     const fromEmail = resendConfig.fromEmail?.trim();
     if (!fromEmail) {

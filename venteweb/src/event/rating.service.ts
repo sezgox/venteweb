@@ -123,7 +123,11 @@ export class RatingService {
     return eventMode;
   }
 
-  private assertEventCanBeRated(event: Event, userId: string, eventMode: EventMode) {
+  private assertEventCanBeRated(
+    event: Event,
+    userId: string,
+    eventMode: EventMode,
+  ) {
     if (!event) {
       throw new NotFoundException('Event not found');
     }
@@ -153,7 +157,9 @@ export class RatingService {
     await this.notificationsService.createNotification(
       event.organizerId,
       NotificationType.Rating,
-      created ? `New rating for ${event.name}` : `Rating updated for ${event.name}`,
+      created
+        ? `New rating for ${event.name}`
+        : `Rating updated for ${event.name}`,
       `Your ${eventMode} event experience received ${score} stars.`,
       event.id,
     );

@@ -82,6 +82,35 @@ export class User {
   }
 
   private canCreateThisEvent(event: CreateEventDto) {
+    const baseLimits: Record<Level, { events: number; attendees: number }> = {
+      [Level.New]: { events: 1, attendees: 50 },
+      [Level.Active]: { events: 2, attendees: 150 },
+      [Level.Featured]: { events: 3, attendees: 500 },
+      [Level.Influencer]: { events: 5, attendees: 1000 },
+    };
+    const multiplier = this.permission === Permission.Premium ? 2 : 1;
+    const limits = baseLimits[this.level];
+    const activeEvents = this.events.filter(
+      (current) =>
+        !current.canceledAt && current.endDate?.getTime() > Date.now(),
+    );
+    if (activeEvents.length >= limits.events * multiplier) {
+      throw new ForbiddenException(
+        `Your ${this.level} level allows ${limits.events * multiplier} parallel events.`,
+      );
+    }
+
+    for (const mode of [event.onSite, event.virtual].filter(Boolean)) {
+      if (
+        mode?.maxAttendees &&
+        mode.maxAttendees > limits.attendees * multiplier
+      ) {
+        throw new ForbiddenException(
+          `Your ${this.level} level allows up to ${limits.attendees * multiplier} attendees per event.`,
+        );
+      }
+    }
+
     /*         this.events.forEach(e => e.status)
         const activeEvents = this.events.filter(
             (e) => e.status !== EventStatus.Finished,

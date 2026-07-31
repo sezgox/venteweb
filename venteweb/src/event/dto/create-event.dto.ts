@@ -130,7 +130,9 @@ class EventDurationAtLeastOneHourConstraint
   }
 }
 
-function parseMultipartJson<T>(value: T | string | null | undefined): T | undefined {
+function parseMultipartJson<T>(
+  value: T | string | null | undefined,
+): T | undefined {
   if (value == null || value === '') {
     return undefined;
   }
@@ -145,9 +147,7 @@ function parseMultipartJson<T>(value: T | string | null | undefined): T | undefi
 }
 
 @ValidatorConstraint({ name: 'CreateEventModePayload', async: false })
-class CreateEventModePayloadConstraint
-  implements ValidatorConstraintInterface
-{
+class CreateEventModePayloadConstraint implements ValidatorConstraintInterface {
   validate(_: unknown, args: ValidationArguments) {
     const dto = args.object as CreateEventDto;
     if (dto.onlyVirtual) {
@@ -278,13 +278,17 @@ export class CreateEventDto {
   onlyVirtual: boolean;
 
   @Type(() => OnSiteEventInputDto)
-  @Transform(({ value }) => parseMultipartJson<OnSiteEventInputDto>(value) ?? value)
+  @Transform(
+    ({ value }) => parseMultipartJson<OnSiteEventInputDto>(value) ?? value,
+  )
   @ValidateNested()
   @IsOptional()
   onSite?: OnSiteEventInputDto;
 
   @Type(() => VirtualEventInputDto)
-  @Transform(({ value }) => parseMultipartJson<VirtualEventInputDto>(value) ?? value)
+  @Transform(
+    ({ value }) => parseMultipartJson<VirtualEventInputDto>(value) ?? value,
+  )
   @ValidateNested()
   @IsOptional()
   virtual?: VirtualEventInputDto;

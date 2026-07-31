@@ -51,7 +51,7 @@ describe('CreateEventDto temporal validation', () => {
     });
 
     expect(JSON.stringify(errors)).toContain(
-      'Start date must be at least 4 hours ahead of the current time.'
+      'Start date must be at least 4 hours ahead of the current time.',
     );
   });
 
@@ -73,7 +73,9 @@ describe('CreateEventDto temporal validation', () => {
       },
     });
 
-    expect(JSON.stringify(errors)).toContain('Event duration must be at least 1 hour.');
+    expect(JSON.stringify(errors)).toContain(
+      'Event duration must be at least 1 hour.',
+    );
   });
 
   it('still rejects start dates more than one year ahead', async () => {
@@ -88,7 +90,9 @@ describe('CreateEventDto temporal validation', () => {
       },
     });
 
-    expect(JSON.stringify(errors)).toContain('Start date cannot be more than 1 year from today.');
+    expect(JSON.stringify(errors)).toContain(
+      'Start date cannot be more than 1 year from today.',
+    );
   });
 
   it('still rejects events longer than 30 days', async () => {
@@ -103,6 +107,8 @@ describe('CreateEventDto temporal validation', () => {
       },
     });
 
-    expect(JSON.stringify(errors)).toContain('Event duration cannot exceed 30 days.');
+    expect(JSON.stringify(errors)).toContain(
+      'Event duration cannot exceed 30 days.',
+    );
   });
 });

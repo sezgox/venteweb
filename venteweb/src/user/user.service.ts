@@ -164,17 +164,27 @@ export class UserService {
       username,
       include,
     );
-    const profileWithEvents = userProfile as typeof userProfile & { events?: any[] };
+    const profileWithEvents = userProfile as typeof userProfile & {
+      events?: any[];
+    };
     if (Array.isArray(profileWithEvents?.events)) {
-      profileWithEvents.events = [...profileWithEvents.events].sort((a: any, b: any) => {
-        const aStart = new Date(
-          a.onSiteEvent?.startDate ?? a.virtualEvent?.startDate ?? a.createdAt ?? 0,
-        ).getTime();
-        const bStart = new Date(
-          b.onSiteEvent?.startDate ?? b.virtualEvent?.startDate ?? b.createdAt ?? 0,
-        ).getTime();
-        return bStart - aStart;
-      });
+      profileWithEvents.events = [...profileWithEvents.events].sort(
+        (a: any, b: any) => {
+          const aStart = new Date(
+            a.onSiteEvent?.startDate ??
+              a.virtualEvent?.startDate ??
+              a.createdAt ??
+              0,
+          ).getTime();
+          const bStart = new Date(
+            b.onSiteEvent?.startDate ??
+              b.virtualEvent?.startDate ??
+              b.createdAt ??
+              0,
+          ).getTime();
+          return bStart - aStart;
+        },
+      );
     }
     const { password, ...userWithoutPassword } = userProfile;
     return userWithoutPassword;
@@ -246,12 +256,8 @@ export class UserService {
     if (updateUserDto.bio != userData.bio) {
       updatedFields.bio = updateUserDto.bio;
     }
-    if (updateUserDto.permission != userData.permission) {
-      updatedFields.permission = updateUserDto.permission;
-    }
-    if (updateUserDto.level != userData.level) {
-      updatedFields.level = updateUserDto.level;
-    }
+    // Permission and level are server-managed. Never accept self-service
+    // privilege changes through the profile endpoint.
     if (updateUserDto.locale != userData.locale) {
       updatedFields.locale = updateUserDto.locale;
     }

@@ -49,7 +49,9 @@ export class ActivationTokenRepository {
     }
   }
 
-  async consumeAndActivate(tokenHash: string): Promise<ConsumeActivationResult> {
+  async consumeAndActivate(
+    tokenHash: string,
+  ): Promise<ConsumeActivationResult> {
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.activationToken.findUnique({
         where: { tokenHash },

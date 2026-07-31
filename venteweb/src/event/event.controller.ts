@@ -319,8 +319,9 @@ export class EventController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventService.update(id, updateEventDto);
+  async update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto, @Req() req: Request) {
+    const results = await this.eventService.update(id, updateEventDto, req['user'].sub);
+    return { results, success: true, message: 'Event updated' };
   }
 
   /* ELIMINAR EVENTOS */

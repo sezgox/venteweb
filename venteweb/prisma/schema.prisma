@@ -151,6 +151,7 @@ model Event {
   visibility        Visibility
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+  canceledAt        DateTime?
   tags              String[]
   language          String?
   allowPosts        Boolean          @default(false)

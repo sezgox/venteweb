@@ -45,7 +45,9 @@ export class AuthService {
       throw new BadRequestException('User not found');
     }
     if (!userData.password) {
-      throw new UnauthorizedException('Use a social login provider for this account');
+      throw new UnauthorizedException(
+        'Use a social login provider for this account',
+      );
     }
 
     const passwordIsCorrect = await bcrypt.compare(
@@ -133,9 +135,7 @@ export class AuthService {
 
     if (result.ok === false) {
       if (result.reason === 'used') {
-        throw new BadRequestException(
-          'This activation link was already used',
-        );
+        throw new BadRequestException('This activation link was already used');
       }
       if (result.reason === 'expired') {
         throw new BadRequestException('This activation link has expired');

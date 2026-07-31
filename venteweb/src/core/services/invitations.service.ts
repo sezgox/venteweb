@@ -54,22 +54,24 @@ export class InvitationsService {
       expiresIn: process.env.EVENT_INVITATION_EXPIRES_IN,
       issuer: organizer,
     } as JwtSignOptions;
-    const payload = { eventId, organizer, invitedUser, externalUserId, eventMode };
+    const payload = {
+      eventId,
+      organizer,
+      invitedUser,
+      externalUserId,
+      eventMode,
+    };
     return await this.jwtService.signAsync(payload, jwtConfig);
   }
 
   // Verifica una invitación usando la clave maestra
-  decodeInvitation(
-    token: string,
-  ):
-    | {
-        eventId?: string;
-        organizer?: string;
-        invitedUser?: string;
-        externalUserId?: string;
-        eventMode?: EventMode;
-      }
-    | null {
+  decodeInvitation(token: string): {
+    eventId?: string;
+    organizer?: string;
+    invitedUser?: string;
+    externalUserId?: string;
+    eventMode?: EventMode;
+  } | null {
     try {
       const payload = this.jwtService.decode(token);
       if (!payload || typeof payload !== 'object') {

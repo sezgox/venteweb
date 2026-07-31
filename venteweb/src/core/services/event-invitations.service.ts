@@ -57,12 +57,15 @@ export class EventInvitationsService {
     }
 
     const event = new Event(eventData);
-    const eventMode = this.resolveEventMode(event, createInvitationDto.eventMode);
+    const eventMode = this.resolveEventMode(
+      event,
+      createInvitationDto.eventMode,
+    );
 
     if (
-      event.invitationsForMode(eventMode).some(
-        (invitation) => invitation.userId === invitedData.id,
-      )
+      event
+        .invitationsForMode(eventMode)
+        .some((invitation) => invitation.userId === invitedData.id)
     ) {
       throw new BadRequestException(
         'This friend already has a pending invitation',
@@ -122,9 +125,8 @@ export class EventInvitationsService {
         `Event mode ${eventMode} does not support invitations`,
       );
     }
-    const masterKey = this.invitationsService.decryptMasterKey(
-      encryptedMasterKey,
-    );
+    const masterKey =
+      this.invitationsService.decryptMasterKey(encryptedMasterKey);
     const token = await this.invitationsService.generateInvitation(
       event.id,
       event.organizerId,

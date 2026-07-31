@@ -16,7 +16,9 @@ function venteIconSvg(): string {
 </svg>`;
 }
 
-export function buildActivationEmailText(params: ActivationEmailContent): string {
+export function buildActivationEmailText(
+  params: ActivationEmailContent,
+): string {
   const { recipientName, webActivationUrl } = params;
   return `Hi ${recipientName},
 
@@ -29,7 +31,9 @@ This link expires in 7 days. If you did not create an account, you can ignore th
 — The Vente team`;
 }
 
-export function buildActivationEmailHtml(params: ActivationEmailContent): string {
+export function buildActivationEmailHtml(
+  params: ActivationEmailContent,
+): string {
   const { recipientName, webActivationUrl } = params;
   const safeName = escapeHtml(recipientName);
   const safeWeb = escapeHtml(webActivationUrl);

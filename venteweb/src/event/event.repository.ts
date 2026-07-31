@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/prisma';
 import { PrismaService } from 'src/prisma.service';
 import { Event } from './entities/event.entity';
+import { UpdateEventDto } from './dto/update-event.dto';
 
 @Injectable()
 export class EventRepository {
@@ -91,7 +92,10 @@ export class EventRepository {
         : undefined,
     };
 
-    return await this.prisma.event.create({ data, include: this.detailInclude });
+    return await this.prisma.event.create({
+      data,
+      include: this.detailInclude,
+    });
   }
 
   async findMany(where: Prisma.EventWhereInput) {
@@ -188,6 +192,44 @@ export class EventRepository {
 
   async remove(id: string) {
     return await this.prisma.event.delete({ where: { id } });
+  }
+
+  async cancel(id: string) {
+    return await this.prisma.event.update({
+      where: { id },
+      data: { canceledAt: new Date() },
+      include: this.detailInclude,
+    });
+  }
+
+  async update(id: string, dto: UpdateEventDto) {
+    return await this.prisma.event.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.visibility !== undefined && { visibility: dto.visibility }),
+        ...(dto.categories !== undefined && { categories: dto.categories }),
+        ...(dto.language !== undefined && { language: dto.language }),
+        ...(dto.tags !== undefined && { tags: dto.tags }),
+        ...(dto.onSite && { onSiteEvent: { update: dto.onSite } }),
+        ...(dto.virtual && {
+          virtualEvent: {
+            update: {
+              maxAttendees: dto.virtual.maxAttendees,
+              maxCollaborators: dto.virtual.maxCollaborators,
+              requiresRequest: dto.virtual.requiresRequest,
+              startDate: dto.virtual.startDate,
+              endDate: dto.virtual.endDate,
+              platforms: dto.virtual.platforms
+                ? { deleteMany: {}, create: dto.virtual.platforms }
+                : undefined,
+            },
+          },
+        }),
+      },
+      include: this.detailInclude,
+    });
   }
 
   async findEventIdsByDistance(params: {

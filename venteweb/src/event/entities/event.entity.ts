@@ -1,5 +1,10 @@
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
-import { Category, EventMode, ParticipationType, Visibility } from 'generated/prisma';
+import {
+  Category,
+  EventMode,
+  ParticipationType,
+  Visibility,
+} from 'generated/prisma';
 import { EventStatus } from 'src/core/interfaces/event-status.enum';
 import { CreateParticipationDto } from 'src/participation/dto/create-participation.dto';
 import { CreateRequestParticipationDto } from 'src/participation/dto/create-request-participation.dto';
@@ -39,8 +44,12 @@ export class OnSiteEventDetails {
 
   constructor(partial: Partial<OnSiteEventDetails> = {}) {
     Object.assign(this, partial);
-    this.requests = (partial.requests ?? []).map((request) => new ParticipationRequest(request));
-    this.invitations = (partial.invitations ?? []).map((invitation) => new Invitation(invitation));
+    this.requests = (partial.requests ?? []).map(
+      (request) => new ParticipationRequest(request),
+    );
+    this.invitations = (partial.invitations ?? []).map(
+      (invitation) => new Invitation(invitation),
+    );
     this.ratings = (partial.ratings ?? []).map((rating) => new Rating(rating));
   }
 }
@@ -62,9 +71,15 @@ export class VirtualEventDetails {
 
   constructor(partial: Partial<VirtualEventDetails> = {}) {
     Object.assign(this, partial);
-    this.platforms = (partial.platforms ?? []).map((platform) => new VirtualPlatform(platform));
-    this.requests = (partial.requests ?? []).map((request) => new ParticipationRequest(request));
-    this.invitations = (partial.invitations ?? []).map((invitation) => new Invitation(invitation));
+    this.platforms = (partial.platforms ?? []).map(
+      (platform) => new VirtualPlatform(platform),
+    );
+    this.requests = (partial.requests ?? []).map(
+      (request) => new ParticipationRequest(request),
+    );
+    this.invitations = (partial.invitations ?? []).map(
+      (invitation) => new Invitation(invitation),
+    );
     this.ratings = (partial.ratings ?? []).map((rating) => new Rating(rating));
   }
 }
@@ -73,6 +88,7 @@ export class Event {
   id: string;
   organizerId: string;
   poster?: string | null;
+  canceledAt?: Date | null;
   name: string;
   categories: Category[];
   description: string;
@@ -104,7 +120,9 @@ export class Event {
       : normalized.virtual
         ? new VirtualEventDetails(normalized.virtual)
         : null;
-    this.participations = (partial.participations ?? []).map((participation) => new Participation(participation));
+    this.participations = (partial.participations ?? []).map(
+      (participation) => new Participation(participation),
+    );
   }
 
   get startDate(): Date {
@@ -120,7 +138,9 @@ export class Event {
   }
 
   get maxCollaborators(): number | null | undefined {
-    return this.onSiteEvent?.maxCollaborators ?? this.virtualEvent?.maxCollaborators;
+    return (
+      this.onSiteEvent?.maxCollaborators ?? this.virtualEvent?.maxCollaborators
+    );
   }
 
   get lat(): number {
@@ -140,7 +160,11 @@ export class Event {
   }
 
   get requiresRequest(): boolean {
-    return this.onSiteEvent?.requiresRequest ?? this.virtualEvent?.requiresRequest ?? false;
+    return (
+      this.onSiteEvent?.requiresRequest ??
+      this.virtualEvent?.requiresRequest ??
+      false
+    );
   }
 
   get totalRate(): number | null | undefined {
@@ -164,13 +188,18 @@ export class Event {
   }
 
   hasMode(mode: EventMode): boolean {
-    return mode === EventMode.OnSite ? Boolean(this.onSiteEvent) : Boolean(this.virtualEvent);
+    return mode === EventMode.OnSite
+      ? Boolean(this.onSiteEvent)
+      : Boolean(this.virtualEvent);
   }
 
   modeDetails(mode: EventMode): OnSiteEventDetails | VirtualEventDetails {
-    const details = mode === EventMode.OnSite ? this.onSiteEvent : this.virtualEvent;
+    const details =
+      mode === EventMode.OnSite ? this.onSiteEvent : this.virtualEvent;
     if (!details) {
-      throw new BadRequestException(`Event mode ${mode} is not available for this event`);
+      throw new BadRequestException(
+        `Event mode ${mode} is not available for this event`,
+      );
     }
     return details;
   }
@@ -195,18 +224,30 @@ export class Event {
     return [...(this.virtualEvent?.platforms ?? [])];
   }
 
-  hasAlreadyParticipated(userId?: string, externalUserId?: string, eventMode?: EventMode) {
-    const pool = eventMode == null
-      ? this.participations
-      : this.participations.filter((participation) => (participation.eventMode ?? EventMode.OnSite) === eventMode);
+  hasAlreadyParticipated(
+    userId?: string,
+    externalUserId?: string,
+    eventMode?: EventMode,
+  ) {
+    const pool =
+      eventMode == null
+        ? this.participations
+        : this.participations.filter(
+            (participation) =>
+              (participation.eventMode ?? EventMode.OnSite) === eventMode,
+          );
     if (externalUserId) {
-      return pool.some((participation) => participation.externalUserId === externalUserId);
+      return pool.some(
+        (participation) => participation.externalUserId === externalUserId,
+      );
     }
     return pool.some((participation) => participation.userId === userId);
   }
 
   private participationsForMode(mode: EventMode) {
-    return this.participations.filter((participation) => (participation.eventMode ?? EventMode.OnSite) === mode);
+    return this.participations.filter(
+      (participation) => (participation.eventMode ?? EventMode.OnSite) === mode,
+    );
   }
 
   recalculateRate(mode: EventMode = this.canonicalMode()): void {
@@ -223,17 +264,27 @@ export class Event {
       return;
     }
 
-    const sum = rated.reduce((acc, participation) => acc + (participation.rating?.score ?? 0), 0);
+    const sum = rated.reduce(
+      (acc, participation) => acc + (participation.rating?.score ?? 0),
+      0,
+    );
     this.assignModeRatingAggregate(mode, sum / rated.length, rated.length);
   }
 
-  private assignModeRatingAggregate(mode: EventMode, totalRate: number | null, ratingCount: number): void {
+  private assignModeRatingAggregate(
+    mode: EventMode,
+    totalRate: number | null,
+    ratingCount: number,
+  ): void {
     const target = this.modeDetails(mode);
     target.totalRate = totalRate;
     target.ratingCount = ratingCount;
   }
 
-  private canGetVolunteerRequests(request: CreateRequestParticipationDto, mode: EventMode) {
+  private canGetVolunteerRequests(
+    request: CreateRequestParticipationDto,
+    mode: EventMode,
+  ) {
     const details = this.modeDetails(mode);
     const isUpcoming = this.statusForMode(mode) === EventStatus.Upcoming;
     if (!isUpcoming) {
@@ -243,7 +294,9 @@ export class Event {
     }
 
     if (request.userId === this.organizerId) {
-      throw new BadRequestException('No puedes pedir colaborar en tu propio evento!');
+      throw new BadRequestException(
+        'No puedes pedir colaborar en tu propio evento!',
+      );
     }
 
     if (this.hasAlreadyParticipated(request.userId, undefined, mode)) {
@@ -252,13 +305,19 @@ export class Event {
       );
     }
 
-    const hasAlreadyRequested = details.requests.some((existingRequest) => existingRequest.userId === request.userId);
+    const hasAlreadyRequested = details.requests.some(
+      (existingRequest) => existingRequest.userId === request.userId,
+    );
     if (hasAlreadyRequested) {
-      throw new BadRequestException('Ya hay una petición de voluntariado pendiente para este modo del evento');
+      throw new BadRequestException(
+        'Ya hay una petición de voluntariado pendiente para este modo del evento',
+      );
     }
 
     if (!details.requiresRequest) {
-      throw new BadRequestException('Este modo del evento no requiere peticiones para colaborar!');
+      throw new BadRequestException(
+        'Este modo del evento no requiere peticiones para colaborar!',
+      );
     }
   }
 
@@ -274,7 +333,9 @@ export class Event {
     );
   }
 
-  addRequestParticipation(createRequestParticipationDto: CreateRequestParticipationDto): ParticipationRequest {
+  addRequestParticipation(
+    createRequestParticipationDto: CreateRequestParticipationDto,
+  ): ParticipationRequest {
     const mode = createRequestParticipationDto.eventMode ?? EventMode.OnSite;
     this.canGetVolunteerRequests(createRequestParticipationDto, mode);
     const requestParticipation = new ParticipationRequest({
@@ -288,17 +349,23 @@ export class Event {
   acceptRequest(createParticipationDto: CreateParticipationDto) {
     const mode = createParticipationDto.eventMode ?? EventMode.OnSite;
     const request = this.modeDetails(mode).requests.find(
-      (existingRequest) => existingRequest.id === createParticipationDto.requestId,
+      (existingRequest) =>
+        existingRequest.id === createParticipationDto.requestId,
     );
     if (!request) {
-      throw new BadRequestException('La petición solicitada para aceptar no existe');
+      throw new BadRequestException(
+        'La petición solicitada para aceptar no existe',
+      );
     }
     if (request.userId !== createParticipationDto.userId) {
       throw new BadRequestException(
         'La request de voluntariado no es del usuario que quieres agregar como colaborador',
       );
     }
-    return this.addCollaborator({ ...createParticipationDto, eventMode: mode }, { request: true });
+    return this.addCollaborator(
+      { ...createParticipationDto, eventMode: mode },
+      { request: true },
+    );
   }
 
   addAttendee(
@@ -311,7 +378,9 @@ export class Event {
       (participation) => participation.type === ParticipationType.Attendance,
     );
     if (details.maxAttendees && details.maxAttendees <= attendees.length) {
-      throw new BadRequestException('No hay más cupos para atender como público :(');
+      throw new BadRequestException(
+        'No hay más cupos para atender como público :(',
+      );
     }
     if (
       this.hasAlreadyParticipated(
@@ -320,7 +389,9 @@ export class Event {
         mode,
       )
     ) {
-      throw new BadRequestException('Already participating in this event mode!');
+      throw new BadRequestException(
+        'Already participating in this event mode!',
+      );
     }
     const participation = new Participation({
       ...createParticipationDto,
@@ -328,7 +399,9 @@ export class Event {
     });
     return {
       participation,
-      invitationId: from?.invitation ? createParticipationDto.invitationId : null,
+      invitationId: from?.invitation
+        ? createParticipationDto.invitationId
+        : null,
     };
   }
 
@@ -342,11 +415,21 @@ export class Event {
         'No puedes colaborar en un evento con una participación de tipo "Attendance"',
       );
     }
-    if (this.hasAlreadyParticipated(createParticipationDto.userId, undefined, mode)) {
-      throw new BadRequestException('Already participating in this event mode!');
+    if (
+      this.hasAlreadyParticipated(
+        createParticipationDto.userId,
+        undefined,
+        mode,
+      )
+    ) {
+      throw new BadRequestException(
+        'Already participating in this event mode!',
+      );
     }
     if (!this.hasAvailableSlots(mode)) {
-      throw new BadRequestException('No hay más cupos para colaborar en este modo del evento :(');
+      throw new BadRequestException(
+        'No hay más cupos para colaborar en este modo del evento :(',
+      );
     }
     const participation = new Participation({
       ...createParticipationDto,
@@ -355,7 +438,9 @@ export class Event {
     return {
       participation,
       requestId: from?.request ? createParticipationDto.requestId : null,
-      invitationId: from?.invitation ? createParticipationDto.invitationId : null,
+      invitationId: from?.invitation
+        ? createParticipationDto.invitationId
+        : null,
     };
   }
 
@@ -363,7 +448,11 @@ export class Event {
     participant: User,
     requester: User,
     createParticipationDto: CreateParticipationDto,
-  ): { participation: Participation; requestId?: string; invitationId?: string | null } {
+  ): {
+    participation: Participation;
+    requestId?: string;
+    invitationId?: string | null;
+  } {
     const mode = createParticipationDto.eventMode ?? EventMode.OnSite;
     if (this.statusForMode(mode) !== EventStatus.Upcoming) {
       throw new BadRequestException(
@@ -372,20 +461,26 @@ export class Event {
     }
 
     if (participant.id === this.organizerId) {
-      throw new BadRequestException('No puedes participar en tu propio evento!');
+      throw new BadRequestException(
+        'No puedes participar en tu propio evento!',
+      );
     }
 
     const requesterIsCreator = requester.id === this.organizerId;
 
     if (createParticipationDto.requestId) {
       if (!requesterIsCreator) {
-        throw new ForbiddenException('Solo el creador del evento puede aceptar peticiones!');
+        throw new ForbiddenException(
+          'Solo el creador del evento puede aceptar peticiones!',
+        );
       }
       return this.acceptRequest({ ...createParticipationDto, eventMode: mode });
     }
 
     if (requesterIsCreator) {
-      throw new BadRequestException('No puedes participar en tu propio evento!');
+      throw new BadRequestException(
+        'No puedes participar en tu propio evento!',
+      );
     }
 
     if (requester.id !== participant.id) {
@@ -407,10 +502,16 @@ export class Event {
 
   removeRequest(requestId: string, userWhoAskToRemove: User) {
     const request =
-      this.onSiteEvent?.requests.find((existingRequest) => existingRequest.id === requestId) ??
-      this.virtualEvent?.requests.find((existingRequest) => existingRequest.id === requestId);
+      this.onSiteEvent?.requests.find(
+        (existingRequest) => existingRequest.id === requestId,
+      ) ??
+      this.virtualEvent?.requests.find(
+        (existingRequest) => existingRequest.id === requestId,
+      );
     if (!request) {
-      throw new BadRequestException('La petición solicitada para eliminar no existe');
+      throw new BadRequestException(
+        'La petición solicitada para eliminar no existe',
+      );
     }
     const isRejection = userWhoAskToRemove.id === this.organizerId;
     const isCancellation = userWhoAskToRemove.id === request.userId;
@@ -427,7 +528,9 @@ export class Event {
       (existingParticipation) => existingParticipation.id === participationId,
     );
     if (!participation) {
-      throw new BadRequestException('La participación solicitada para eliminar no existe');
+      throw new BadRequestException(
+        'La participación solicitada para eliminar no existe',
+      );
     }
 
     const mode = participation.eventMode ?? EventMode.OnSite;

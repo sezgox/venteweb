@@ -24,10 +24,7 @@ const { PrismaClient: PrismaClientBase } = require(
 ) as { PrismaClient: new () => PrismaClientType };
 
 @Injectable()
-export class PrismaService
-  extends PrismaClientBase
-  implements OnModuleInit
-{
+export class PrismaService extends PrismaClientBase implements OnModuleInit {
   async onModuleInit() {
     await this.$connect();
   }

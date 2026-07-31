@@ -167,7 +167,8 @@ export class UserScheduler {
       const oneHourEvents =
         await this.eventsRepository.findEventsStartingBetween(0, 1);
       for (const event of oneHourEvents) {
-        const startDate = event.onSiteEvent?.startDate ?? event.virtualEvent?.startDate;
+        const startDate =
+          event.onSiteEvent?.startDate ?? event.virtualEvent?.startDate;
         this.eventEmitter.emit('reminder.created', {
           eventId: event.id,
           userId: event.organizerId,

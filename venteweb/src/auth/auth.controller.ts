@@ -117,8 +117,7 @@ export class AuthController {
       });
     } catch (err) {
       const status = this.getErrorStatus(err);
-      const message =
-        err instanceof Error ? err.message : 'Activation failed';
+      const message = err instanceof Error ? err.message : 'Activation failed';
       return res.status(status).json({
         success: false,
         message,
